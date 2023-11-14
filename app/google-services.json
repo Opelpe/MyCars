@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "365835540954",
+    "project_id": "mycarsapp-47260",
+    "storage_bucket": "mycarsapp-47260.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365835540954:android:403666d4e23e8aea0708e3",
+        "android_client_info": {
+          "package_name": "com.pepe.mycars"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "365835540954-j870f0lqs3u32ob2ec4mkdst2msfds62.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pepe.mycars",
+            "certificate_hash": "a5e70be479fc2b90cf60adb6b03086a12baa4b3b"
+          }
+        },
+        {
+          "client_id": "365835540954-n2skbu1l1a8k36pf2glhdmljm52sugdh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7fYaAdYx1vTcxRFSejhrFn3JTW8LB9h0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "365835540954-n2skbu1l1a8k36pf2glhdmljm52sugdh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

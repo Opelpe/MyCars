@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -60,9 +61,16 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
+//    DAGGER2
     implementation ("com.google.dagger:dagger:2.48.1")
     implementation ("com.google.dagger:dagger-android-support:2.48.1")
     kapt ("com.google.dagger:dagger-android-processor:2.48.1")
     kapt ("com.google.dagger:dagger-compiler:2.48.1")
+
+//    FIREBASE
+    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
 
 }
