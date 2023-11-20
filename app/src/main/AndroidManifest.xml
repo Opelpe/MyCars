@@ -23,6 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".app.ui.view.login.LoginActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".app.ui.view.main.MainViewActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

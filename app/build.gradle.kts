@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.gms.google-services")
+    id ("com.google.dagger.hilt.android")
 }
 
 android {
@@ -61,16 +62,22 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-//    DAGGER2
-    implementation ("com.google.dagger:dagger:2.48.1")
-    implementation ("com.google.dagger:dagger-android-support:2.48.1")
-    kapt ("com.google.dagger:dagger-android-processor:2.48.1")
-    kapt ("com.google.dagger:dagger-compiler:2.48.1")
+//    DAGGER
+    implementation ("com.google.dagger:hilt-android:2.48.1")
+    kapt ("com.google.dagger:hilt-compiler:2.48.1")
+    testImplementation ("com.google.dagger:hilt-android-testing:2.48.1")
+    kaptTest ("com.google.dagger:hilt-compiler:2.48.1")
+
+    // Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
 
 //    FIREBASE
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+
+    implementation ("io.reactivex.rxjava3:rxjava:3.1.1")
 
 }

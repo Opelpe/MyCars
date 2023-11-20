@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.VehicleExpensesApplication.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/pistachio</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+    </style>
+
+    <style name="green_round_button" parent="Widget.AppCompat.ImageButton">
+        <item name="android:backgroundTint">@color/green</item>
+        <item name="android:background">@drawable/circle_button</item>
+        <item name="android:tint">@color/white</item>
+    </style>
+
+    <style name="green_tint" parent="Widget.AppCompat.ImageButton">
+        <item name="android:tint">@color/green</item>
+    </style>
+
+    <style name="green_backgroundTint" parent="Theme.AppCompat.DayNight">
+        <item name="android:backgroundTint">@color/green</item>
+    </style>
+
+    <style name="green_background" parent="Theme.AppCompat.DayNight">
+        <item name="android:background">@color/green</item>
+    </style>
+
+
+</resources>

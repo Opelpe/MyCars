@@ -1,48 +1,44 @@
-package com.pepe.mycars.app.ui.view.splash
+package com.pepe.mycars.app.ui.view.login
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.pepe.mycars.app.ui.view.login.LoginActivity
+import com.pepe.mycars.app.MyCarsApp
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
+import com.pepe.mycars.app.ui.viewmodel.login.LoginViewModel
 import com.pepe.mycars.app.ui.viewmodel.splash.SplashViewModel
-import com.pepe.mycars.databinding.ActivitySplashBinding
+import com.pepe.mycars.databinding.ActivityLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity() {
+class LoginActivity: AppCompatActivity() {
 
-    private var binding: ActivitySplashBinding? = null
+    private lateinit var binding: ActivityLoginBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivitySplashBinding.inflate(layoutInflater)
-        setContentView(binding!!.root)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val vm: SplashViewModel by viewModels()
+        val vm: LoginViewModel by viewModels()
+        vm.viewState.observe(this){
 
-        //click -> vm.onClick()
-
-        vm.viewState.observe(this) {
-
-            if (it.showToastMessage) {
+            if (it.showToastMessage){
                 Toast.makeText(this, it.toastMessage, Toast.LENGTH_SHORT).show()
+
             }
 
             if (it.loggedIn){
                 startMainViewActivity()
-            }else{
-                startLoginActivity()
             }
         }
 
-    }
+        binding.localLoginButton.setOnClickListener { v ->
+            vm.onGuestButtonClicked()
+        }
 
-    private fun startLoginActivity() {
-        intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
     }
 
     private fun startMainViewActivity() {
@@ -51,7 +47,7 @@ class SplashActivity : AppCompatActivity() {
     }
 }
 
-data class SplashViewModelState(
+data class LoginViewModelState(
     val showToastMessage: Boolean = false,
     val loggedIn: Boolean = false,
     val toastMessage: String = "",

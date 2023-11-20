@@ -2,15 +2,14 @@ package com.pepe.mycars.app
 
 import android.app.Application
 import android.content.Context
-import com.pepe.mycars.app.di.component.AppComponent
-import com.pepe.mycars.app.di.component.DaggerAppComponent
+import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
+@HiltAndroidApp
 class MyCarsApp : Application(){
 
     private var appContext: Context? = null
 
-    private val appComponent: AppComponent = DaggerAppComponent.create()
 
     fun get(): MyCarsApp {
         return appContext?.applicationContext as MyCarsApp
@@ -18,10 +17,6 @@ class MyCarsApp : Application(){
 
     fun getAppContext(): Context? {
         return appContext
-    }
-
-    fun getAppComponent(): AppComponent {
-        return appComponent
     }
 
     override fun onCreate() {
