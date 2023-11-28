@@ -17,4 +17,5 @@
     <color name="pistachio">#A2F484</color>
     <color name="pink">#E81D3C</color>
     <color name="grey">#979797</color>
+    <color name="progress_background">#16979797</color>
 </resources>

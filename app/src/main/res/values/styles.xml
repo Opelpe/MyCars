@@ -28,5 +28,31 @@
         <item name="android:background">@color/green</item>
     </style>
 
+    <style name="commonConfirmButtonStyle">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+
+    <style name="commonCancelButtonStyle">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@drawable/font_color_grey_white_selected</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+
+    <style name="emailInputStyle">
+        <item name="android:hint">@string/contact_emailAddress_example_title</item>
+        <item name="android:importantForAutofill">yes</item>
+        <item name="android:inputType">textEmailAddress</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+    </style>
+
+    <style name="passwordInputStyle">
+        <item name="android:hint">@string/contact_password_example_title</item>
+        <item name="android:importantForAutofill">yes</item>
+        <item name="android:inputType">textPassword</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:minLines">@integer/fui_min_password_length</item>
+    </style>
 
 </resources>

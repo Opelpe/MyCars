@@ -1,3 +1,56 @@
 <resources>
     <string name="app_name">MyCars</string>
+
+    <string name="settings_text">Settings</string>
+    <string name="history_text">History</string>
+    <string name="main_text">Main</string>
+
+    <string name="main_title">MAIN</string>
+    <string name="history_title">HISTORY</string>
+    <string name="settings_title">SETTINGS</string>
+    <string name="average_usage_title">AVERAGE USAGE</string>
+    <string name="traveling_costs_title">TRAVELING COSTS</string>
+    <string name="latest_refill_title">LATEST REFILL:</string>
+    <string name="in_total_title">IN TOTAL:</string>
+
+    <string name="traveling_costs_units">PLN/100KM</string>
+    <string name="usage_units">L/100KM</string>
+    <string name="price_units">PLN</string>
+    <string name="mileage_units">KM</string>
+
+    <string name="next_text">NEXT</string>
+    <string name="contact_emailAddress_title">EMAIL ADRESS:</string>
+    <string name="contact_password_title">PASSWORD:</string>
+    <string name="welcome_back_text">Welcome back!</string>
+    <string name="log_in_text">LOG IN</string>
+    <string name="contact_name_title">NAME:</string>
+    <string name="action_create">Create</string>
+    <string name="data_null_small_text">---</string>
+    <string name="data_null_big_text">---,--</string>
+    <string name="date_null_text">---.---.------</string>
+    <string name="capacity_units">L</string>
+    <string name="save_text">SAVE</string>
+    <string name="log_out_text">LOG OUT</string>
+    <string name="cloud_sync_text">\"CLOUD SYNC: \"</string>
+    <string name="offline_text">OFFLINE</string>
+    <string name="online_text">ONLINE</string>
+    <string name="date_text">DATE</string>
+    <string name="date_example_text">DD / MM / YYYY</string>
+    <string name="current_mileage_text">CURRENT MILEAGE</string>
+    <string name="refilled_fuel_text">REFILLED FUEL</string>
+    <string name="price_of_fuel_text">PRICE OF FUEL</string>
+    <string name="constraints_internalError_title">Something goes wrong</string>
+    <string name="notification_disabled_title">Notifications has been disabled</string>
+    <string name="contact_emailAddress_example_title">example@email.com</string>
+    <string name="contact_password_example_title">******</string>
+    <string name="contact_name_example_title">ExampleName</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_submit">Submit</string>
+    <string name="word_or">Or</string>
+    <string name="login_googleSignIn_title">Google sign in</string>
+    <string name="login_createAccount_description">No account yet?</string>
+    <string name="login_createAccount_title">Create account</string>
+    <string name="action_loginAndSynchronize_title">Log in \n and synchronize data with cloud</string>
+    <string name="action_useAsGuest_title">Use as guest</string>
+    <string name="action_doNotAskAgain_title">Don\'t ask again\n</string>
 </resources>
