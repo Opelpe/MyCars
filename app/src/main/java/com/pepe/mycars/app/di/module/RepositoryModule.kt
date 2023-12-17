@@ -1,28 +1,42 @@
 package com.pepe.mycars.app.di.module
 
-import com.pepe.mycars.app.data.domain.repository.MyRepository
+import android.content.SharedPreferences
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
+import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.data.repository.MyRepositoryImpl
+import com.pepe.mycars.app.data.repository.AuthRepositoryImpl
 import com.pepe.mycars.app.data.repository.UserRepositoryImpl
-import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module
 @InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
+@Module
+object RepositoryModule {
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindMyRepository(
-        myRepositoryImpl: MyRepositoryImpl
-    ): MyRepository
+    fun provideAuthRepository(
+        database: FirebaseFirestore,
+        auth: FirebaseAuth,
+        appPreferences: SharedPreferences,
+        gson: Gson
+    ): AuthRepository {
+        return AuthRepositoryImpl(auth,database,appPreferences,gson)
+    }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindUserRepository(
-        userRepositoryImpl: UserRepositoryImpl
-    ): UserRepository
+    fun provideUserRepository(
+        database: FirebaseFirestore,
+        auth: FirebaseAuth,
+        appPreferences: SharedPreferences,
+        gson: Gson
+    ): UserRepository {
+        return UserRepositoryImpl(database, auth, appPreferences,gson)
+    }
 }
