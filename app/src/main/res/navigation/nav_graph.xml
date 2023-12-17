@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_main">
+
+    <fragment
+        android:id="@+id/navigation_main"
+        android:name="com.pepe.mycars.app.ui.view.fragment.MainFragment"
+        android:label="MAIN"
+        tools:layout="@layout/fragment_main" />
+
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="com.pepe.mycars.app.ui.view.fragment.HistoryFragment"
+        android:label="@string/history_title"
+        tools:layout="@layout/fragment_history" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.pepe.mycars.app.ui.view.fragment.SettingsFragment"
+        android:label="@string/settings_text"
+        tools:layout="@layout/fragment_settings" />
+
+</navigation>
