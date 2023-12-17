@@ -92,6 +92,7 @@ class MainViewActivity : AppCompatActivity() {
     private fun startLoginActivity() {
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun askNotificationPermission() {

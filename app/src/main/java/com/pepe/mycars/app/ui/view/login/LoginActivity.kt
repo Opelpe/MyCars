@@ -85,6 +85,7 @@ class LoginActivity : AppCompatActivity() {
     private fun startMainViewActivity() {
         intent = Intent(this, MainViewActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
 

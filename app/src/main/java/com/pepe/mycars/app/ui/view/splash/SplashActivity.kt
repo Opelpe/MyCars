@@ -46,10 +46,12 @@ class SplashActivity : AppCompatActivity() {
     private fun startLoginActivity() {
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun startMainViewActivity() {
         intent = Intent(this, MainViewActivity::class.java)
         startActivity(intent)
+        finish()
     }
 }
