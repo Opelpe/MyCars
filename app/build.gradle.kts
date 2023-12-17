@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.gms.google-services")
     id ("com.google.dagger.hilt.android")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -56,8 +57,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.5")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.7.5")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.7.6")
+    implementation ("androidx.fragment:fragment-ktx:1.6.2")
+
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -74,10 +79,17 @@ dependencies {
 
 //    FIREBASE
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
-    implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.firebaseui:firebase-ui-auth:8.0.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation ("com.google.firebase:firebase-messaging-ktx:23.3.1")
+    implementation ("com.google.firebase:firebase-storage-ktx:20.3.0")
 
     implementation ("io.reactivex.rxjava3:rxjava:3.1.1")
+
+    implementation ("com.google.code.gson:gson:2.8.9")
 
 }
