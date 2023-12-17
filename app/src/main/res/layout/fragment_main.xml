@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.pepe.mycars.app.ui.view.fragment.MainFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--        <include-->
+        <!--            android:id="@+id/mainFragmentToolbar"-->
+        <!--            layout="@layout/toolbar_top" />-->
+
+        <TextView
+            android:id="@+id/averageUsageTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/average_usage_title"
+            android:textAlignment="center"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintEnd_toStartOf="@id/travelingCostsTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/averageUsageScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/data_null_big_text"
+            android:paddingStart="5dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="5dp"
+            android:textSize="@dimen/text_xl"
+            app:layout_constraintEnd_toEndOf="@id/averageUsageTitle"
+            app:layout_constraintStart_toStartOf="@id/averageUsageTitle"
+            app:layout_constraintTop_toBottomOf="@id/averageUsageTitle" />
+
+        <TextView
+            android:id="@+id/averageUsageUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/usage_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintEnd_toEndOf="@id/averageUsageScore"
+            app:layout_constraintTop_toBottomOf="@id/averageUsageScore"
+            tools:ignore="SmallSp" />
+
+        <TextView
+            android:id="@+id/travelingCostsTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/traveling_costs_title"
+            android:textAlignment="center"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/averageUsageTitle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/travelingCostsScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/data_null_big_text"
+            android:paddingStart="5dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="5dp"
+            android:textSize="@dimen/text_xl"
+            app:layout_constraintEnd_toEndOf="@id/travelingCostsTitle"
+            app:layout_constraintStart_toStartOf="@id/travelingCostsTitle"
+            app:layout_constraintTop_toBottomOf="@id/travelingCostsTitle" />
+
+        <TextView
+            android:id="@+id/travelingCostsUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/traveling_costs_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintEnd_toEndOf="@id/travelingCostsScore"
+            app:layout_constraintTop_toBottomOf="@id/travelingCostsScore" />
+
+
+        <ImageButton
+            android:id="@+id/refillButton"
+            style="@style/green_round_button"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="35dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_gas_station"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/travelingCostsUnits"
+
+            />
+
+        <TextView
+            android:id="@+id/lastRefillTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="30dp"
+            android:paddingBottom="15dp"
+            android:text="@string/latest_refill_title"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/refillButton" />
+
+
+        <TextView
+            android:id="@+id/lRefillUsageUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="3dp"
+            android:text="@string/usage_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintStart_toEndOf="@id/lRefillUsageScore"
+            app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
+
+        <TextView
+            android:id="@+id/lRefillUsageScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/data_null_small_text"
+            android:paddingStart="@dimen/big_text_pad"
+            android:paddingTop="@dimen/big_text_pad"
+            android:paddingEnd="@dimen/big_text_pad"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
+
+        <View
+            android:id="@+id/lRefillDividerLeft"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="15dp"
+            android:background="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/lRefillUsageScore"
+            app:layout_constraintStart_toStartOf="@id/tRefillDividerLeft"
+            app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
+
+        <TextView
+            android:id="@+id/lRefillPriceUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="3dp"
+            android:text="@string/price_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintStart_toEndOf="@id/lRefillPriceScore"
+            app:layout_constraintTop_toTopOf="@id/lRefillPriceScore" />
+
+        <TextView
+            android:id="@+id/lRefillPriceScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:hint="@string/data_null_small_text"
+            android:paddingStart="@dimen/big_text_pad"
+            android:paddingTop="@dimen/big_text_pad"
+            android:paddingEnd="@dimen/big_text_pad"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintStart_toEndOf="@id/lRefillDividerRight"
+            app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
+
+        <View
+            android:id="@+id/lRefillDividerRight"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:background="@color/black"
+            android:padding="3dp"
+            app:layout_constraintBottom_toBottomOf="@id/lRefillUsageScore"
+            app:layout_constraintEnd_toEndOf="@id/tRefillDividerRight"
+            app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
+
+        <TextView
+            android:id="@+id/lRefillMileageUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="3dp"
+            android:text="@string/mileage_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintEnd_toStartOf="@id/lRefillDividerLeft"
+            app:layout_constraintTop_toTopOf="@id/lRefillMileageScore" />
+
+        <TextView
+            android:id="@+id/lRefillMileageScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/data_null_small_text"
+            android:padding="3dp"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintEnd_toStartOf="@id/lRefillMileageUnits"
+            app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
+
+        <View
+            android:id="@+id/totalRefillBackgroundView"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginTop="60dp"
+            android:background="@color/grey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lRefillUsageScore" />
+
+        <TextView
+            android:id="@+id/totalRefillTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="15dp"
+            android:text="@string/in_total_title"
+            android:textSize="@dimen/text_size_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/totalRefillBackgroundView" />
+
+        <TextView
+            android:id="@+id/tRefillCashScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/drawable_start_text_padding"
+            android:hint="@string/data_null_small_text"
+            android:paddingStart="@dimen/big_text_pad"
+            android:paddingEnd="@dimen/big_text_pad"
+            android:textSize="@dimen/text_size_normal"
+            app:drawableStartCompat="@drawable/ic_money"
+            app:drawableTint="@color/green"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/totalRefillTitle" />
+
+        <TextView
+            android:id="@+id/tRefillCashUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="3dp"
+            android:text="@string/price_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintStart_toEndOf="@id/tRefillCashScore"
+            app:layout_constraintTop_toTopOf="@id/tRefillCashScore" />
+
+        <View
+            android:id="@+id/tRefillDividerRight"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:background="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/tRefillCashScore"
+            app:layout_constraintStart_toEndOf="@id/tRefillCashUnits"
+            app:layout_constraintTop_toBottomOf="@id/totalRefillTitle" />
+
+        <TextView
+            android:id="@+id/tRefillVolumeScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:drawablePadding="@dimen/drawable_start_text_padding"
+            android:hint="@string/data_null_small_text"
+            android:paddingStart="@dimen/big_text_pad"
+            android:paddingEnd="@dimen/big_text_pad"
+            android:textSize="@dimen/text_size_normal"
+            app:drawableStartCompat="@drawable/ic_format"
+            app:drawableTint="@color/green"
+            app:layout_constraintStart_toEndOf="@id/tRefillDividerRight"
+            app:layout_constraintTop_toBottomOf="@id/totalRefillTitle" />
+
+        <TextView
+            android:id="@+id/tRefillVolumeUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="3dp"
+            android:text="@string/capacity_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintStart_toEndOf="@id/tRefillVolumeScore"
+            app:layout_constraintTop_toTopOf="@id/tRefillVolumeScore" />
+
+        <View
+            android:id="@+id/tRefillDividerLeft"
+            android:layout_width="2dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="15dp"
+            android:background="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/tRefillCashScore"
+            app:layout_constraintEnd_toStartOf="@id/tRefillCashScore"
+            app:layout_constraintTop_toBottomOf="@id/totalRefillTitle" />
+
+        <TextView
+            android:id="@+id/tRefillAdMileageScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/drawable_start_text_padding"
+            android:hint="@string/data_null_small_text"
+            android:paddingStart="@dimen/big_text_pad"
+            android:paddingEnd="@dimen/big_text_pad"
+            android:textSize="@dimen/text_size_normal"
+            app:drawableStartCompat="@drawable/ic_route"
+            app:drawableTint="@color/green"
+            app:layout_constraintEnd_toStartOf="@id/tRefillAdMileageUnits"
+            app:layout_constraintTop_toBottomOf="@id/totalRefillTitle" />
+
+        <TextView
+            android:id="@+id/tRefillAdMileageUnits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="15dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="3dp"
+            android:text="@string/mileage_units"
+            android:textSize="@dimen/text_small"
+            app:layout_constraintEnd_toStartOf="@id/tRefillDividerLeft"
+            app:layout_constraintTop_toTopOf="@id/tRefillAdMileageScore" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -1,63 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
+        android:id="@+id/progressView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.feautures.login.LoginActivity">
+        android:visibility="gone"
+        android:background="@color/progress_background">
+
+        <ProgressBar
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible" />
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/mainContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.view.login.LoginMainFragment">
 
         <ImageView
-            android:id="@+id/loginImageView"
+            android:id="@+id/lgoinCarLogo"
             android:layout_width="200dp"
             android:layout_height="250dp"
             android:layout_marginTop="100dp"
             android:src="@drawable/ic_car_logo"
-            app:layout_constraintEnd_toStartOf="@id/loginGasImageView"
+            app:layout_constraintEnd_toStartOf="@id/loginGasLogo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/green" />
 
         <ImageView
-            android:id="@+id/loginGasImageView"
+            android:id="@+id/loginGasLogo"
             android:layout_width="150dp"
             android:layout_height="250dp"
             android:layout_marginTop="100dp"
             android:padding="20dp"
-            android:src="@drawable/ic_baseline_local_gas_station_24"
+            android:src="@drawable/ic_gas_station"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/loginImageView"
+            app:layout_constraintStart_toEndOf="@id/lgoinCarLogo"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/green" />
 
         <Button
             android:id="@+id/accountLoginButton"
-            style="@style/green_backgroundTint"
+            style="@style/commonConfirmButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
+            android:background="@drawable/common_button_selectable"
             android:gravity="center"
-            android:padding="@dimen/text_normal"
-            android:text="LOG IN \n AND SYNCHRONIZE DATA WITH CLOUD"
+            android:padding="@dimen/space_12dp"
+            android:text="@string/action_loginAndSynchronize_title"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="@dimen/text_normal"
+            android:textSize="@dimen/text_size_small"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/loginImageView" />
+            app:layout_constraintTop_toBottomOf="@id/lgoinCarLogo" />
 
         <Button
-            android:id="@+id/localLoginButton"
+            android:id="@+id/anonymous_login_button"
+            style="@style/commonCancelButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/white"
-            android:padding="@dimen/text_normal"
-            android:text="USE AS GUEST"
-            android:textColor="@color/green"
-            android:textSize="@dimen/text_normal"
+            android:background="@drawable/common_button_cancel_selectable"
+            android:padding="@dimen/space_12dp"
+            android:text="@string/action_useAsGuest_title"
+            android:textSize="@dimen/text_size_small"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -68,11 +85,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:padding="@dimen/text_normal"
-            android:text="DON'T ASK AGAIN"
-            android:textSize="@dimen/text_normal"
+            android:gravity="center"
+            android:paddingTop="14dp"
+            android:paddingHorizontal="@dimen/space_12dp"
+            android:text="@string/action_doNotAskAgain_title"
+            android:textAllCaps="true"
+            android:textSize="@dimen/text_size_small"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/localLoginButton" />
+            app:layout_constraintTop_toBottomOf="@id/anonymous_login_button" />
+
+            <TextView
+                android:id="@+id/noAccountTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/login_createAccount_description"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@id/createAccountButton"
+                app:layout_constraintEnd_toStartOf="@id/createAccountButton"
+                app:layout_constraintTop_toTopOf="@id/createAccountButton" />
+
+
+            <TextView
+                android:id="@+id/createAccountButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:clickable="true"
+                android:paddingHorizontal="5dp"
+                android:text="@string/login_createAccount_title"
+                android:textAllCaps="true"
+                android:textColor="@color/green_dark"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</RelativeLayout>
