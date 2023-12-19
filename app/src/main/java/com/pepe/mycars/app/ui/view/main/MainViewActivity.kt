@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -35,16 +37,7 @@ class MainViewActivity : AppCompatActivity() {
         if (isGranted) {
             Firebase.messaging.subscribeToTopic("all")
                 .addOnCompleteListener { task ->
-                    //todo można 30 razy ładniej to zrobić: val msg2 = if (task.isSuccessful)
-                    //                        "Subscribed"
-                    //                    else
-                    //                        "Subscribe failed"
-
-
-                    var msg = "Subscribed"
-                    if (!task.isSuccessful) {
-                        msg = "Subscribe failed"
-                    }
+                    val msg = if (task.isSuccessful) "Subscribed" else "Subscribe failed"
                     Log.d("FCM", msg)
                 }
         } else {
@@ -57,50 +50,29 @@ class MainViewActivity : AppCompatActivity() {
         binding = ActivityMainViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setNavigation()
-//        askNotificationPermission()
+        askNotificationPermission()
+        observeUserViewSate()
+    }
 
+    private fun observeUserViewSate() {
         loggedInViewModel.getUserData()
-
-        loggedInViewModel.userStateModel2.observe(this){
-            when(it){
-                is UserViewState.Error ->  TODO() //tutaj można sobie wszsytko osblużyć i jest łądnie i bez zjebanych ifów
-                UserViewState.Loading -> TODO()
-                is UserViewState.Success -> TODO()
-            }
-        }
-
-
-        //todo zrob z tego osobna metoda ktora to bedzie wywolywana - dużo malych metod jest lepsze niz kilka duzych
-        loggedInViewModel.userStateModel.observe(this) {
-            //todo poco !!? przecież is loading jest nonnullable
-            if (it!!.isLoading) {
-                logMessage("Loading...")
-                    //todo czemu view nie reprezentuje loadingu? doadj jakiś progrs bar chociaż
-            }
-
-            if (it.error.isNotEmpty()) {
-                logMessage(it.error)
-                displayToast(it.error)
-            }
-
-            if (it.data != null) {
-                logMessage("user id: " + it.data.id)
-                //todo po co w tym konkretnuym przypadku caly UserModel? dlaczego to Activity ma dostęp do UserModel.country np? rzeczy które są nieporzebne nie powinny tu wogole być
-                val provider = it.data.providerType
-
-                    //todo 1. umiesz kliknąć crtl + alt + L? to to zrób, ta konkatenacja strinaga powinna być w viewmodelu bo to logika
-                var msg = "Logged as: "
-                msg += if (it.data.email.isNotEmpty()){
-                    it.data.email + " \n $provider"
-                }else{
-                    it.data.name
+        loggedInViewModel.userViewState.observe(this) {
+            when (it) {
+                UserViewState.Loading -> setProgressVisibility(true)
+                is UserViewState.Error -> {
+                    setProgressVisibility(false)
+                    displayToast(it.errorMsg)
                 }
-                displayToast(msg)
-            }
 
-            if(!it.isLoggedIn){
-                logMessage("user loggingOut")
-                startLoginActivity()
+                is UserViewState.Success -> {
+                    setProgressVisibility(false)
+                    if (it.successMsg.isNotEmpty()) {
+                        displayToast(it.successMsg)
+                    }
+                    if (!it.isLoggedIn) {
+                        startLoginActivity()
+                    }
+                }
             }
         }
     }
@@ -113,12 +85,12 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun startLoginActivity() {
-        //todo WTF czemu używasz tego intetu a nie tworzysz nowego???
-        intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+        setProgressVisibility(true)
+        logMessage("user loggingOut")
+        startActivity(Intent(this@MainViewActivity, LoginActivity::class.java))
+        finish()
     }
 
-    //todo czemu masz syf w kodzie? nieużwane metody
     private fun askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) !=
@@ -129,4 +101,17 @@ class MainViewActivity : AppCompatActivity() {
         }
     }
 
+    private fun setProgressVisibility(loading: Boolean) {
+        if (loading) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            )
+            binding.progressView.visibility = View.VISIBLE
+        } else {
+            binding.progressView.visibility = View.GONE
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        }
+    }
 }
+

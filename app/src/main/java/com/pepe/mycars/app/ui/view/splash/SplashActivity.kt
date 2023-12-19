@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
 import com.pepe.mycars.app.utils.displayToast
+import com.pepe.mycars.app.utils.networkState.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivitySplashBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,41 +16,45 @@ import dagger.hilt.android.AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
-
     private val loggedInViewModel: LoggedInViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        observeUserViewSate()
+    }
 
-
-        loggedInViewModel.userStateModel.observe(this) {
-            val user = it.data
-            if (user != null) {
-                if (user.autoLogin) {
-                    startMainViewActivity()
-                } else {
-                    startLoginActivity()
+    private fun observeUserViewSate() {
+        loggedInViewModel.appStart()
+        loggedInViewModel.userViewState.observe(this) {
+            when (it) {
+                is UserViewState.Error -> {
+                    if (it.errorMsg.isNotEmpty()) {
+                        displayToast(it.errorMsg)
+                        displayActivity(ActivityId.LOGIN)
+                    }
                 }
-            }
 
-            if (it.error.isNotEmpty()){
-                displayToast(it.error)
-                startLoginActivity()
+                is UserViewState.Success -> {
+                    if (it.successMsg.isNotEmpty()) displayToast(it.successMsg)
+                    if (it.isLoggedIn) displayActivity(ActivityId.MAIN) else displayActivity(ActivityId.LOGIN)
+                }
+
+                else -> {}
             }
         }
-
-        loggedInViewModel.getUserData()
     }
 
-    private fun startLoginActivity() {
-        intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+    private fun displayActivity(activity: ActivityId) {
+        when(activity){
+            ActivityId.LOGIN -> startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+            ActivityId.MAIN -> startActivity(Intent(this@SplashActivity, MainViewActivity::class.java))
+        }
+        finish()
     }
+}
 
-    private fun startMainViewActivity() {
-        intent = Intent(this, MainViewActivity::class.java)
-        startActivity(intent)
-    }
+enum class ActivityId{
+    LOGIN,
+    MAIN
 }
