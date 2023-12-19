@@ -18,6 +18,7 @@ import com.pepe.mycars.R
 import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.logMessage
+import com.pepe.mycars.app.utils.networkState.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivityMainViewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +35,12 @@ class MainViewActivity : AppCompatActivity() {
         if (isGranted) {
             Firebase.messaging.subscribeToTopic("all")
                 .addOnCompleteListener { task ->
+                    //todo można 30 razy ładniej to zrobić: val msg2 = if (task.isSuccessful)
+                    //                        "Subscribed"
+                    //                    else
+                    //                        "Subscribe failed"
+
+
                     var msg = "Subscribed"
                     if (!task.isSuccessful) {
                         msg = "Subscribe failed"
@@ -53,9 +60,22 @@ class MainViewActivity : AppCompatActivity() {
 //        askNotificationPermission()
 
         loggedInViewModel.getUserData()
+
+        loggedInViewModel.userStateModel2.observe(this){
+            when(it){
+                is UserViewState.Error ->  TODO() //tutaj można sobie wszsytko osblużyć i jest łądnie i bez zjebanych ifów
+                UserViewState.Loading -> TODO()
+                is UserViewState.Success -> TODO()
+            }
+        }
+
+
+        //todo zrob z tego osobna metoda ktora to bedzie wywolywana - dużo malych metod jest lepsze niz kilka duzych
         loggedInViewModel.userStateModel.observe(this) {
+            //todo poco !!? przecież is loading jest nonnullable
             if (it!!.isLoading) {
                 logMessage("Loading...")
+                    //todo czemu view nie reprezentuje loadingu? doadj jakiś progrs bar chociaż
             }
 
             if (it.error.isNotEmpty()) {
@@ -65,7 +85,10 @@ class MainViewActivity : AppCompatActivity() {
 
             if (it.data != null) {
                 logMessage("user id: " + it.data.id)
+                //todo po co w tym konkretnuym przypadku caly UserModel? dlaczego to Activity ma dostęp do UserModel.country np? rzeczy które są nieporzebne nie powinny tu wogole być
                 val provider = it.data.providerType
+
+                    //todo 1. umiesz kliknąć crtl + alt + L? to to zrób, ta konkatenacja strinaga powinna być w viewmodelu bo to logika
                 var msg = "Logged as: "
                 msg += if (it.data.email.isNotEmpty()){
                     it.data.email + " \n $provider"
@@ -90,10 +113,12 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun startLoginActivity() {
+        //todo WTF czemu używasz tego intetu a nie tworzysz nowego???
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
 
+    //todo czemu masz syf w kodzie? nieużwane metody
     private fun askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) !=
