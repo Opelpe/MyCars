@@ -2,7 +2,6 @@ package com.pepe.mycars.app.ui.view.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
@@ -12,6 +11,7 @@ import com.pepe.mycars.app.ui.view.login.dialog.LoginDialog
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
 import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.displayToast
+import com.pepe.mycars.app.utils.networkState.AuthState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.ActivityLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,36 +20,60 @@ import dagger.hilt.android.AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private val authModel: AuthViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setButtonsTextColor()
+        bindButtons()
+        observeAuthState()
+    }
 
+    private fun observeAuthState() {
+        authViewModel.checkAuthInfo()
+        authViewModel.authState.observe(this) {
+            when (it) {
+                AuthState.Loading -> {
+                    setProgressVisibility(true)
+                }
+
+                is AuthState.Error -> {
+                    setProgressVisibility(false)
+                    if (it.errorMsg.isNotBlank()) {
+                        this@LoginActivity.displayToast(it.errorMsg)
+                    }
+                }
+
+                is AuthState.Success -> {
+                    setProgressVisibility(false)
+                    if (it.isLoggedIn) {
+                        setProgressVisibility(true)
+                        startMainViewActivity()
+                    }
+                    if (it.successMsg.isNotEmpty()) {
+                        setProgressVisibility(false)
+                        displayToast(it.successMsg)
+                    }
+                }
+
+                else -> {
+                    setProgressVisibility(true)
+                }
+            }
+        }
+    }
+
+    private fun bindButtons() {
+        setButtonsTextColor()
         binding.accountLoginButton.setOnClickListener {
             showLoginDialog()
         }
         binding.anonymousLoginButton.setOnClickListener {
-            authModel.registerAsGuest(binding.startCheckBox.isChecked)
+            authViewModel.registerAsGuest(binding.startCheckBox.isChecked)
         }
         binding.createAccountButton.setOnClickListener {
             showCreateNewAccountDialog()
-        }
-
-        authModel.authStateModel.observe(this) {
-            setProgressVisibility(it.isLoading)
-
-            if (it.error.isNotBlank()) {
-                setProgressVisibility(false)
-                this@LoginActivity.displayToast(it.error)
-            }
-
-            it.data?.let { user ->
-                Log.d(this.javaClass.name, "User is logged in id: " + user.uid + "  provider: " + user.providerId)
-                startMainViewActivity()
-            }
         }
     }
 
@@ -83,8 +107,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun startMainViewActivity() {
-        intent = Intent(this, MainViewActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this@LoginActivity, MainViewActivity::class.java))
+        finish()
     }
 
 

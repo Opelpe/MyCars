@@ -15,6 +15,7 @@ import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMO
 import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_EMAIL
 import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_GOOGLE
 import com.pepe.mycars.app.utils.Resource
+import com.pepe.mycars.app.utils.ResourceOld
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -31,8 +32,8 @@ class AuthRepositoryImpl(
         password: String,
         name:String,
         autoLogin: Boolean
-    ): Flow<Resource<FirebaseUser>> = flow {
-            emit(Resource.Loading())
+    ): Flow<Resource> = flow {
+            emit(Resource.Loading)
 
             try {
                 val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
@@ -42,17 +43,17 @@ class AuthRepositoryImpl(
                 appPreferences.edit().putBoolean("autoLogin", autoLogin).apply()
 
                 emit((result.user?.let {
-                    Resource.Success(data = it)
+                    Resource.Success(it)
                 }!!))
 
             } catch (e: HttpException) {
-                emit(Resource.Error(message = e.localizedMessage ?: "Unknown Error"))
+                emit(Resource.Error(e.localizedMessage ?: "Unknown Error"))
             } catch (e: IOException) {
                 emit(
-                    Resource.Error(message = e.localizedMessage ?: "Check Your Internet Connection")
+                    Resource.Error( e.localizedMessage ?: "Check Your Internet Connection")
                 )
             } catch (e: Exception) {
-                emit(Resource.Error(message = e.message ?: ""))
+                emit(Resource.Error( e.message ?: ""))
             }
         }
 
@@ -61,8 +62,8 @@ class AuthRepositoryImpl(
         name: String,
         email: String,
         autoLogin: Boolean
-    ): Flow<Resource<FirebaseUser>> = flow {
-        emit(Resource.Loading())
+    ): Flow<ResourceOld<FirebaseUser>> = flow {
+        emit(ResourceOld.Loading())
 
         try {
             val result = firebaseAuth.signInWithCredential(authCredential).await()
@@ -72,20 +73,20 @@ class AuthRepositoryImpl(
             appPreferences.edit().putBoolean("autoLogin", autoLogin).apply()
 
             emit((result.user?.let {
-                Resource.Success(data = it)
+                ResourceOld.Success(data = it)
             }!!))
 
         } catch (e: HttpException) {
-            emit(Resource.Error(message = e.localizedMessage ?: "Unknown Error"))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown Error"))
         } catch (e: IOException) {
-            emit(Resource.Error(message = e.localizedMessage ?: "Check Your Internet Connection"))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: "Check Your Internet Connection"))
         } catch (e: Exception) {
-            emit(Resource.Error(message = e.localizedMessage ?: ""))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: ""))
         }
     }
 
-    override fun registerAsGuest(autoLogin: Boolean): Flow<Resource<FirebaseUser>> = flow {
-        emit(Resource.Loading())
+    override fun registerAsGuest(autoLogin: Boolean): Flow<ResourceOld<FirebaseUser>> = flow {
+        emit(ResourceOld.Loading())
 
         try {
             val result = firebaseAuth.signInAnonymously().await()
@@ -95,43 +96,43 @@ class AuthRepositoryImpl(
             appPreferences.edit().putBoolean("autoLogin", autoLogin).apply()
 
             result.user?.let {
-                emit(Resource.Success(data = it))
+                emit(ResourceOld.Success(data = it))
             }
 
         } catch (e: HttpException) {
             Log.d("registerGuest", "register as guest exception: " + e)
-            emit(Resource.Error(message = e.localizedMessage ?: "Unknown Error"))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown Error"))
         } catch (e: IOException) {
             Log.d("registerGuest", "register as guest exception: " + e)
             emit(
-                Resource.Error(
+                ResourceOld.Error(
                     message = e.localizedMessage ?: "Check Your Internet Connection"
                 )
             )
         } catch (e: Exception) {
             Log.d("registerGuest", "register as guest exception: " + e)
-            emit(Resource.Error(message = e.localizedMessage ?: ""))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: ""))
         }
     }
 
-    override fun login(email: String?, password: String?, autoLogin: Boolean): Flow<Resource<FirebaseUser>> = flow {
-            emit(Resource.Loading())
+    override fun login(email: String?, password: String?, autoLogin: Boolean): Flow<ResourceOld<FirebaseUser>> = flow {
+            emit(ResourceOld.Loading())
 
             val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
 
             if (password == null || password.trim().isEmpty()) {
                 if (email == null || email.trim().isEmpty()) {
-                    emit(Resource.Error(message = "Enter email and password"))
+                    emit(ResourceOld.Error(message = "Enter email and password"))
                 } else {
-                    emit(Resource.Error(message = "Password field is empty"))
+                    emit(ResourceOld.Error(message = "Password field is empty"))
                 }
 
             } else {
                 if (email == null || email.trim().isEmpty()) {
-                    emit(Resource.Error(message = "Email field is empty"))
+                    emit(ResourceOld.Error(message = "Email field is empty"))
                 } else {
                     if (!email.trim().matches(emailPattern.toRegex())) {
-                        emit(Resource.Error(message = "Email field contains wrong characters"))
+                        emit(ResourceOld.Error(message = "Email field contains wrong characters"))
                     } else {
                         try {
                             val snapshot = fireStoreDatabase.collection(USER).whereEqualTo("email", email).get().await()
@@ -141,30 +142,30 @@ class AuthRepositoryImpl(
                                 val providerType = userModel!!.providerType
 
                                 if (providerType == ACCOUNT_PROVIDER_GOOGLE) {
-                                    emit(Resource.Error(message = "Try with google sign in"))
+                                    emit(ResourceOld.Error(message = "Try with google sign in"))
                                 } else {
                                     val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                                     emit((result.user?.let {
-                                        Resource.Success(data = it)
+                                        ResourceOld.Success(data = it)
                                     }!!))
                                 }
                             } else {
                                 val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                                 emit((result.user?.let {
-                                    Resource.Success(data = it)
+                                    ResourceOld.Success(data = it)
                                 }!!))
                             }
 
                         } catch (e: HttpException) {
-                            emit(Resource.Error(message = e.localizedMessage ?: "Unknown Error"))
+                            emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown Error"))
                         } catch (e: IOException) {
                             emit(
-                                Resource.Error(
+                                ResourceOld.Error(
                                     message = e.localizedMessage ?: "Check Your Internet Connection"
                                 )
                             )
                         } catch (e: Exception) {
-                            emit(Resource.Error(message = e.localizedMessage ?: ""))
+                            emit(ResourceOld.Error(message = e.localizedMessage ?: ""))
                         }
                     }
                 }
@@ -175,14 +176,20 @@ class AuthRepositoryImpl(
             firebaseAuth.signOut()
     }
 
-    override fun getLoggedUser(): Flow<Resource<FirebaseUser>> = flow {
-        emit(Resource.Loading())
-        val user = firebaseAuth.currentUser
-        if (user != null) {
-            emit(Resource.Success(data = user))
-        } else {
-            emit(Resource.Error("Log in"))
-        }
+    override fun getLoggedUser(): Flow<ResourceOld<FirebaseUser>> = flow {
+//        emit(Resource.Loading)
+        emit(ResourceOld.Error("Log in"))
+//        emit(Resource.Success(null))
+//        try {
+//            val user = firebaseAuth.currentUser
+//            if (user != null) {
+//                emit(ResourceOld.Success(user))
+//            } else {
+//                emit(ResourceOld.Error("Log in"))
+//            }
+//        }catch (e: Exception){
+//            emit(ResourceOld.Error("Unknown error: "+ e.message))
+//        }
     }
 
 }

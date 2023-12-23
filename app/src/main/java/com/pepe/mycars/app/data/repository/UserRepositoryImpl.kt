@@ -11,7 +11,7 @@ import com.pepe.mycars.app.data.model.UserModel
 import com.pepe.mycars.app.utils.FireStoreCollection.USER
 import com.pepe.mycars.app.utils.FireStoreCollection.USER_GUEST
 import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS
-import com.pepe.mycars.app.utils.Resource
+import com.pepe.mycars.app.utils.ResourceOld
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -27,8 +27,8 @@ class UserRepositoryImpl(
 
     private var firebaseUser: FirebaseUser? = null
 
-    override fun getLoggedUserData(): Flow<Resource<UserModel>> = flow {
-        emit(Resource.Loading())
+    override fun getLoggedUserData(): Flow<ResourceOld<UserModel>> = flow {
+        emit(ResourceOld.Loading())
         firebaseUser = auth.currentUser
         try {
             if (firebaseUser != null) {
@@ -52,9 +52,9 @@ class UserRepositoryImpl(
                             fireStoreDatabase.collection(dbCollection).document(uId)
                                 .update("providerType", providerType).await()
                         }
-                        emit(Resource.Success(data = userModel))
+                        emit(ResourceOld.Success(data = userModel))
                     } else {
-                        emit(Resource.Error(message = "Unknown error"))
+                        emit(ResourceOld.Error(message = "Unknown error"))
                     }
 
                 } else {
@@ -67,36 +67,36 @@ class UserRepositoryImpl(
                             UserModel(name, email, true, country, providerType, uId, autoLogin)
                         fireStoreDatabase.collection(USER_GUEST).document(uId).set(userModel)
                             .await()
-                        emit(Resource.Success(data = userModel))
+                        emit(ResourceOld.Success(data = userModel))
                     } else {
                         val name = appPreferences.getString("userName", null) ?: ""
                         val userModel =
                             UserModel(name, email, true, country, providerType, uId, autoLogin)
                         fireStoreDatabase.collection(dbCollection).document(uId).set(userModel)
                             .await()
-                        emit(Resource.Success(data = userModel))
+                        emit(ResourceOld.Success(data = userModel))
                     }
                 }
             } else {
-                emit(Resource.Error(message = "Not logged", data = null))
+                emit(ResourceOld.Error(message = "Not logged", data = null))
             }
         } catch (e: HttpException) {
-            emit(Resource.Error(message = e.localizedMessage ?: "Unknown Error"))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown Error"))
         } catch (e: IOException) {
             emit(
-                Resource.Error(
+                ResourceOld.Error(
                     message = e.localizedMessage ?: "Check Your Internet Connection"
                 )
             )
         } catch (e: Exception) {
-            emit(Resource.Error(message = e.localizedMessage ?: "Unknown exception"))
+            emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown exception"))
         }
     }
 
-    override fun getUserProviderType(): Flow<Resource<String>> = flow {
-        emit(Resource.Loading())
+    override fun getUserProviderType(): Flow<ResourceOld<String>> = flow {
+        emit(ResourceOld.Loading())
         if (firebaseUser!!.isAnonymous) {
-            emit(Resource.Success(data = ACCOUNT_PROVIDER_ANONYMOUS))
+            emit(ResourceOld.Success(data = ACCOUNT_PROVIDER_ANONYMOUS))
         } else {
             try {
                 val snapshot =
@@ -104,20 +104,20 @@ class UserRepositoryImpl(
                 if (snapshot.exists()) {
                     val userModel = snapshot.toObject(UserModel::class.java)
                     val providerType = userModel!!.providerType
-                    emit(Resource.Success(data = providerType))
+                    emit(ResourceOld.Success(data = providerType))
                 } else {
-                    emit(Resource.Error(message = "Unknown Error"))
+                    emit(ResourceOld.Error(message = "Unknown Error"))
                 }
             } catch (e: HttpException) {
-                emit(Resource.Error(message = e.localizedMessage ?: "Unknown Error"))
+                emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown Error"))
             } catch (e: IOException) {
                 emit(
-                    Resource.Error(
+                    ResourceOld.Error(
                         message = e.localizedMessage ?: "Check Your Internet Connection"
                     )
                 )
             } catch (e: Exception) {
-                emit(Resource.Error(message = e.localizedMessage ?: "Unknown exception"))
+                emit(ResourceOld.Error(message = e.localizedMessage ?: "Unknown exception"))
             }
         }
 

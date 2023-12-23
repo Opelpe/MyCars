@@ -1,17 +1,17 @@
 package com.pepe.mycars.app.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
-import com.pepe.mycars.app.data.domain.repository.UserRepository
 import com.pepe.mycars.app.utils.Resource
+import com.pepe.mycars.app.utils.ResourceOld
 import com.pepe.mycars.app.utils.networkState.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,25 +19,22 @@ class AuthViewModel @Inject constructor(
     private var authRepository: AuthRepository
 ) : ViewModel() {
 
-    var authStateModel = MutableLiveData(AuthState())
+    private val _authState: MutableLiveData<AuthState> = MutableLiveData(AuthState.Loading)
+    val authState: LiveData<AuthState> = _authState
 
     fun login(email: String?, password: String?, autoLogin: Boolean) {
         authRepository.login(email, password, autoLogin).onEach {
             when (it) {
-                is Resource.Loading -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(isLoading = true)
-                    }
+                is ResourceOld.Loading -> {
+                    _authState.postValue(AuthState.Loading)
                 }
-                is Resource.Error -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(error = it.message!!)
-                    }
+
+                is ResourceOld.Error -> {
+                    _authState.postValue(AuthState.Error(it.message ?: "Unknown error"))
                 }
-                is Resource.Success -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(data = it.data)
-                    }
+
+                is ResourceOld.Success -> {
+                    _authState.postValue(AuthState.Success(true, "Logged in"))
                 }
             }
         }.launchIn(viewModelScope)
@@ -45,27 +42,18 @@ class AuthViewModel @Inject constructor(
 
     fun register(email: String?, password: String?, name: String?, autoLogin: Boolean) {
         if (email!!.isEmpty() || password!!.isEmpty() || name!!.isEmpty()) {
-            viewModelScope.launch {
-                authStateModel.value =
-                    AuthState(error = "All fields must be filled", isLoading = false)
-            }
+            _authState.postValue(AuthState.Error("All fields must be filled"))
         } else {
             authRepository.register(email, password, name, autoLogin).onEach {
                 when (it) {
-                    is Resource.Loading -> {
-                        viewModelScope.launch{
-                            authStateModel.value = authStateModel.value?.copy(isLoading = true)
-                        }
-                    }
+                    Resource.Loading -> _authState.postValue(AuthState.Loading)
+
                     is Resource.Error -> {
-                        viewModelScope.launch{
-                            authStateModel.value = authStateModel.value?.copy(error = it.message!!)
-                        }
+                        _authState.postValue(AuthState.Error(it.exceptionMsg ?: "Unknown error"))
                     }
+
                     is Resource.Success -> {
-                        viewModelScope.launch{
-                            authStateModel.value = authStateModel.value?.copy(data = it.data)
-                        }
+                        _authState.postValue(AuthState.Success(true, "Logged in"))
                     }
                 }
             }.launchIn(viewModelScope)
@@ -75,20 +63,14 @@ class AuthViewModel @Inject constructor(
     fun registerAsGuest(autoLogin: Boolean) {
         authRepository.registerAsGuest(autoLogin).onEach {
             when (it) {
-                is Resource.Loading -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(isLoading = true)
-                    }
+                is ResourceOld.Loading -> {
+                    _authState.postValue(AuthState.Loading)
                 }
-                is Resource.Error -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(error = it.message!!)
-                    }
+                is ResourceOld.Error -> {
+                    _authState.postValue(AuthState.Error(it.message?:"Unknown error"))
                 }
-                is Resource.Success -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(data = it.data)
-                    }
+                is ResourceOld.Success -> {
+                    _authState.postValue(AuthState.Success(true, "Logged in"))
                 }
             }
         }.launchIn(viewModelScope)
@@ -100,26 +82,38 @@ class AuthViewModel @Inject constructor(
         email: String,
         autoLogin: Boolean
     ) {
-
         authRepository.registerWithGoogle(credential, userName, email, autoLogin).onEach {
             when (it) {
-                is Resource.Loading -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(isLoading = true)
-                    }
+                is ResourceOld.Loading -> {
+                    _authState.postValue(AuthState.Loading)
                 }
-                is Resource.Error -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(error = it.message!!)
-                    }
+                is ResourceOld.Error -> {
+                    _authState.postValue(AuthState.Error(it.message?:"Unknown error"))
                 }
-                is Resource.Success -> {
-                    viewModelScope.launch{
-                        authStateModel.value = authStateModel.value?.copy(data = it.data)
-                    }
+                is ResourceOld.Success -> {
+                    _authState.postValue(AuthState.Success(true, "Logged in"))
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    fun checkAuthInfo() {
+//        _authState.postValue(AuthState.Error("Unknown error"))
+        authRepository.getLoggedUser().onEach {
+            when (it) {
+                is ResourceOld.Loading -> {
+                    _authState.postValue(AuthState.Loading)
+                }
+                is ResourceOld.Error -> {
+                    _authState.postValue(AuthState.Error(it.message?:"Unknown error"))
+                }
+                is ResourceOld.Success -> {
+                    _authState.postValue(AuthState.Success(false, ""))
+                }
+            }
+        }.launchIn(viewModelScope).run {
+            _authState.postValue(AuthState.Error("Unknown error"))
+        }
     }
 
 }

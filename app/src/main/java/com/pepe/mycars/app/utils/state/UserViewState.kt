@@ -1,8 +1,6 @@
-package com.pepe.mycars.app.utils.networkState
+package com.pepe.mycars.app.utils.state
 
-// var isLoading: Boolean = data != null
-
-sealed class UserViewState {
+sealed class UserViewState{
     object Loading : UserViewState()
     data class Success(
         val isLoggedIn: Boolean = true,

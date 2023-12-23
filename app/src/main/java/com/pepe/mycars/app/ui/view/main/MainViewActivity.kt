@@ -20,7 +20,7 @@ import com.pepe.mycars.R
 import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.logMessage
-import com.pepe.mycars.app.utils.networkState.UserViewState
+import com.pepe.mycars.app.utils.state.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivityMainViewBinding
 import dagger.hilt.android.AndroidEntryPoint

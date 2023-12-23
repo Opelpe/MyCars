@@ -12,6 +12,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.coroutineScope
 import com.pepe.mycars.app.utils.ColorUtils
+import com.pepe.mycars.app.utils.displayToast
+import com.pepe.mycars.app.utils.networkState.AuthState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogCreateAccountBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,23 +48,14 @@ class CreateAccountDialog: DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observeAuthState()
+        setupButtons()
+        setupTextsColor()
+    }
 
-        binding.createUserButton.setOnClickListener {
-            val email = binding.emailEditText.getText().toString()
-            val password = binding.passwordEditText.getText().toString()
-            val name = binding.userNameEditText.getText().toString()
-            createNewUserClicked(email, password, name)
-        }
-
+    private fun setupTextsColor() {
         binding.cancelButtonText.setTextColor(ColorUtils(requireContext()).getButtonPrimeColorStateList())
-        binding.cancelButton.setOnClickListener {
-            dismiss()
-        }
-
         binding.passwordVisibilityIcon.imageTintList = ColorUtils(requireContext()).getButtonSecondColorStateList()
-        binding.passwordVisibilityIcon.setOnClickListener {
-            setPasswordVisibility()
-        }
 
         binding.userNameEditText.onFocusChangeListener =
             View.OnFocusChangeListener { _: View?, b: Boolean ->
@@ -122,17 +115,35 @@ class CreateAccountDialog: DialogFragment() {
             }
     }
 
-    override fun onStart() {
-        super.onStart()
+    private fun setupButtons() {
+        binding.createUserButton.setOnClickListener {
+            val email = binding.emailEditText.getText().toString()
+            val password = binding.passwordEditText.getText().toString()
+            val name = binding.userNameEditText.getText().toString()
+            createNewUserClicked(email, password, name)
+        }
 
-        authModel.authStateModel.observe(this){
-            setProgressVisibility(it.isLoading)
+        binding.cancelButton.setOnClickListener {
+            dismiss()
+        }
 
-            if (it.error.isNotBlank()) {
-                setProgressVisibility(false)
-            }
-            it.data?.let {
-                setProgressVisibility(false)
+        binding.passwordVisibilityIcon.setOnClickListener {
+            setPasswordVisibility()
+        }
+    }
+
+    private fun observeAuthState() {
+        authModel.authState.observe(this) {
+            when (it) {
+                AuthState.Loading -> setProgressVisibility(true)
+                is AuthState.Error -> {
+                    if (it.errorMsg.isNotBlank()) {
+                        setProgressVisibility(false)
+                    }
+                }
+                is AuthState.Success -> {
+                    setProgressVisibility(false)
+                }
             }
         }
     }

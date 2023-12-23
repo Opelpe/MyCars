@@ -1,10 +1,12 @@
 package com.pepe.mycars.app.utils.networkState
 
-import com.google.firebase.auth.FirebaseUser
-import com.pepe.mycars.app.utils.Resource
 
-data class AuthState(
-    val data: FirebaseUser? = null,
-    val error: String = "",
-    val isLoading: Boolean = false
-)
+sealed class AuthState{
+    object Loading : AuthState()
+    data class Success(
+        val isLoggedIn: Boolean = false,
+        val successMsg: String
+    ) : AuthState()
+
+    data class Error(val errorMsg: String) : AuthState()
+}

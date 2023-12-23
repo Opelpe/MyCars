@@ -1,8 +1,11 @@
 package com.pepe.mycars.app.utils
 
-sealed class Resource<T>( val data: T? = null, val message: String? = null) {
-    class Success<T>(data: T) : Resource<T>(data)
-    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
-    class Loading<T>() : Resource<T>()
+import com.google.firebase.auth.FirebaseUser
 
+sealed class Resource {
+    object Loading : Resource()
+
+    data class Error(val exceptionMsg: String) : Resource()
+
+    data class Success(val firebaseUser: FirebaseUser?) : Resource()
 }

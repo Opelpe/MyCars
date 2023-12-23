@@ -4,9 +4,7 @@ import com.pepe.mycars.app.data.model.UserModel
 import com.pepe.mycars.app.utils.ResourceOld
 import kotlinx.coroutines.flow.Flow
 
-interface UserRepository {
+interface ItemRepository {
+
     fun getLoggedUserData() : Flow<ResourceOld<UserModel>>
-
-    fun getUserProviderType() : Flow<ResourceOld<String>>
-
 }

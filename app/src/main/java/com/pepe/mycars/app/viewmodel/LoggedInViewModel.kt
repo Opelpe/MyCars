@@ -9,8 +9,8 @@ import com.pepe.mycars.app.data.domain.repository.UserRepository
 import com.pepe.mycars.app.data.model.UserModel
 import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS
 import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_GOOGLE
-import com.pepe.mycars.app.utils.Resource
-import com.pepe.mycars.app.utils.networkState.UserViewState
+import com.pepe.mycars.app.utils.ResourceOld
+import com.pepe.mycars.app.utils.state.UserViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -30,8 +30,7 @@ constructor(
     //  private val _userStateModel = MutableLiveData(UserState())
     //    val userStateModel: LiveData <UserState> = _userStateModel
 
-    private val _userViewState: MutableLiveData<UserViewState> =
-        MutableLiveData(UserViewState.Loading)
+    private val _userViewState: MutableLiveData<UserViewState> = MutableLiveData(UserViewState.Loading)
     val userViewState: LiveData<UserViewState> = _userViewState
 
 
@@ -48,13 +47,13 @@ constructor(
     fun getUserData() {
         userRepository.getLoggedUserData().onEach {
             when (it) {
-                is Resource.Loading -> {
+                is ResourceOld.Loading -> {
                     _userViewState.postValue(UserViewState.Loading)
                     //todo w perfekcyjnym mogłbbyś stworzyć maper dla live daty i mieć wtedy coś w stylu mapper
                     // userStateModel.value = mapper.toggleLoading() -> testowlanośc kodu wzrasta w chuj
                 }
 
-                is Resource.Error -> {
+                is ResourceOld.Error -> {
                     _userViewState.postValue(
                         UserViewState.Error(
                             it.message ?: "Unknown error occurred"
@@ -62,7 +61,7 @@ constructor(
                     )
                 }
 
-                is Resource.Success -> {
+                is ResourceOld.Success -> {
                     userData = it.data
                     val msg = createLoggedAsMsg(
                         userData!!.providerType,
@@ -84,11 +83,11 @@ constructor(
     fun appStart() {
         userRepository.getLoggedUserData().onEach {
             when (it) {
-                is Resource.Loading -> {
+                is ResourceOld.Loading -> {
                     _userViewState.postValue(UserViewState.Loading)
                 }
 
-                is Resource.Error -> {
+                is ResourceOld.Error -> {
                     _userViewState.postValue(
                         UserViewState.Error(
                             it.message ?: "Unknown error occurred"
@@ -96,9 +95,8 @@ constructor(
                     )
                 }
 
-                is Resource.Success -> {
+                is ResourceOld.Success -> {
                     userData = it.data
-
                     val autoLogin = it.data!!.autoLogin
                     if (autoLogin) {
                         _userViewState.postValue(UserViewState.Success(true, ""))
@@ -111,14 +109,13 @@ constructor(
     }
 
     fun actionSynchronize(actionId: Int) {
-
         userRepository.getUserProviderType().onEach {
             when (it) {
-                is Resource.Loading -> {
+                is ResourceOld.Loading -> {
                     _userViewState.postValue(UserViewState.Loading)
                 }
 
-                is Resource.Error -> {
+                is ResourceOld.Error -> {
                     _userViewState.postValue(
                         UserViewState.Error(
                             it.message ?: "Unknown error occurred"
@@ -126,7 +123,7 @@ constructor(
                     )
                 }
 
-                is Resource.Success -> {
+                is ResourceOld.Success -> {
                     val provider = it.data!!
                     when (actionId) {
                         1 -> {
@@ -171,103 +168,5 @@ constructor(
         }
     }
 
-
-//        if (userData != null){
-//            val provider = userData!!.providerType
-//            when(actionId){
-//                1 -> {
-//                    if (provider == ACCOUNT_PROVIDER_ANONYMOUS) {
-//                        _userViewState.postValue(UserViewState.Error("Sign in & Synchronize data"))
-//                    } else {
-//                        _userViewState.postValue(UserViewState.Error( "Your data is synchronized"))
-//                    }
-//                }
-//
-//                2-> {
-//                    if (provider == ACCOUNT_PROVIDER_GOOGLE) {
-//                        _userViewState.postValue(UserViewState.Error("You're already sign with Google"))
-//                    } else {
-//                        _userViewState.postValue(UserViewState.Error("Connect your account with Google"))
-//                    }
-//                }
-//            }
-//        }
-
-//        }
-
-
-//        userRepository.getUserProviderType().onEach {
-//            when (it) {
-//                is Resource.Loading -> {
-//                    viewModelScope.launch {
-//                        userStateModel.value = userStateModel.value?.copy(isLoading = true)
-//                    }
-//                }
-//
-//                is Resource.Error -> {
-//                    viewModelScope.launch {
-//                        userStateModel.value = userStateModel.value?.copy(
-//                            error = it.message ?: "Unknown error occurred"
-//                        )
-//                    }
-//                }
-//
-//                is Resource.Success -> {
-//                    when (actionId) {
-//                        1 -> viewModelScope.launch {
-//                            if (it.data == ACCOUNT_PROVIDER_ANONYMOUS) {
-//                                userStateModel.value =
-//                                    userStateModel.value?.copy(error = "Sign in & Synchronize data")
-//                            } else {
-//                                userStateModel.value =
-//                                    userStateModel.value?.copy(error = "Your data is synchronized")
-//                            }
-//                        }
-//
-//                        2 -> viewModelScope.launch {
-//                            if (it.data == ACCOUNT_PROVIDER_GOOGLE) {
-//                                userStateModel.value =
-//                                    userStateModel.value?.copy(error = "You're already sign with Google")
-//                            } else {
-//                                userStateModel.value =
-//                                    userStateModel.value?.copy(error = "Connect your account with Google")
-//                            }
-//                        }
-//                    }
-//                }
-//
-//
-//            }
-//            if ( it.data == ACCOUNT_PROVIDER_ANONYMOUS ||  it.data == ACCOUNT_PROVIDER_GOOGLE ||  it.data == ACCOUNT_PROVIDER_EMAIL) {
-//                when (actionId) {
-//                    1 -> viewModelScope.launch {
-//                        if (it.data == ACCOUNT_PROVIDER_ANONYMOUS) {
-//                            userStateModel.value =
-//                                userStateModel.value?.copy(error = "Sign in & Synchronize data")
-//                        } else {
-//                            userStateModel.value =
-//                                userStateModel.value?.copy(error = "Your data is synchronized")
-//                        }
-//                    }
-//
-//                    2 ->
-//                        viewModelScope.launch {
-//                            if (it.data == ACCOUNT_PROVIDER_GOOGLE) {
-//                                userStateModel.value =
-//                                    userStateModel.value?.copy(error = "You're already sign with Google")
-//                            } else {
-//                                userStateModel.value =
-//                                    userStateModel.value?.copy(error = "Connect your account with Google")
-//                            }
-//                        }
-//                }
-//            }
-//
-//            if (it.message!!.isNotEmpty()){
-//                userStateModel.value =
-//                    userStateModel.value?.copy(error = it.message)
-//            }
-//        }
-//        }
 
 }

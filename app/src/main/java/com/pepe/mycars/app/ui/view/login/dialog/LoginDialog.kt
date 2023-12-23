@@ -22,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.GoogleAuthProvider
 import com.pepe.mycars.app.utils.ColorUtils
+import com.pepe.mycars.app.utils.networkState.AuthState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,8 +53,7 @@ class LoginDialog : DialogFragment() {
     ): View {
         binding = DialogLoginBinding.inflate(layoutInflater, container, false)
 
-        launcher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
                     val data: Intent? = result.data
                     val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -61,16 +61,17 @@ class LoginDialog : DialogFragment() {
                 }
             }
 
-        dialog?.let {
-            it.window?.requestFeature(Window.FEATURE_NO_TITLE)
-        }
+        dialog?.let { it.window?.requestFeature(Window.FEATURE_NO_TITLE) }
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupButtons()
+    }
 
+    private fun setupButtons() {
         binding.passwordVisibilityIcon.imageTintList =
             ColorUtils(requireContext()).getButtonSecondColorStateList()
         binding.passwordVisibilityIcon.setOnClickListener {
@@ -95,18 +96,23 @@ class LoginDialog : DialogFragment() {
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.WRAP_CONTENT
         dialog?.window?.setLayout(width, height)
+        observeAuthState()
+    }
 
-        authModel.authStateModel.observe(this){
-            setProgressVisibility(it.isLoading)
-
-            if (it.error.isNotBlank()) {
-                setProgressVisibility(false)
-            }
-            it.data?.let {
-                setProgressVisibility(false)
+    private fun observeAuthState() {
+        authModel.authState.observe(this) {
+            when (it) {
+                AuthState.Loading -> setProgressVisibility(true)
+                is AuthState.Error -> {
+                    if (it.errorMsg.isNotBlank()) {
+                        setProgressVisibility(false)
+                    }
+                }
+                is AuthState.Success -> {
+                    setProgressVisibility(false)
+                }
             }
         }
-
     }
 
     private fun onSubmitClicked(email: String?, password: String?) {
