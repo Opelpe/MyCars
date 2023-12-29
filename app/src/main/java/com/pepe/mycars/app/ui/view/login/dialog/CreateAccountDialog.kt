@@ -10,14 +10,11 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.coroutineScope
 import com.pepe.mycars.app.utils.ColorUtils
-import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.networkState.AuthState
+import com.pepe.mycars.app.utils.state.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogCreateAccountBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreateAccountDialog: DialogFragment() {
@@ -54,8 +51,7 @@ class CreateAccountDialog: DialogFragment() {
     }
 
     private fun setupTextsColor() {
-        binding.cancelButtonText.setTextColor(ColorUtils(requireContext()).getButtonPrimeColorStateList())
-        binding.passwordVisibilityIcon.imageTintList = ColorUtils(requireContext()).getButtonSecondColorStateList()
+        binding.passwordVisibilityIcon.imageTintList = ColorUtils(requireContext()).getImageColorStateList()
 
         binding.userNameEditText.onFocusChangeListener =
             View.OnFocusChangeListener { _: View?, b: Boolean ->
@@ -133,15 +129,15 @@ class CreateAccountDialog: DialogFragment() {
     }
 
     private fun observeAuthState() {
-        authModel.authState.observe(this) {
+        authModel.loginViewState.observe(this) {
             when (it) {
-                AuthState.Loading -> setProgressVisibility(true)
-                is AuthState.Error -> {
+                LoginViewState.Loading -> setProgressVisibility(true)
+                is LoginViewState.Error -> {
                     if (it.errorMsg.isNotBlank()) {
                         setProgressVisibility(false)
                     }
                 }
-                is AuthState.Success -> {
+                is LoginViewState.Success -> {
                     setProgressVisibility(false)
                 }
             }

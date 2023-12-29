@@ -61,7 +61,9 @@ class MainViewActivity : AppCompatActivity() {
                 UserViewState.Loading -> setProgressVisibility(true)
                 is UserViewState.Error -> {
                     setProgressVisibility(false)
-                    displayToast(it.errorMsg)
+                    if (it.errorMsg.isNotEmpty()){
+                        displayToast(it.errorMsg)
+                    }
                 }
 
                 is UserViewState.Success -> {

@@ -11,7 +11,7 @@ import com.pepe.mycars.app.ui.view.login.dialog.LoginDialog
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
 import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.networkState.AuthState
+import com.pepe.mycars.app.utils.state.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.ActivityLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,21 +31,21 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun observeAuthState() {
-        authViewModel.checkAuthInfo()
-        authViewModel.authState.observe(this) {
+        authViewModel.synchronizeAuth()
+        authViewModel.loginViewState.observe(this) {
             when (it) {
-                AuthState.Loading -> {
+                LoginViewState.Loading -> {
                     setProgressVisibility(true)
                 }
 
-                is AuthState.Error -> {
+                is LoginViewState.Error -> {
                     setProgressVisibility(false)
                     if (it.errorMsg.isNotBlank()) {
                         this@LoginActivity.displayToast(it.errorMsg)
                     }
                 }
 
-                is AuthState.Success -> {
+                is LoginViewState.Success -> {
                     setProgressVisibility(false)
                     if (it.isLoggedIn) {
                         setProgressVisibility(true)
@@ -65,7 +65,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun bindButtons() {
-        setButtonsTextColor()
         binding.accountLoginButton.setOnClickListener {
             showLoginDialog()
         }
@@ -75,12 +74,6 @@ class LoginActivity : AppCompatActivity() {
         binding.createAccountButton.setOnClickListener {
             showCreateNewAccountDialog()
         }
-    }
-
-    private fun setButtonsTextColor() {
-        binding.anonymousLoginButton.setTextColor(ColorUtils(applicationContext).getButtonSecondColorStateList())
-        binding.startCheckBox.setTextColor(ColorUtils(applicationContext).getCheckBoxColorStateList())
-        binding.createAccountButton.setTextColor(ColorUtils(applicationContext).getCreateAccountColorStateList())
     }
 
     private fun setProgressVisibility(loading: Boolean) {
@@ -110,6 +103,5 @@ class LoginActivity : AppCompatActivity() {
         startActivity(Intent(this@LoginActivity, MainViewActivity::class.java))
         finish()
     }
-
 
 }
