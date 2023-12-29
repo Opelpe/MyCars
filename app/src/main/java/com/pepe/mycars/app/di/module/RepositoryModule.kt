@@ -3,7 +3,6 @@ package com.pepe.mycars.app.di.module
 import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.domain.repository.UserRepository
 import com.pepe.mycars.app.data.repository.AuthRepositoryImpl
@@ -23,10 +22,9 @@ object RepositoryModule {
     fun provideAuthRepository(
         database: FirebaseFirestore,
         auth: FirebaseAuth,
-        appPreferences: SharedPreferences,
-        gson: Gson
+        appPreferences: SharedPreferences
     ): AuthRepository {
-        return AuthRepositoryImpl(auth,database,appPreferences,gson)
+        return AuthRepositoryImpl(auth,database,appPreferences)
     }
 
     @Provides
@@ -34,9 +32,8 @@ object RepositoryModule {
     fun provideUserRepository(
         database: FirebaseFirestore,
         auth: FirebaseAuth,
-        appPreferences: SharedPreferences,
-        gson: Gson
+        appPreferences: SharedPreferences
     ): UserRepository {
-        return UserRepositoryImpl(database, auth, appPreferences,gson)
+        return UserRepositoryImpl(database, auth, appPreferences)
     }
 }

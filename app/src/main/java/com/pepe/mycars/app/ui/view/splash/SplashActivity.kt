@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
 import com.pepe.mycars.app.utils.displayToast
+import com.pepe.mycars.app.utils.logMessage
 import com.pepe.mycars.app.utils.state.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivitySplashBinding
@@ -28,9 +29,10 @@ class SplashActivity : AppCompatActivity() {
         loggedInViewModel.appStart()
         loggedInViewModel.userViewState.observe(this) {
             when (it) {
+                UserViewState.Loading -> {}
                 is UserViewState.Error -> {
                     if (it.errorMsg.isNotEmpty()) {
-                        displayToast(it.errorMsg)
+                        logMessage(it.errorMsg)
                         displayActivity(ActivityId.LOGIN)
                     }
                 }
@@ -40,7 +42,6 @@ class SplashActivity : AppCompatActivity() {
                     if (it.isLoggedIn) displayActivity(ActivityId.MAIN) else displayActivity(ActivityId.LOGIN)
                 }
 
-                else -> {}
             }
         }
     }
