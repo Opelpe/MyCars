@@ -62,11 +62,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailInput" />
 
+
     <ImageView
         android:id="@+id/passwordVisibilityIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
         android:clickable="true"
         android:padding="10dp"
         android:src="@drawable/ic_password_visibility"
