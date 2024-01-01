@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/progressView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:background="@color/progress_background">
+        android:background="@color/progress_background"
+        android:visibility="gone">
 
         <ProgressBar
             style="@style/Widget.AppCompat.ProgressBar"
@@ -82,12 +82,13 @@
 
         <CheckBox
             android:id="@+id/startCheckBox"
+            style="@style/commonCheckboxStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:gravity="center"
-            android:paddingTop="14dp"
             android:paddingHorizontal="@dimen/space_12dp"
+            android:paddingTop="14dp"
             android:text="@string/action_doNotAskAgain_title"
             android:textAllCaps="true"
             android:textSize="@dimen/text_size_small"
@@ -95,31 +96,31 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/anonymous_login_button" />
 
-            <TextView
-                android:id="@+id/noAccountTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/login_createAccount_description"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@id/createAccountButton"
-                app:layout_constraintEnd_toStartOf="@id/createAccountButton"
-                app:layout_constraintTop_toTopOf="@id/createAccountButton" />
+        <TextView
+            android:id="@+id/noAccountTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/login_createAccount_description"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/createAccountButton"
+            app:layout_constraintEnd_toStartOf="@id/createAccountButton"
+            app:layout_constraintTop_toTopOf="@id/createAccountButton" />
 
 
-            <TextView
-                android:id="@+id/createAccountButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:clickable="true"
-                android:paddingHorizontal="5dp"
-                android:text="@string/login_createAccount_title"
-                android:textAllCaps="true"
-                android:textColor="@color/green_dark"
-                android:textSize="16sp"
-                android:textStyle="italic"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
+            android:id="@+id/createAccountButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:clickable="true"
+            android:paddingHorizontal="5dp"
+            android:text="@string/login_createAccount_title"
+            android:textAllCaps="true"
+            android:textColor="@drawable/font_color_green_grey_selected"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

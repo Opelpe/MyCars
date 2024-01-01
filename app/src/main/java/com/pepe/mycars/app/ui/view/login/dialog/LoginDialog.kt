@@ -15,17 +15,16 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.coroutineScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.GoogleAuthProvider
 import com.pepe.mycars.app.utils.ColorUtils
+import com.pepe.mycars.app.utils.state.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -52,8 +51,7 @@ class LoginDialog : DialogFragment() {
     ): View {
         binding = DialogLoginBinding.inflate(layoutInflater, container, false)
 
-        launcher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
                     val data: Intent? = result.data
                     val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -61,18 +59,18 @@ class LoginDialog : DialogFragment() {
                 }
             }
 
-        dialog?.let {
-            it.window?.requestFeature(Window.FEATURE_NO_TITLE)
-        }
+        dialog?.let { it.window?.requestFeature(Window.FEATURE_NO_TITLE) }
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupButtons()
+    }
 
-        binding.passwordVisibilityIcon.imageTintList =
-            ColorUtils(requireContext()).getButtonSecondColorStateList()
+    private fun setupButtons() {
+        binding.passwordVisibilityIcon.imageTintList = ColorUtils(requireContext()).getImageColorStateList()
         binding.passwordVisibilityIcon.setOnClickListener {
             setPasswordVisibility()
         }
@@ -80,12 +78,11 @@ class LoginDialog : DialogFragment() {
         binding.submitButton.setOnClickListener {
             val email = binding.emailInput.getText().toString()
             val password = binding.passwordInput.getText().toString()
-            onSubmitClicked(email, password)
+            onSubmitBtnClicked(email, password)
         }
 
-        binding.googleLoginButtonText.setTextColor(ColorUtils(requireContext()).getButtonSecondColorStateList())
         binding.googleLoginButton.setOnClickListener {
-            onSignInWithGoogleClicked()
+            onGoogleBtnClicked()
         }
     }
 
@@ -95,26 +92,31 @@ class LoginDialog : DialogFragment() {
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.WRAP_CONTENT
         dialog?.window?.setLayout(width, height)
-
-        authModel.authStateModel.observe(this){
-            setProgressVisibility(it.isLoading)
-
-            if (it.error.isNotBlank()) {
-                setProgressVisibility(false)
-            }
-            it.data?.let {
-                setProgressVisibility(false)
-            }
-        }
-
+        observeAuthState()
     }
 
-    private fun onSubmitClicked(email: String?, password: String?) {
+    private fun observeAuthState() {
+        authModel.loginViewState.observe(this) {
+            when (it) {
+                LoginViewState.Loading -> setProgressVisibility(true)
+                is LoginViewState.Error -> {
+                    if (it.errorMsg.isNotBlank()) {
+                        setProgressVisibility(false)
+                    }
+                }
+                is LoginViewState.Success -> {
+                    setProgressVisibility(false)
+                }
+            }
+        }
+    }
+
+    private fun onSubmitBtnClicked(email: String?, password: String?) {
         val autoLogin = arguments?.getBoolean("autoLogin") ?: false
         authModel.login(email, password, autoLogin)
     }
 
-    private fun onSignInWithGoogleClicked() {
+    private fun onGoogleBtnClicked() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(requireContext().getString(com.firebase.ui.auth.R.string.default_web_client_id))
             .requestEmail()
@@ -152,8 +154,7 @@ class LoginDialog : DialogFragment() {
     }
 
     private fun setPasswordVisibility() {
-        val transformationMethod: TransformationMethod =
-            binding.passwordInput.getTransformationMethod()
+        val transformationMethod: TransformationMethod = binding.passwordInput.transformationMethod
         if (transformationMethod == PasswordTransformationMethod.getInstance()) {
             transformationHide()
         }

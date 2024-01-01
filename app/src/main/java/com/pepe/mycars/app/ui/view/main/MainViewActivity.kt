@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,7 @@ import com.pepe.mycars.R
 import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.logMessage
+import com.pepe.mycars.app.utils.state.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivityMainViewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,10 +37,7 @@ class MainViewActivity : AppCompatActivity() {
         if (isGranted) {
             Firebase.messaging.subscribeToTopic("all")
                 .addOnCompleteListener { task ->
-                    var msg = "Subscribed"
-                    if (!task.isSuccessful) {
-                        msg = "Subscribe failed"
-                    }
+                    val msg = if (task.isSuccessful) "Subscribed" else "Subscribe failed"
                     Log.d("FCM", msg)
                 }
         } else {
@@ -50,34 +50,31 @@ class MainViewActivity : AppCompatActivity() {
         binding = ActivityMainViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setNavigation()
-//        askNotificationPermission()
+        askNotificationPermission()
+        observeUserViewSate()
+    }
 
+    private fun observeUserViewSate() {
         loggedInViewModel.getUserData()
-        loggedInViewModel.userStateModel.observe(this) {
-            if (it!!.isLoading) {
-                logMessage("Loading...")
-            }
-
-            if (it.error.isNotEmpty()) {
-                logMessage(it.error)
-                displayToast(it.error)
-            }
-
-            if (it.data != null) {
-                logMessage("user id: " + it.data.id)
-                val provider = it.data.providerType
-                var msg = "Logged as: "
-                msg += if (it.data.email.isNotEmpty()){
-                    it.data.email + " \n $provider"
-                }else{
-                    it.data.name
+        loggedInViewModel.userViewState.observe(this) {
+            when (it) {
+                UserViewState.Loading -> setProgressVisibility(true)
+                is UserViewState.Error -> {
+                    setProgressVisibility(false)
+                    if (it.errorMsg.isNotEmpty()){
+                        displayToast(it.errorMsg)
+                    }
                 }
-                displayToast(msg)
-            }
 
-            if(!it.isLoggedIn){
-                logMessage("user loggingOut")
-                startLoginActivity()
+                is UserViewState.Success -> {
+                    setProgressVisibility(false)
+                    if (it.successMsg.isNotEmpty()) {
+                        displayToast(it.successMsg)
+                    }
+                    if (!it.isLoggedIn) {
+                        startLoginActivity()
+                    }
+                }
             }
         }
     }
@@ -90,8 +87,9 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun startLoginActivity() {
-        intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+        setProgressVisibility(true)
+        logMessage("user loggingOut")
+        startActivity(Intent(this@MainViewActivity, LoginActivity::class.java))
         finish()
     }
 
@@ -105,4 +103,17 @@ class MainViewActivity : AppCompatActivity() {
         }
     }
 
+    private fun setProgressVisibility(loading: Boolean) {
+        if (loading) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            )
+            binding.progressView.visibility = View.VISIBLE
+        } else {
+            binding.progressView.visibility = View.GONE
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        }
+    }
 }
+
