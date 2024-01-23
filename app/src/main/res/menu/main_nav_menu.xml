@@ -8,12 +8,4 @@
         android:title="SYNCHRONIZE"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:icon="@drawable/ic_society"
-        android:id="@+id/action_change_google_account"
-        android:title="CHANGE GOOGLE ACCOUNT"
-        app:showAsAction="ifRoom" />
-
-
-
 </menu>
