@@ -61,4 +61,8 @@
         <item name="android:minLines">@integer/fui_min_password_length</item>
     </style>
 
+    <style name="titleTextStyle"  parent="Theme.AppCompat.DayNight">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+    </style>
+
 </resources>

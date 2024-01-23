@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import com.pepe.mycars.R
+import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.NetworkManager
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.UserViewState
@@ -59,6 +60,10 @@ class MainFragment : Fragment() {
                     setToolbarIcon()
                 }
             }
+        }
+
+        binding.refillButton.setOnClickListener {
+            RefillDialog().show(requireActivity().supportFragmentManager, "refillDialog")
         }
 
         initToolbar()
