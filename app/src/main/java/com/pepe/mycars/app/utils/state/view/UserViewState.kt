@@ -1,4 +1,4 @@
-package com.pepe.mycars.app.utils.state
+package com.pepe.mycars.app.utils.state.view
 
 sealed class UserViewState{
     object Loading : UserViewState()

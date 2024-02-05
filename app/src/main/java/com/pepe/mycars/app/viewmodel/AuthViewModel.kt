@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.utils.state.AuthState
-import com.pepe.mycars.app.utils.state.LoginViewState
+import com.pepe.mycars.app.utils.state.view.LoginViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -45,7 +45,9 @@ class AuthViewModel @Inject constructor(
                 when (it) {
                     AuthState.Loading -> _loginViewState.postValue(LoginViewState.Loading)
 
-                    is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
+                    is AuthState.Error -> {
+                        _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
+                    }
 
                     is AuthState.Success -> _loginViewState.postValue(LoginViewState.Success(true, "New account created"))
                 }

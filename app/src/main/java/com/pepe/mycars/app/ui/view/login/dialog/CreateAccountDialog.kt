@@ -11,7 +11,7 @@ import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.pepe.mycars.app.utils.ColorUtils
-import com.pepe.mycars.app.utils.state.LoginViewState
+import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogCreateAccountBinding
 import dagger.hilt.android.AndroidEntryPoint

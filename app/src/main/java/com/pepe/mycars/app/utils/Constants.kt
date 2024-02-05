@@ -1,17 +1,16 @@
 package com.pepe.mycars.app.utils
 
 object SharedPrefConstants {
-    val LOCAL_SHARED_PREF = "local_shared_pref"
-    val USER_SESSION = "user_session"
+    const val LOCAL_SHARED_PREF = "local_shared_pref"
 }
 
-object FireStoreDocumentField {
-    val ACCOUNT_PROVIDER_GOOGLE  : String = "google.com"
-    val ACCOUNT_PROVIDER_EMAIL  : String = "email&password"
-    val ACCOUNT_PROVIDER_ANONYMOUS  : String = "anonymous"
+object FireStoreUserDocField {
+    const val ACCOUNT_PROVIDER_GOOGLE  : String = "google.com"
+    const val ACCOUNT_PROVIDER_EMAIL  : String = "email&password"
+    const val ACCOUNT_PROVIDER_ANONYMOUS  : String = "anonymous"
 }
 
 object FireStoreCollection{
-    val USER = "User"
-    val USER_GUEST = "Anonymous"
+    const val USER = "User"
+    const val REFILLS = "Refills"
 }

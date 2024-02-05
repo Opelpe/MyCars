@@ -9,9 +9,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.model.UserModel
 import com.pepe.mycars.app.utils.FireStoreCollection.USER
-import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS
-import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_EMAIL
-import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_GOOGLE
+import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
+import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_EMAIL
+import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_GOOGLE
 import com.pepe.mycars.app.utils.state.AuthState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

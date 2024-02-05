@@ -9,9 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.pepe.mycars.app.ui.view.login.dialog.CreateAccountDialog
 import com.pepe.mycars.app.ui.view.login.dialog.LoginDialog
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
-import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.state.LoginViewState
+import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.ActivityLoginBinding
 import dagger.hilt.android.AndroidEntryPoint

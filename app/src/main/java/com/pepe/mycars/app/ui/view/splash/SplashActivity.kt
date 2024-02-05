@@ -8,7 +8,7 @@ import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.logMessage
-import com.pepe.mycars.app.utils.state.UserViewState
+import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivitySplashBinding
 import dagger.hilt.android.AndroidEntryPoint

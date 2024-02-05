@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.utils.FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS
+import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
 import com.pepe.mycars.app.utils.state.UserModelState
-import com.pepe.mycars.app.utils.state.UserViewState
+import com.pepe.mycars.app.utils.state.view.UserViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

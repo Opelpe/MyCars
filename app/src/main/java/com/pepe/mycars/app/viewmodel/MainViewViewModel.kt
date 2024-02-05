@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.utils.FireStoreDocumentField
+import com.pepe.mycars.app.utils.FireStoreUserDocField
 import com.pepe.mycars.app.utils.state.UserModelState
-import com.pepe.mycars.app.utils.state.UserViewState
+import com.pepe.mycars.app.utils.state.view.UserViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -29,7 +29,7 @@ class MainViewViewModel @Inject constructor(
                     is UserModelState.Error -> _userMainViewState.postValue(UserViewState.Error(it.exceptionMsg))
 
                     is UserModelState.Success -> {
-                        val isGuest = it.userModel!!.providerType == FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS
+                        val isGuest = it.userModel!!.providerType == FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
                         _userMainViewState.postValue(
                             UserViewState.Success(
                                 true,
@@ -56,8 +56,8 @@ class MainViewViewModel @Inject constructor(
     }
 
     private fun getActionSynchronizeResponse(response: String): String {
-        return if (response == FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS || response == FireStoreDocumentField.ACCOUNT_PROVIDER_EMAIL || response == FireStoreDocumentField.ACCOUNT_PROVIDER_GOOGLE) {
-            if (response == FireStoreDocumentField.ACCOUNT_PROVIDER_ANONYMOUS) "Sign in & Synchronize data" else "Your data is synchronized"
+        return if (response == FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS || response == FireStoreUserDocField.ACCOUNT_PROVIDER_EMAIL || response == FireStoreUserDocField.ACCOUNT_PROVIDER_GOOGLE) {
+            if (response == FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS) "Sign in & Synchronize data" else "Your data is synchronized"
         } else {
             response
         }

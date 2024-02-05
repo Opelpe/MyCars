@@ -21,7 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.GoogleAuthProvider
 import com.pepe.mycars.app.utils.ColorUtils
-import com.pepe.mycars.app.utils.state.LoginViewState
+import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogLoginBinding
 import dagger.hilt.android.AndroidEntryPoint

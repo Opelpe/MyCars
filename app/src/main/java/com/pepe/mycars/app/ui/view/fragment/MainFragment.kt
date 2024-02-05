@@ -17,7 +17,7 @@ import com.pepe.mycars.R
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.NetworkManager
 import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.state.UserViewState
+import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.MainViewViewModel
 import com.pepe.mycars.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint

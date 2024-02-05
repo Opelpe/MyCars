@@ -4,6 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <RelativeLayout
+        android:id="@+id/progressView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/progress_background"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible" />
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/refillDialogTitle"
         android:layout_width="match_parent"
@@ -76,7 +95,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/refilledFuelContainer"
+        android:id="@+id/refillAmountContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/settings_start_end_padding"
@@ -90,7 +109,7 @@
         app:suffixText="@string/capacity_units">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/refilledFuelInput"
+            android:id="@+id/refillAmountInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/refilled_fuel_text"
@@ -108,7 +127,7 @@
         android:paddingVertical="@dimen/refill_et_padding_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/refilledFuelContainer"
+        app:layout_constraintTop_toBottomOf="@id/refillAmountContainer"
         app:placeholderText="PRICE PER LITTER"
         app:placeholderTextColor="@color/pistachio"
         app:suffixText="@string/price_units"
