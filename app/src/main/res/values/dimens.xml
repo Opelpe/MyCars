@@ -3,9 +3,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="text_xl">60sp</dimen>
-    <dimen name="text_small">9sp</dimen>
+    <dimen name="text_size_item_desc">7sp</dimen>
 
-    <dimen name="text_big">25sp</dimen>
+    <dimen name="text_size_big">20sp</dimen>
     <dimen name="big_text_pad">3dp</dimen>
     <dimen name="small_text_pad">3dp</dimen>
     <dimen name="edit_text_padding">15dp</dimen>
@@ -13,6 +13,7 @@
     <dimen name="setttings_text_padding">20dp</dimen>
     <dimen name="settings_start_end_padding">35dp</dimen>
     <dimen name="refill_et_padding_vertical">15dp</dimen>
+
     <dimen name="text_size_normal">18sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="space_12dp">12dp</dimen>

@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/usage_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintEnd_toEndOf="@id/averageUsageScore"
             app:layout_constraintTop_toBottomOf="@id/averageUsageScore"
             tools:ignore="SmallSp" />
@@ -78,7 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/traveling_costs_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintEnd_toEndOf="@id/travelingCostsScore"
             app:layout_constraintTop_toBottomOf="@id/travelingCostsScore" />
 
@@ -119,7 +119,7 @@
             android:paddingStart="2dp"
             android:paddingEnd="3dp"
             android:text="@string/usage_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintStart_toEndOf="@id/lRefillUsageScore"
             app:layout_constraintTop_toBottomOf="@id/lastRefillTitle" />
 
@@ -154,7 +154,7 @@
             android:paddingStart="2dp"
             android:paddingEnd="3dp"
             android:text="@string/price_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintStart_toEndOf="@id/lRefillPriceScore"
             app:layout_constraintTop_toTopOf="@id/lRefillPriceScore" />
 
@@ -191,7 +191,7 @@
             android:paddingStart="2dp"
             android:paddingEnd="3dp"
             android:text="@string/mileage_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintEnd_toStartOf="@id/lRefillDividerLeft"
             app:layout_constraintTop_toTopOf="@id/lRefillMileageScore" />
 
@@ -251,7 +251,7 @@
             android:paddingStart="2dp"
             android:paddingEnd="3dp"
             android:text="@string/price_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintStart_toEndOf="@id/tRefillCashScore"
             app:layout_constraintTop_toTopOf="@id/tRefillCashScore" />
 
@@ -288,7 +288,7 @@
             android:paddingStart="2dp"
             android:paddingEnd="3dp"
             android:text="@string/capacity_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintStart_toEndOf="@id/tRefillVolumeScore"
             app:layout_constraintTop_toTopOf="@id/tRefillVolumeScore" />
 
@@ -325,7 +325,7 @@
             android:paddingStart="2dp"
             android:paddingEnd="3dp"
             android:text="@string/mileage_units"
-            android:textSize="@dimen/text_small"
+            android:textSize="@dimen/text_size_item_desc"
             app:layout_constraintEnd_toStartOf="@id/tRefillDividerLeft"
             app:layout_constraintTop_toTopOf="@id/tRefillAdMileageScore" />
 
