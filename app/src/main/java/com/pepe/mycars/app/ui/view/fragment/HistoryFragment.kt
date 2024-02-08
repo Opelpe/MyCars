@@ -7,9 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.pepe.mycars.app.data.adapter.HistoryAdapter
+import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.state.view.DataViewState
+import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
 import com.pepe.mycars.app.viewmodel.ItemHistoryViewModel
 import com.pepe.mycars.databinding.FragmentHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,6 +41,11 @@ class HistoryFragment : Fragment() {
         return binding.root
     }
 
+    private fun setHistoryItems(data: List<HistoryItemUiModel>) {
+        binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.historyRecyclerView.adapter = HistoryAdapter(data)
+    }
+
     override fun onStart() {
         super.onStart()
         itemHistoryViewModel.getListOfRefills()
@@ -44,32 +53,32 @@ class HistoryFragment : Fragment() {
 
     private fun observeItemSate() {
 
-
-
-        itemHistoryViewModel.dataViewState.observe(viewLifecycleOwner) {
+        itemHistoryViewModel.historyItemViewState.observe(viewLifecycleOwner) {
             when (it) {
-                DataViewState.Loading -> {
+                HistoryItemViewState.Loading -> {
 //                    setProgressVisibility(true)
                 }
 
-                is DataViewState.Error -> {
+                is HistoryItemViewState.Error -> {
                     if (it.errorMsg.isNotBlank()) {
                         requireActivity().displayToast(it.errorMsg)
                     }
 //                    setProgressVisibility(false)
                 }
 
-                is DataViewState.Success -> {
+                is HistoryItemViewState.Success -> {
 
-                    if (it.successMsg.isNotBlank()) {
-                        requireActivity().displayToast(it.successMsg)
-                    }
+//                    if (it.successMsg.isNotBlank()) {
+//                        requireActivity().displayToast(it.successMsg)
+//                    }
+//
+//                    if (it.successMsg == "Saved!") {
+//                        dismissDialog("refillDialog")
+//                        itemHistoryViewModel.getListOfRefills()
+//                    }
 
-                    if (it.successMsg == "Saved!") {
-                        requireActivity().displayToast(it.successMsg)
-                        dismissDialog("refillDialog")
-                        itemHistoryViewModel.getListOfRefills()
-                    }
+                    setHistoryItems(it.data)
+
 
 //                    setProgressVisibility(false)
                 }

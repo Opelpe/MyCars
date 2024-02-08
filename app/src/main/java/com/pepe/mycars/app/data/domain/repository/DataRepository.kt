@@ -7,9 +7,9 @@ interface DataRepository {
     fun getUserItems(): Flow<ItemModelState>
 
     fun addDataRefillItem(
-        currMileage: String,
-        fuelCost: String,
-        fuelAmount: String,
+        currMileage: Float,
+        fuelCost: Float,
+        fuelAmount: Float,
         refillDate: String,
         notes: String
     ): Flow<ItemModelState>

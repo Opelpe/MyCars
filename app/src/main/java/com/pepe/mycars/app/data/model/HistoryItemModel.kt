@@ -2,12 +2,14 @@ package com.pepe.mycars.app.data.model
 
 import com.google.firebase.firestore.DocumentId
 
-data class ItemRefillModel(
+data class HistoryItemModel(
     @DocumentId
     val itemId: String? = null,
-    val currMileage: String = "",
-    val fuelCost: String = "",
-    val fuelAmount: String = "",
+    val currMileage: Float? = null,
+    val fuelPrice: Float? = null,
+    val fuelAmount: Float? = null,
     val refillDate: String = "",
     val notes: String = ""
-)
+) {
+
+}
