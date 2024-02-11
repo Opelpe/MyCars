@@ -10,18 +10,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pepe.mycars.app.data.adapter.HistoryAdapter
 import com.pepe.mycars.app.data.local.HistoryItemUiModel
-import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
-import com.pepe.mycars.app.viewmodel.ItemHistoryViewModel
+import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 import com.pepe.mycars.databinding.FragmentHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
 
-    private val itemHistoryViewModel: ItemHistoryViewModel by activityViewModels()
+    private val historyViewViewModel: HistoryViewViewModel by activityViewModels()
 
     private lateinit var binding: FragmentHistoryBinding
 
@@ -31,7 +30,7 @@ class HistoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        itemHistoryViewModel.getListOfRefills()
+        historyViewViewModel.getListOfRefills()
         observeItemSate()
         binding.floatingRefillButton.setOnClickListener {
             val dialog = RefillDialog()
@@ -41,19 +40,14 @@ class HistoryFragment : Fragment() {
         return binding.root
     }
 
-    private fun setHistoryItems(data: List<HistoryItemUiModel>) {
-        binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding.historyRecyclerView.adapter = HistoryAdapter(data)
-    }
-
     override fun onStart() {
         super.onStart()
-        itemHistoryViewModel.getListOfRefills()
+        historyViewViewModel.getListOfRefills()
     }
 
     private fun observeItemSate() {
 
-        itemHistoryViewModel.historyItemViewState.observe(viewLifecycleOwner) {
+        historyViewViewModel.historyItemViewState.observe(viewLifecycleOwner) {
             when (it) {
                 HistoryItemViewState.Loading -> {
 //                    setProgressVisibility(true)
@@ -68,27 +62,22 @@ class HistoryFragment : Fragment() {
 
                 is HistoryItemViewState.Success -> {
 
-//                    if (it.successMsg.isNotBlank()) {
-//                        requireActivity().displayToast(it.successMsg)
-//                    }
-//
-//                    if (it.successMsg == "Saved!") {
-//                        dismissDialog("refillDialog")
-//                        itemHistoryViewModel.getListOfRefills()
-//                    }
-
+                    if (it.successMsg.isNotBlank()) {
+                        requireActivity().displayToast(it.successMsg)
+                    }
+                    if (it.successMsg == "Saved!") {
+                        historyViewViewModel.getListOfRefills()
+                    }
                     setHistoryItems(it.data)
-
-
-//                    setProgressVisibility(false)
+//                  setProgressVisibility(false)
                 }
             }
         }
     }
 
-    private fun dismissDialog(tag: String){
-            requireActivity().supportFragmentManager.findFragmentByTag(tag)?.let {
-                if(it is DialogFragment) it.dismiss() }
+    private fun setHistoryItems(data: List<HistoryItemUiModel>) {
+        binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.historyRecyclerView.adapter = HistoryAdapter(data)
     }
 
 }

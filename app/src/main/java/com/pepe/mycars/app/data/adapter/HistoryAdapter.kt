@@ -33,20 +33,31 @@ class HistoryAdapter(val data: List<HistoryItemUiModel>) : RecyclerView.Adapter<
 
             for (i in refillList.indices) {
                 if (position == i) {
-                    historyHolder.hDateText.setText(refillList[i].refillDate)
-                    historyHolder.hMileageText.setText(refillList[i].currMileage)
-                    historyHolder.hLittersText.setText(refillList[i].fuelAmount)
-                    historyHolder.hExpensesText.setText(refillList[i].fuelCost)
-                    historyHolder.hAddedMileageText.setText(data[i].addedMileage)
-                    if (!data[i].fuelUsage.isNullOrEmpty()) {
-                        historyHolder.hAverageUsageText.setText(data[i].fuelUsage)
+                    historyHolder.hDateText.text = refillList[i].refillDate
+                    if (data[i].refillDate.isNotEmpty()) {
+                        historyHolder.hDateText.text = refillList[i].refillDate
+                    }
+                    if (data[i].currMileage.isNotEmpty()) {
+                        historyHolder.hMileageText.text = data[i].currMileage
+                    }
+                    if (data[i].fuelAmount.isNotEmpty()) {
+                        historyHolder.hLittersText.text = data[i].fuelAmount
+                    }
+                    if (data[i].fuelCost.isNotEmpty()) {
+                        historyHolder.hExpensesText.text = data[i].fuelCost
+                    }
+                    if (data[i].addedMileage.isNotEmpty()) {
+                        historyHolder.hAddedMileageText.text = data[i].addedMileage
+                    }
+                    if (data[i].fuelUsage.isNotEmpty()) {
+                        historyHolder.hAverageUsageText.text = data[i].fuelUsage
                     }
                     //                        }
                     if (position == data.size - 1) {
-                        historyHolder.hDateText.setText(refillList[i].refillDate)
-                        historyHolder.hMileageText.setText(refillList[i].currMileage)
-                        historyHolder.hLittersText.setText(refillList[i].fuelAmount)
-                        historyHolder.hExpensesText.setText(refillList[i].fuelCost)
+                        historyHolder.hDateText.text = refillList[i].refillDate
+                        historyHolder.hMileageText.text = refillList[i].currMileage
+                        historyHolder.hLittersText.text = refillList[i].fuelAmount
+                        historyHolder.hExpensesText.text = refillList[i].fuelCost
                     }
                 }
             }

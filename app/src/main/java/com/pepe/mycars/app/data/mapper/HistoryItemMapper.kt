@@ -5,7 +5,7 @@ import com.pepe.mycars.app.data.model.HistoryItemModel
 
 class HistoryItemMapper {
 
-    fun mapToUiModel(model: List<HistoryItemModel>): List<HistoryItemUiModel> {
+    fun mapToHistoryUiModel(model: List<HistoryItemModel>): List<HistoryItemUiModel> {
         val uiList = mutableListOf<HistoryItemUiModel>()
         for (i in model.indices) {
             if (i + 1 < model.size) {

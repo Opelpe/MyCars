@@ -4,9 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.data.domain.repository.UserRepository
+import com.pepe.mycars.app.data.mapper.MainViewModelMapper
 import com.pepe.mycars.app.utils.FireStoreUserDocField
+import com.pepe.mycars.app.utils.state.ItemModelState
 import com.pepe.mycars.app.utils.state.UserModelState
+import com.pepe.mycars.app.utils.state.view.MainViewState
 import com.pepe.mycars.app.utils.state.view.UserViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -15,12 +19,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val dataRepository: DataRepository
 ) : ViewModel (){
 
     private val _userMainViewState: MutableLiveData<UserViewState> =
         MutableLiveData(UserViewState.Loading)
     val userMainViewState: LiveData<UserViewState> = _userMainViewState
+
+    private val _dataMainViewState: MutableLiveData<MainViewState> =
+        MutableLiveData(MainViewState.Loading)
+    val dataMainViewState: LiveData<MainViewState> = _dataMainViewState
+
     fun getUserSyncState() {
             userRepository.getLoggedUserData().onEach {
                 when (it) {
@@ -62,4 +72,21 @@ class MainViewViewModel @Inject constructor(
             response
         }
     }
+
+ fun getListOfRefills() {
+        dataRepository.getUserItems().onEach { state ->
+            when(state){
+                ItemModelState.Loading -> _dataMainViewState.postValue(MainViewState.Loading)
+
+                is ItemModelState.Error -> _dataMainViewState.postValue(MainViewState.Error(state.exceptionMsg))
+
+                is ItemModelState.Success -> {
+                    if (state.model.isNotEmpty()) {
+                        val newModel = MainViewModelMapper().mapToMainViewModel(state.model)
+                        _dataMainViewState.postValue(MainViewState.Success(newModel, ""))
+                    }
+                }
+            }
+        }.launchIn(viewModelScope)
+}
 }

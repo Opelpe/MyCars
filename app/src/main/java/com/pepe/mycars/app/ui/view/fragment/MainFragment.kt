@@ -14,9 +14,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import com.pepe.mycars.R
+import com.pepe.mycars.app.data.local.MainViewModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.NetworkManager
 import com.pepe.mycars.app.utils.displayToast
+import com.pepe.mycars.app.utils.state.view.MainViewState
 import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.MainViewViewModel
 import com.pepe.mycars.databinding.FragmentMainBinding
@@ -30,6 +32,7 @@ class MainFragment : Fragment() {
     var globalMenuItem: MenuItem? = null
     private var isGuest: Boolean = false
     private var isOnline: Boolean = true
+    private val refillDialog = RefillDialog()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,26 +47,11 @@ class MainFragment : Fragment() {
             if (!it) requireActivity().displayToast("Check your internet connection")
         }
 
-        mainViewViewModel.getUserSyncState()
-        mainViewViewModel.userMainViewState.observe(viewLifecycleOwner) { viewSate ->
-            when (viewSate) {
-                UserViewState.Loading -> {}
-
-                is UserViewState.Error -> {
-                    if (viewSate.errorMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewSate.errorMsg)
-                    }
-                }
-
-                is UserViewState.Success -> {
-                    isGuest = viewSate.isAnonymous
-                    setToolbarIcon()
-                }
-            }
-        }
+        observeUserViewState()
+        observeDataViewState()
 
         binding.refillButton.setOnClickListener {
-            RefillDialog().show(requireActivity().supportFragmentManager, "refillDialog")
+            refillDialog.show(requireActivity().supportFragmentManager, "refillDialog")
         }
 
         initToolbar()
@@ -97,6 +85,78 @@ class MainFragment : Fragment() {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mainViewViewModel.getListOfRefills()
+    }
+
+    private fun observeUserViewState() {
+        mainViewViewModel.getUserSyncState()
+        mainViewViewModel.userMainViewState.observe(viewLifecycleOwner) { viewState ->
+            when (viewState) {
+                UserViewState.Loading -> {}
+
+                is UserViewState.Error -> {
+                    if (viewState.errorMsg.isNotEmpty()) {
+                        requireActivity().displayToast(viewState.errorMsg)
+                    }
+                }
+
+                is UserViewState.Success -> {
+                    isGuest = viewState.isAnonymous
+                    setToolbarIcon()
+                }
+            }
+        }
+    }
+
+    private fun observeDataViewState() {
+        mainViewViewModel.getListOfRefills()
+        mainViewViewModel.dataMainViewState.observe(viewLifecycleOwner){ viewState ->
+            when(viewState){
+                MainViewState.Loading->{}
+                is MainViewState.Error->{
+                    if (viewState.errorMsg.isNotEmpty()) {
+                        requireActivity().displayToast(viewState.errorMsg)
+                    }
+                }
+                is MainViewState.Success-> {
+                    if (viewState.successMsg.isNotEmpty()) {
+                        requireActivity().displayToast(viewState.successMsg)
+                    }
+                    setMainViewScore(viewState.data)
+                }
+            }
+        }
+    }
+
+    private fun setMainViewScore(model: MainViewModel) {
+
+        if (model.avrUsage.isNotEmpty()){
+            binding.averageUsageScore.text = model.avrUsage
+        }
+        if (model.avrCosts.isNotEmpty()){
+            binding.travelingCostsScore.text = model.avrCosts
+        }
+        if (model.lastCost.isNotEmpty()){
+            binding.lRefillPriceScore.text = model.lastCost        }
+        if (model.lastMileage.isNotEmpty()){
+            binding.lRefillMileageScore.text = model.lastMileage
+        }
+        if (model.lastUsage.isNotEmpty()){
+            binding.lRefillUsageScore.text = model.lastUsage
+        }
+        if (model.totalMileage.isNotEmpty()){
+            binding.tRefillAdMileageScore.text = model.totalMileage
+        }
+        if (model.totalCost.isNotEmpty()){
+            binding.tRefillCashScore.text = model.totalCost
+        }
+        if (model.totalAmount.isNotEmpty()){
+            binding.tRefillVolumeScore.text = model.totalAmount
+        }
     }
 
     private fun initToolbar() {

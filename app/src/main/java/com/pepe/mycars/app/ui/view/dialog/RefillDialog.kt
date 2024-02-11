@@ -12,7 +12,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
-import com.pepe.mycars.app.viewmodel.ItemHistoryViewModel
+import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
+import com.pepe.mycars.app.viewmodel.MainViewViewModel
 import com.pepe.mycars.databinding.DialogRefillBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +22,8 @@ class RefillDialog : DialogFragment() {
 
     private lateinit var binding: DialogRefillBinding
 
-    private val itemHistoryViewModel: ItemHistoryViewModel by activityViewModels()
+    private val historyViewViewModel: HistoryViewViewModel by activityViewModels()
+    private val mainViewViewModel: MainViewViewModel by activityViewModels()
 
     private val calendar: Calendar = Calendar.getInstance()
 
@@ -42,7 +44,7 @@ class RefillDialog : DialogFragment() {
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.MATCH_PARENT
         dialog?.window?.setLayout(width, height)
-        itemHistoryViewModel.startDataSync()
+        historyViewViewModel.startDataSync()
         observeItemState()
         setDateEditText()
     }
@@ -51,7 +53,11 @@ class RefillDialog : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.saveRefillButton.setOnClickListener { saveNewRefill() }
-        binding.cancelButton.setOnClickListener { dismiss() }
+        binding.cancelButton.setOnClickListener {
+            dismiss()
+            historyViewViewModel.getListOfRefills()
+            mainViewViewModel.getListOfRefills()
+        }
         binding.refillDateContainer.setOnClickListener { showDatePicker() }
         binding.refillDateInput.setOnClickListener { showDatePicker() }
     }
@@ -63,12 +69,12 @@ class RefillDialog : DialogFragment() {
         val fuelPrice = binding.priceOfFuelInput.getText().toString()
         val notes = binding.refillNotesInput.getText().toString()
 
-        itemHistoryViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes)
+        historyViewViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes)
         observeItemState()
     }
 
     private fun observeItemState() {
-        itemHistoryViewModel.historyItemViewState.observe(this) {
+        historyViewViewModel.historyItemViewState.observe(this) {
             when (it) {
                 HistoryItemViewState.Loading -> setProgressVisibility(true)
                 is HistoryItemViewState.Error -> {
@@ -84,8 +90,9 @@ class RefillDialog : DialogFragment() {
                     }
 
                     if (it.successMsg == "Saved!") {
-                        itemHistoryViewModel.getListOfRefills()
                         dialog!!.dismiss()
+                        historyViewViewModel.getListOfRefills()
+                        mainViewViewModel.getListOfRefills()
                     }
 
                     setProgressVisibility(false)
