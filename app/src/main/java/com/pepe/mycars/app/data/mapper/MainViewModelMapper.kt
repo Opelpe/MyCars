@@ -14,7 +14,7 @@ class MainViewModelMapper {
 
     fun mapToMainViewModel(model: List<HistoryItemModel>): MainViewModel {
         val fAvrUsage = countAvrUsage(model)
-        val fAvrPrice = countAvrPrice(model)
+        val fAvrPrice = countTravelingCost(model)
 
         if (model.isNotEmpty()){
             val fCurrMileage = getCurrMileage(model)
@@ -57,9 +57,9 @@ class MainViewModelMapper {
     private fun getTotalCost(model: List<HistoryItemModel>): String {
         var totalPrice = 0f
         for (i in model.indices){
-            totalPrice = model[i].fuelPrice!! * model[i].fuelAmount!!
+            totalPrice += model[i].fuelPrice!! * model[i].fuelAmount!!
         }
-       return formatAvrPrice(totalPrice)
+       return formatTotalCost(totalPrice)
     }
 
     private fun countTotalMileage(model: List<HistoryItemModel>): String {
@@ -166,7 +166,7 @@ class MainViewModelMapper {
         return formatAvrUsage(counter/(model.size - 1))
     }
 
-    private fun countAvrPrice(model: List<HistoryItemModel>): String {
+    private fun countTravelingCost(model: List<HistoryItemModel>): String {
         var price = 0f
         var currentMileage = 0f
         var lastMileage = 0f
@@ -186,22 +186,41 @@ class MainViewModelMapper {
         val addedMileage = currentMileage - lastMileage
         val score = price / addedMileage
         val finalScore = score * 100
-        return formatAvrPrice(finalScore)
+        return formatTravelingCost(finalScore)
 
     }
 
-    private fun formatAvrPrice(avrPrice: Float): String {
-        return if (avrPrice > 9.99) {
-            String.format("%.1f", avrPrice)
+    private fun formatTravelingCost(avrPrice: Float): String {
+        return if (avrPrice > 999.99) {
+            "+999"
         } else {
-            if (avrPrice < 0) {
-                "---,--"
+            if (avrPrice > 9.99) {
+                String.format("%.1f", avrPrice)
             } else {
-                String.format("%.2f", avrPrice)
+                if (avrPrice <= 0) {
+                    "---,--"
+                } else {
+                    String.format("%.2f", avrPrice)
+                }
             }
         }
     }
 
+    private fun formatTotalCost(totalCost: Float): String {
+        return if (totalCost > 99999.99) {
+            "+99999"
+        } else {
+            if (totalCost > 9.99) {
+                String.format("%.1f", totalCost)
+            } else {
+                if (totalCost <= 0) {
+                    "---,--"
+                } else {
+                    String.format("%.2f", totalCost)
+                }
+            }
+        }
+    }
 
     private fun formatAvrUsage(usage: Float): String {
         return if (usage > 9.99) {

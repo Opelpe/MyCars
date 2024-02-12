@@ -134,28 +134,29 @@ class MainFragment : Fragment() {
 
     private fun setMainViewScore(model: MainViewModel) {
 
-        if (model.avrUsage.isNotEmpty()){
-            binding.averageUsageScore.text = model.avrUsage
+        if (model.avrUsage.isNotEmpty()) {
+            binding.averageUsageScoreTitle.text = model.avrUsage
         }
-        if (model.avrCosts.isNotEmpty()){
-            binding.travelingCostsScore.text = model.avrCosts
+        if (model.avrCosts.isNotEmpty()) {
+            binding.travelingCostsScoreTitle.text = model.avrCosts
         }
-        if (model.lastCost.isNotEmpty()){
-            binding.lRefillPriceScore.text = model.lastCost        }
-        if (model.lastMileage.isNotEmpty()){
-            binding.lRefillMileageScore.text = model.lastMileage
+        if (model.lastCost.isNotEmpty()) {
+            binding.lastCostTitle.text = model.lastCost
         }
-        if (model.lastUsage.isNotEmpty()){
-            binding.lRefillUsageScore.text = model.lastUsage
+        if (model.lastMileage.isNotEmpty()) {
+            binding.lastMileageTitle.text = model.lastMileage
         }
-        if (model.totalMileage.isNotEmpty()){
-            binding.tRefillAdMileageScore.text = model.totalMileage
+        if (model.lastUsage.isNotEmpty()) {
+            binding.lastUsageTitle.text = model.lastUsage
         }
-        if (model.totalCost.isNotEmpty()){
-            binding.tRefillCashScore.text = model.totalCost
+        if (model.totalMileage.isNotEmpty()) {
+            binding.totalMileageTitle.text = model.totalMileage
         }
-        if (model.totalAmount.isNotEmpty()){
-            binding.tRefillVolumeScore.text = model.totalAmount
+        if (model.totalCost.isNotEmpty()) {
+            binding.totalCostTitle.text = model.totalCost
+        }
+        if (model.totalAmount.isNotEmpty()) {
+            binding.totalAddedFuelTitle.text = model.totalAmount
         }
     }
 

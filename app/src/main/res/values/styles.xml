@@ -11,8 +11,7 @@
     </style>
 
     <style name="green_round_button" parent="Widget.AppCompat.ImageButton">
-        <item name="android:backgroundTint">@color/green</item>
-        <item name="android:background">@drawable/circle_button</item>
+        <item name="android:background">@drawable/common_round_button_selectable</item>
         <item name="android:tint">@color/white</item>
     </style>
 
