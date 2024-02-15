@@ -3,7 +3,7 @@ package com.pepe.mycars.app.data.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.R
@@ -33,36 +33,34 @@ class HistoryAdapter(val data: List<HistoryItemUiModel>) : RecyclerView.Adapter<
 
             for (i in refillList.indices) {
                 if (position == i) {
-                    historyHolder.hDateText.text = refillList[i].refillDate
+                    historyHolder.dateTitle.text = refillList[i].refillDate
                     if (data[i].refillDate.isNotEmpty()) {
-                        historyHolder.hDateText.text = refillList[i].refillDate
+                        historyHolder.dateTitle.text = refillList[i].refillDate
                     }
                     if (data[i].currMileage.isNotEmpty()) {
-                        historyHolder.hMileageText.text = data[i].currMileage
+                        historyHolder.mileageTitle.text = data[i].currMileage
                     }
                     if (data[i].fuelAmount.isNotEmpty()) {
-                        historyHolder.hLittersText.text = data[i].fuelAmount
+                        historyHolder.fuelAmountTitle.text = data[i].fuelAmount
                     }
                     if (data[i].fuelCost.isNotEmpty()) {
-                        historyHolder.hExpensesText.text = data[i].fuelCost
+                        historyHolder.expenseTitle.text = data[i].fuelCost
                     }
                     if (data[i].addedMileage.isNotEmpty()) {
-                        historyHolder.hAddedMileageText.text = data[i].addedMileage
+                        historyHolder.addedMileageTitle.text = data[i].addedMileage
                     }
                     if (data[i].fuelUsage.isNotEmpty()) {
-                        historyHolder.hAverageUsageText.text = data[i].fuelUsage
+                        historyHolder.averageUsageTitle.text = data[i].fuelUsage
                     }
-                    //                        }
                     if (position == data.size - 1) {
-                        historyHolder.hDateText.text = refillList[i].refillDate
-                        historyHolder.hMileageText.text = refillList[i].currMileage
-                        historyHolder.hLittersText.text = refillList[i].fuelAmount
-                        historyHolder.hExpensesText.text = refillList[i].fuelCost
+                        historyHolder.dateTitle.text = refillList[i].refillDate
+                        historyHolder.mileageTitle.text = refillList[i].currMileage
+                        historyHolder.fuelAmountTitle.text = refillList[i].fuelAmount
+                        historyHolder.expenseTitle.text = refillList[i].fuelCost
                     }
                 }
             }
         }
-
     }
 
     override fun getItemCount(): Int {
@@ -71,23 +69,23 @@ class HistoryAdapter(val data: List<HistoryItemUiModel>) : RecyclerView.Adapter<
 
 
 internal class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var hDateText: TextView
-    var hMileageText: TextView
-    var hAddedMileageText: TextView
-    var hExpensesText: TextView
-    var hAverageUsageText: TextView
-    var hItemIDText: TextView
-    var hLittersText: TextView
-    var deleteItemButton: ImageButton
+    var dateTitle: TextView
+    var mileageTitle: TextView
+    var addedMileageTitle: TextView
+    var expenseTitle: TextView
+    var averageUsageTitle: TextView
+    var itemidTitle: TextView
+    var fuelAmountTitle: TextView
+    var deleteItemButton: ImageView
 
     init {
-        hDateText = itemView.findViewById(R.id.historyDateText)
-        hMileageText = itemView.findViewById(R.id.historyMileageText)
-        hAddedMileageText = itemView.findViewById(R.id.historyAddedMileageText)
-        hExpensesText = itemView.findViewById(R.id.historyExpenseText)
-        hAverageUsageText = itemView.findViewById(R.id.historyAverageUsageText)
-        hItemIDText = itemView.findViewById(R.id.historyItemIdText)
-        hLittersText = itemView.findViewById(R.id.historyLittersText)
+        dateTitle = itemView.findViewById(R.id.historyDateTitle)
+        mileageTitle = itemView.findViewById(R.id.historyMileageTitle)
+        addedMileageTitle = itemView.findViewById(R.id.historyAddedMileageTitle)
+        expenseTitle = itemView.findViewById(R.id.historyExpenseTitle)
+        averageUsageTitle = itemView.findViewById(R.id.historyAvrUsageTitle)
+        itemidTitle = itemView.findViewById(R.id.historyItemIdText)
+        fuelAmountTitle = itemView.findViewById(R.id.historyLittersText)
         deleteItemButton = itemView.findViewById(R.id.deleteHistoryButton)
     }
 }
