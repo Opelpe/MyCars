@@ -6,11 +6,13 @@ interface DataRepository {
 
     fun getUserItems(): Flow<ItemModelState>
 
-    fun addDataRefillItem(
+    fun addRefillItem(
         currMileage: Float,
         fuelCost: Float,
         fuelAmount: Float,
         refillDate: String,
         notes: String
     ): Flow<ItemModelState>
+
+    fun deleteRefillItem(itemId: String): Flow<ItemModelState>
 }

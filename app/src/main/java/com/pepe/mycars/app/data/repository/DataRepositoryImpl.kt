@@ -30,7 +30,11 @@ class DataRepositoryImpl(
             if (firebaseUser != null){
                 val uId = firebaseUser.uid
                 val refillData = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get().await()
-                refillData?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
+                if (refillData != null && !refillData.isEmpty){
+                    emit(ItemModelState.Success(refillData.toObjects(HistoryItemModel::class.java)))
+                }else{
+                    emit(ItemModelState.Error( ""))
+                }
 
             }else{
                 emit(ItemModelState.Error( "Not logged"))
@@ -44,7 +48,7 @@ class DataRepositoryImpl(
         }
     }
 
-    override fun addDataRefillItem(
+    override fun addRefillItem(
         currMileage: Float,
         fuelCost: Float,
         fuelAmount: Float,
@@ -74,6 +78,30 @@ class DataRepositoryImpl(
         emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
     }
 
+    }
+
+    override fun deleteRefillItem(itemId: String): Flow<ItemModelState> = flow{
+        emit(ItemModelState.Loading)
+        val firebaseUser = auth.currentUser
+        try {
+            if (firebaseUser != null) {
+                val uId = firebaseUser.uid
+                val itemSnapshot = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).get().await()
+                if (itemSnapshot.exists()){
+                    fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).delete().await()
+                    val response = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get().await()
+                    response?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
+                }
+            }else{
+                emit(ItemModelState.Error( "Not logged"))
+            }
+        } catch (e: HttpException) {
+            emit(ItemModelState.Error( e.localizedMessage ?: "Unknown Error"))
+        } catch (e: IOException) {
+            emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+        } catch (e: Exception) {
+            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
+        }
     }
 
 }

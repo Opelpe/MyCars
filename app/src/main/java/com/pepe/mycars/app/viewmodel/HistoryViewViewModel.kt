@@ -28,12 +28,12 @@ constructor(
                 when(state){
                 ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
 
-                is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg))
+                is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
 
                 is ItemModelState.Success -> {
                     if (state.model.isNotEmpty()) {
                         val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, ""))
+                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.NONE))
                     }
                 }
         }
@@ -49,18 +49,18 @@ constructor(
     ) {
 
         if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()){
-            _historyItemViewState.postValue(HistoryItemViewState.Error("Enter the necessary data!"))
+            _historyItemViewState.postValue(HistoryItemViewState.Error("Enter the necessary data!", HistoryOperations.NONE))
         }else{
 
-            dataRepository.addDataRefillItem(currMileage.toFloat(), fuelCost.toFloat(), fuelAmount.toFloat(), refillDate, notes ?: "").onEach { state ->
+            dataRepository.addRefillItem(currMileage.toFloat(), fuelCost.toFloat(), fuelAmount.toFloat(), refillDate, notes ?: "").onEach { state ->
                 when(state){
                     ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
 
-                    is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg))
+                    is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
 
                     is ItemModelState.Success -> {
                         val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, "Saved!"))
+                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.ADDED))
                     }
                 }
             }.launchIn(viewModelScope)
@@ -70,7 +70,35 @@ constructor(
 
     fun startDataSync() {
         val emptyList = emptyList<HistoryItemUiModel>()
-        _historyItemViewState.postValue(HistoryItemViewState.Success(emptyList,""))
+        _historyItemViewState.postValue(HistoryItemViewState.Success(emptyList, "", HistoryOperations.START_DATA))
     }
+
+    fun deleteItem(itemId: String) {
+        dataRepository.deleteRefillItem(itemId).onEach { state ->
+            when(state){
+                ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
+
+                is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
+
+                is ItemModelState.Success -> {
+                    val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
+                    _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.REMOVED))
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun displayDeletionConfirmation(itemId: String) {
+        _historyItemViewState.postValue(HistoryItemViewState.Error(itemId, HistoryOperations.DISPLAY_CONFIRMATION_DIALOG))
+    }
+
+}
+
+enum class HistoryOperations {
+    NONE,
+    DISPLAY_CONFIRMATION_DIALOG,
+    START_DATA,
+    REMOVED,
+    ADDED
 
 }

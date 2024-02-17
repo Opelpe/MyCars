@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
+import com.pepe.mycars.app.viewmodel.HistoryOperations
 import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 import com.pepe.mycars.app.viewmodel.MainViewViewModel
 import com.pepe.mycars.databinding.DialogRefillBinding
@@ -89,7 +90,7 @@ class RefillDialog : DialogFragment() {
                         requireActivity().displayToast(it.successMsg)
                     }
 
-                    if (it.successMsg == "Saved!") {
+                    if (it.historyOperations == HistoryOperations.ADDED) {
                         dialog!!.dismiss()
                         historyViewViewModel.getListOfRefills()
                         mainViewViewModel.getListOfRefills()

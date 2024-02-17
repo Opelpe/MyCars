@@ -8,8 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.R
 import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 
-class HistoryAdapter(val data: List<HistoryItemUiModel>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class HistoryAdapter(data: List<HistoryItemUiModel>, private val historyViewViewModel: HistoryViewViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var refillList = data
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val historyView: View =
             LayoutInflater.from(parent.context).inflate(R.layout.item_history, parent, false)
@@ -21,38 +25,39 @@ class HistoryAdapter(val data: List<HistoryItemUiModel>) : RecyclerView.Adapter<
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val historyHolder = holder as HistoryViewHolder
 
-        if (data.isNotEmpty()) {
+        if (refillList.isNotEmpty()) {
+
             historyHolder.deleteItemButton.setOnClickListener { view: View? ->
-//                    itemModelList.get(position).itemID
+                historyViewViewModel.displayDeletionConfirmation(refillList[position].itemId)
             }
-            historyHolder.itemView.setOnClickListener { view: View? ->
-//                    itemModelList.get(position).itemID
+            historyHolder.itemView.setOnLongClickListener {
+                historyViewViewModel.displayDeletionConfirmation(refillList[position].itemId)
+                true
             }
 
-            val refillList = data
-
+            val refillList = refillList
             for (i in refillList.indices) {
                 if (position == i) {
                     historyHolder.dateTitle.text = refillList[i].refillDate
-                    if (data[i].refillDate.isNotEmpty()) {
+                    if (this.refillList[i].refillDate.isNotEmpty()) {
                         historyHolder.dateTitle.text = refillList[i].refillDate
                     }
-                    if (data[i].currMileage.isNotEmpty()) {
-                        historyHolder.mileageTitle.text = data[i].currMileage
+                    if (this.refillList[i].currMileage.isNotEmpty()) {
+                        historyHolder.mileageTitle.text = this.refillList[i].currMileage
                     }
-                    if (data[i].fuelAmount.isNotEmpty()) {
-                        historyHolder.fuelAmountTitle.text = data[i].fuelAmount
+                    if (this.refillList[i].fuelAmount.isNotEmpty()) {
+                        historyHolder.fuelAmountTitle.text = this.refillList[i].fuelAmount
                     }
-                    if (data[i].fuelCost.isNotEmpty()) {
-                        historyHolder.expenseTitle.text = data[i].fuelCost
+                    if (this.refillList[i].fuelCost.isNotEmpty()) {
+                        historyHolder.expenseTitle.text = this.refillList[i].fuelCost
                     }
-                    if (data[i].addedMileage.isNotEmpty()) {
-                        historyHolder.addedMileageTitle.text = data[i].addedMileage
+                    if (this.refillList[i].addedMileage.isNotEmpty()) {
+                        historyHolder.addedMileageTitle.text = this.refillList[i].addedMileage
                     }
-                    if (data[i].fuelUsage.isNotEmpty()) {
-                        historyHolder.averageUsageTitle.text = data[i].fuelUsage
+                    if (this.refillList[i].fuelUsage.isNotEmpty()) {
+                        historyHolder.averageUsageTitle.text = this.refillList[i].fuelUsage
                     }
-                    if (position == data.size - 1) {
+                    if (position == this.refillList.size - 1) {
                         historyHolder.dateTitle.text = refillList[i].refillDate
                         historyHolder.mileageTitle.text = refillList[i].currMileage
                         historyHolder.fuelAmountTitle.text = refillList[i].fuelAmount
@@ -64,9 +69,17 @@ class HistoryAdapter(val data: List<HistoryItemUiModel>) : RecyclerView.Adapter<
     }
 
     override fun getItemCount(): Int {
-       return data.size
+       return refillList.size
     }
 
+    fun refreshList(data: List<HistoryItemUiModel>) {
+        refillList = data
+        this.notifyDataSetChanged()
+    }
+
+    fun deleteItem(itemId: String) {
+        historyViewViewModel.deleteItem(itemId)
+    }
 
 internal class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var dateTitle: TextView
