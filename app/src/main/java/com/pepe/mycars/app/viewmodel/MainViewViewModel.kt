@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.data.domain.usecase.GetUserDataUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.GetUserDataUseCase
 import com.pepe.mycars.app.data.mapper.MainViewModelMapper
 import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.utils.FireStoreUserDocField

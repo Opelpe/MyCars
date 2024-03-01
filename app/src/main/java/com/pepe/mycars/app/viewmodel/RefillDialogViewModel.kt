@@ -3,7 +3,7 @@ package com.pepe.mycars.app.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.usecase.AddItemUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.AddItemUseCase
 import com.pepe.mycars.app.utils.state.ItemModelState
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
 import com.pepe.mycars.app.utils.state.view.MainViewState

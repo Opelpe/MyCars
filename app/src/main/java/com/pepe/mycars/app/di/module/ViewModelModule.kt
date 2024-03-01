@@ -1,8 +1,8 @@
 package com.pepe.mycars.app.di.module
 
 import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.data.domain.usecase.DeleteItemUseCase
-import com.pepe.mycars.app.data.domain.usecase.GetUserDataUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.GetUserDataUseCase
 import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 import com.pepe.mycars.app.viewmodel.MainViewViewModel
 import dagger.Module

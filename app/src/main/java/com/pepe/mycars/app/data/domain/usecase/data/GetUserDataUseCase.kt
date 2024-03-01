@@ -1,4 +1,4 @@
-package com.pepe.mycars.app.data.domain.usecase
+package com.pepe.mycars.app.data.domain.usecase.data
 
 import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.utils.state.ItemModelState

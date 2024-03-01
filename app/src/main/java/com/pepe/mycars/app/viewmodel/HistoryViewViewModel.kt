@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.usecase.DeleteItemUseCase
-import com.pepe.mycars.app.data.domain.usecase.GetUserDataUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.GetUserDataUseCase
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
 import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.utils.state.ItemModelState
