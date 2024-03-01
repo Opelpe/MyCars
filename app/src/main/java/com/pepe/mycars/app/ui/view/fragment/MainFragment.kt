@@ -32,7 +32,6 @@ class MainFragment : Fragment() {
     var globalMenuItem: MenuItem? = null
     private var isGuest: Boolean = false
     private var isOnline: Boolean = true
-    private val refillDialog = RefillDialog()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +50,7 @@ class MainFragment : Fragment() {
         observeDataViewState()
 
         binding.refillButton.setOnClickListener {
-            refillDialog.show(requireActivity().supportFragmentManager, "refillDialog")
+            RefillDialog().show(requireActivity().supportFragmentManager, "refillDialog")
         }
 
         initToolbar()
@@ -87,11 +86,6 @@ class MainFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    override fun onStart() {
-        super.onStart()
-        mainViewViewModel.getListOfRefills()
-    }
-
     private fun observeUserViewState() {
         mainViewViewModel.getUserSyncState()
         mainViewViewModel.userMainViewState.observe(viewLifecycleOwner) { viewState ->
@@ -105,6 +99,9 @@ class MainFragment : Fragment() {
                 }
 
                 is UserViewState.Success -> {
+                    if (viewState.successMsg.isNotEmpty()) {
+                        requireActivity().displayToast(viewState.successMsg)
+                    }
                     isGuest = viewState.isAnonymous
                     setToolbarIcon()
                 }

@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.data.domain.repository.UserRepository
+import com.pepe.mycars.app.data.domain.usecase.GetUserDataUseCase
 import com.pepe.mycars.app.data.mapper.MainViewModelMapper
+import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.utils.FireStoreUserDocField
 import com.pepe.mycars.app.utils.state.ItemModelState
 import com.pepe.mycars.app.utils.state.UserModelState
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val dataRepository: DataRepository
+    private val getUserDataUseCase: GetUserDataUseCase
 ) : ViewModel (){
 
     private val _userMainViewState: MutableLiveData<UserViewState> =
@@ -74,19 +75,32 @@ class MainViewViewModel @Inject constructor(
     }
 
  fun getListOfRefills() {
-        dataRepository.getUserItems().onEach { state ->
-            when(state){
-                ItemModelState.Loading -> _dataMainViewState.postValue(MainViewState.Loading)
+     getUserDataUseCase.execute().onEach { state ->
+         when(state){
+             ItemModelState.Loading -> _dataMainViewState.postValue(MainViewState.Loading)
 
-                is ItemModelState.Error -> _dataMainViewState.postValue(MainViewState.Error(state.exceptionMsg))
+             is ItemModelState.Error -> _dataMainViewState.postValue(MainViewState.Error(state.exceptionMsg))
 
-                is ItemModelState.Success -> {
-                    if (state.model.isNotEmpty()) {
-                        val newModel = MainViewModelMapper().mapToMainViewModel(state.model)
-                        _dataMainViewState.postValue(MainViewState.Success(newModel, ""))
-                    }
-                }
-            }
-        }.launchIn(viewModelScope)
+             is ItemModelState.Success -> {
+                 if (state.model.isNotEmpty()) {
+                     val newModel = MainViewModelMapper().mapToMainViewModel(state.model)
+                     _dataMainViewState.postValue(MainViewState.Success(newModel, ""))
+                 }
+             }
+         }
+     }.launchIn(viewModelScope)
 }
+
+    fun addingItem() {
+        _dataMainViewState.postValue(MainViewState.Loading)
+    }
+
+    fun addingItemError(exceptionMsg: String) {
+        _dataMainViewState.postValue(MainViewState.Error(exceptionMsg))
+    }
+
+    fun addingItemSuccess(model: List<HistoryItemModel>, message: String) {
+        val newModel = MainViewModelMapper().mapToMainViewModel(model)
+        _dataMainViewState.postValue(MainViewState.Success(newModel, message))
+    }
 }
