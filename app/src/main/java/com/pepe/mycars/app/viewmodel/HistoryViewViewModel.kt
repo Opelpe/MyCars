@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.repository.DataRepository
-import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.data.domain.usecase.DeleteItemUseCase
+import com.pepe.mycars.app.data.domain.usecase.GetUserDataUseCase
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
+import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.utils.state.ItemModelState
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,64 +18,32 @@ import javax.inject.Inject
 @HiltViewModel
 class HistoryViewViewModel @Inject
 constructor(
-    private val dataRepository: DataRepository
+    private val getUserDataUseCase: GetUserDataUseCase,
+    private val deleteItemUseCase: DeleteItemUseCase
 ) : ViewModel() {
 
     private val _historyItemViewState: MutableLiveData<HistoryItemViewState> = MutableLiveData(HistoryItemViewState.Loading)
     val historyItemViewState: LiveData<HistoryItemViewState> = _historyItemViewState
 
-        fun getListOfRefills() {
-            dataRepository.getUserItems().onEach { state ->
-                when(state){
-                ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
-
-                is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
-
-                is ItemModelState.Success -> {
-                    if (state.model.isNotEmpty()) {
-                        val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.NONE))
-                    }
-                }
-        }
-        }.launchIn(viewModelScope)
-    }
-
-    fun addRefill(
-        currMileage: String?,
-        fuelCost: String?,
-        fuelAmount: String?,
-        refillDate: String?,
-        notes: String?
-    ) {
-
-        if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()){
-            _historyItemViewState.postValue(HistoryItemViewState.Error("Enter the necessary data!", HistoryOperations.NONE))
-        }else{
-
-            dataRepository.addRefillItem(currMileage.toFloat(), fuelCost.toFloat(), fuelAmount.toFloat(), refillDate, notes ?: "").onEach { state ->
+        fun updateView() {
+            getUserDataUseCase.execute().onEach { state ->
                 when(state){
                     ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
 
                     is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
 
                     is ItemModelState.Success -> {
-                        val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.ADDED))
+                        if (state.model.isNotEmpty()) {
+                            val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
+                            _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.NONE))
+                        }
                     }
                 }
             }.launchIn(viewModelScope)
-        }
-
-    }
-
-    fun startDataSync() {
-        val emptyList = emptyList<HistoryItemUiModel>()
-        _historyItemViewState.postValue(HistoryItemViewState.Success(emptyList, "", HistoryOperations.START_DATA))
     }
 
     fun deleteItem(itemId: String) {
-        dataRepository.deleteRefillItem(itemId).onEach { state ->
+        deleteItemUseCase.execute(DeleteItemUseCase.Param(itemId)).onEach { state ->
             when(state){
                 ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
 
@@ -92,12 +61,25 @@ constructor(
         _historyItemViewState.postValue(HistoryItemViewState.Error(itemId, HistoryOperations.DISPLAY_CONFIRMATION_DIALOG))
     }
 
+    fun addingItem() {
+        _historyItemViewState.postValue(HistoryItemViewState.Loading)
+    }
+
+    fun addingItemError(exceptionMsg: String, operations: HistoryOperations) {
+        _historyItemViewState.postValue(HistoryItemViewState.Error(exceptionMsg, operations))
+    }
+
+    fun addingItemSuccess(model: List<HistoryItemModel>, message: String, operations: HistoryOperations) {
+        val list = HistoryItemMapper().mapToHistoryUiModel(model)
+        _historyItemViewState.postValue(HistoryItemViewState.Success(list, message, operations))
+    }
+
+
 }
 
 enum class HistoryOperations {
     NONE,
     DISPLAY_CONFIRMATION_DIALOG,
-    START_DATA,
     REMOVED,
     ADDED
 

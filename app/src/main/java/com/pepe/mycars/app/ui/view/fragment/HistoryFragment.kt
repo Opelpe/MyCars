@@ -29,15 +29,13 @@ class HistoryFragment : Fragment() {
 
     private var adapter: HistoryAdapter? = null
 
-    private var alertDialog : AlertDialog? = null
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        historyViewViewModel.getListOfRefills()
+        historyViewViewModel.updateView()
         observeItemSate()
         binding.floatingRefillButton.setOnClickListener {
             val dialog = RefillDialog()
@@ -45,11 +43,6 @@ class HistoryFragment : Fragment() {
         }
 
         return binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
-        historyViewViewModel.getListOfRefills()
     }
 
     private fun observeItemSate() {
@@ -79,19 +72,13 @@ class HistoryFragment : Fragment() {
                     }
 
                     if (it.historyOperations == HistoryOperations.ADDED) {
-                        historyViewViewModel.getListOfRefills()
+                        historyViewViewModel.updateView()
                         requireActivity().displayToast("Successfully added!")
-                        if (alertDialog != null && alertDialog!!.isShowing){
-                            alertDialog!!.dismiss()
-                        }
                     }
 
                     if (it.historyOperations == HistoryOperations.REMOVED) {
-                        historyViewViewModel.getListOfRefills()
+                        historyViewViewModel.updateView()
                         requireActivity().displayToast("Successfully removed!")
-                        if (alertDialog != null && alertDialog!!.isShowing){
-                            alertDialog!!.dismiss()
-                        }
                     }
 
                     setHistoryItems(it.data)
@@ -102,7 +89,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun confirmToCancel(itemId: String) {
-        alertDialog = AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Do you want to remove?")
             .setCancelable(true)
             .setPositiveButton("Yes") { dialog: DialogInterface, _: Int ->
@@ -111,6 +98,10 @@ class HistoryFragment : Fragment() {
             }
             .setNegativeButton("No") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
+                historyViewViewModel.updateView()
+            }
+            .setOnCancelListener {
+                historyViewViewModel.updateView()
             }
             .show()
     }
