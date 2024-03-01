@@ -12,19 +12,20 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
+import com.pepe.mycars.app.utils.state.view.MainViewState
 import com.pepe.mycars.app.viewmodel.HistoryOperations
-import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
-import com.pepe.mycars.app.viewmodel.MainViewViewModel
+import com.pepe.mycars.app.viewmodel.RefillDialogViewModel
 import com.pepe.mycars.databinding.DialogRefillBinding
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @AndroidEntryPoint
 class RefillDialog : DialogFragment() {
 
     private lateinit var binding: DialogRefillBinding
 
-    private val historyViewViewModel: HistoryViewViewModel by activityViewModels()
-    private val mainViewViewModel: MainViewViewModel by activityViewModels()
+    private val refillDialogViewModel: RefillDialogViewModel by activityViewModels()
 
     private val calendar: Calendar = Calendar.getInstance()
 
@@ -45,8 +46,7 @@ class RefillDialog : DialogFragment() {
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.MATCH_PARENT
         dialog?.window?.setLayout(width, height)
-        historyViewViewModel.startDataSync()
-        observeItemState()
+        observeState()
         setDateEditText()
     }
 
@@ -54,50 +54,73 @@ class RefillDialog : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.saveRefillButton.setOnClickListener { saveNewRefill() }
-        binding.cancelButton.setOnClickListener {
-            dismiss()
-            historyViewViewModel.getListOfRefills()
-            mainViewViewModel.getListOfRefills()
-        }
+        binding.cancelButton.setOnClickListener { dismiss() }
         binding.refillDateContainer.setOnClickListener { showDatePicker() }
         binding.refillDateInput.setOnClickListener { showDatePicker() }
     }
 
     private fun saveNewRefill() {
-        val date = binding.refillDateInput.getText().toString()
-        val currMileage = binding.currentMileageInput.getText().toString()
-        val refillAmount = binding.refillAmountInput.getText().toString()
-        val fuelPrice = binding.priceOfFuelInput.getText().toString()
-        val notes = binding.refillNotesInput.getText().toString()
+        val date = binding.refillDateInput.text.toString()
+        val currMileage = binding.currentMileageInput.text.toString()
+        val refillAmount = binding.refillAmountInput.text.toString()
+        val fuelPrice = binding.priceOfFuelInput.text.toString()
+        val notes = binding.refillNotesInput.text.toString()
 
-        historyViewViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes)
-        observeItemState()
+        refillDialogViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes)
     }
 
-    private fun observeItemState() {
-        historyViewViewModel.historyItemViewState.observe(this) {
-            when (it) {
-                HistoryItemViewState.Loading -> setProgressVisibility(true)
-                is HistoryItemViewState.Error -> {
-                    if (it.errorMsg.isNotBlank()) {
-                        requireActivity().displayToast(it.errorMsg)
-                    }
-                    setProgressVisibility(false)
+    private fun observeState() {
+
+        refillDialogViewModel.getHistoryItemViewState().observe(viewLifecycleOwner) { state->
+            handleHistoryItemViewState(state)
+        }
+        refillDialogViewModel.getMainViewState().observe(viewLifecycleOwner) { state ->
+            handleMainViewState(state)
+        }
+    }
+
+    private fun handleHistoryItemViewState(
+        historyItemViewState: HistoryItemViewState
+    ) {
+        when (historyItemViewState) {
+            HistoryItemViewState.Loading -> setProgressVisibility(true)
+            is HistoryItemViewState.Error -> {
+                if (historyItemViewState.errorMsg.isNotBlank()) {
+                    requireActivity().displayToast(historyItemViewState.errorMsg)
+                }
+                setProgressVisibility(false)
+            }
+
+            is HistoryItemViewState.Success -> {
+                if (historyItemViewState.successMsg.isNotBlank()) {
+                    requireActivity().displayToast(historyItemViewState.successMsg)
                 }
 
-                is HistoryItemViewState.Success -> {
-                    if (it.successMsg.isNotBlank()) {
-                        requireActivity().displayToast(it.successMsg)
-                    }
-
-                    if (it.historyOperations == HistoryOperations.ADDED) {
-                        dialog!!.dismiss()
-                        historyViewViewModel.getListOfRefills()
-                        mainViewViewModel.getListOfRefills()
-                    }
-
-                    setProgressVisibility(false)
+                if (historyItemViewState.historyOperations == HistoryOperations.ADDED) {
+                    dialog?.dismiss()
+                    refillDialogViewModel.refreshRefillList()
                 }
+                setProgressVisibility(false)
+            }
+        }
+
+    }
+
+    private fun handleMainViewState(mainViewState: MainViewState) {
+        when (mainViewState) {
+            MainViewState.Loading -> setProgressVisibility(true)
+            is MainViewState.Error -> {
+                if (mainViewState.errorMsg.isNotBlank()) {
+                    requireActivity().displayToast(mainViewState.errorMsg)
+                }
+                setProgressVisibility(false)
+            }
+
+            is MainViewState.Success -> {
+                if (mainViewState.successMsg.isNotBlank()) {
+                    requireActivity().displayToast(mainViewState.successMsg)
+                }
+                setProgressVisibility(false)
             }
         }
     }
@@ -147,27 +170,10 @@ class RefillDialog : DialogFragment() {
     }
 
     private fun formatDate(year: Int, month: Int, day: Int): String {
-        val stringBuilder = StringBuilder()
-        if (day != 0 && month != 0 && year != 0) {
-            if (day < 10 && month < 10) {
-                stringBuilder.append(0).append(day).append("/").append(0).append(month).append("/")
-                    .append(year)
-                return stringBuilder.toString()
-            } else {
-                if (month < 10) {
-                    stringBuilder.append(day).append("/").append(0).append(month).append("/")
-                        .append(year)
-                    return stringBuilder.toString()
-                }
-                if (day < 10) {
-                    stringBuilder.append(0).append(day).append("/").append(month).append("/")
-                        .append(year)
-                    return stringBuilder.toString()
-                }
-            }
-        }
-        stringBuilder.append(0).append(0).append("/").append(0).append(0).append("/").append(year)
-        return stringBuilder.toString()
+        val calendar = Calendar.getInstance()
+        calendar.set(year, month - 1, day)
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return dateFormat.format(calendar.time)
     }
 
 }
