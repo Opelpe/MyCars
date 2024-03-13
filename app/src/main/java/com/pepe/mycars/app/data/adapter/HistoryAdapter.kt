@@ -8,11 +8,23 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.R
 import com.pepe.mycars.app.data.local.HistoryItemUiModel
-import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 
-class HistoryAdapter(data: List<HistoryItemUiModel>, private val historyViewViewModel: HistoryViewViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDeleteListener, itemEditListener: ItemEditListener) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var refillList = data
+
+    private val deleteListener = itemDeleteListener
+
+    private val editListener = itemEditListener
+
+    fun interface ItemDeleteListener {
+        fun onDeleteClick(itemId: String)
+    }
+
+    fun interface ItemEditListener {
+        fun onLongClick(itemId: String)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val historyView: View =
@@ -27,11 +39,12 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, private val historyViewView
 
         if (refillList.isNotEmpty()) {
 
-            historyHolder.deleteItemButton.setOnClickListener { view: View? ->
-                historyViewViewModel.displayDeletionConfirmation(refillList[position].itemId)
+            historyHolder.deleteItemButton.setOnClickListener {
+                deleteListener.onDeleteClick(refillList[position].itemId)
             }
+
             historyHolder.itemView.setOnLongClickListener {
-                historyViewViewModel.displayDeletionConfirmation(refillList[position].itemId)
+                editListener.onLongClick(refillList[position].itemId)
                 true
             }
 
@@ -69,7 +82,7 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, private val historyViewView
     }
 
     override fun getItemCount(): Int {
-       return refillList.size
+        return refillList.size
     }
 
     fun refreshList(data: List<HistoryItemUiModel>) {
@@ -77,31 +90,27 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, private val historyViewView
         this.notifyDataSetChanged()
     }
 
-    fun deleteItem(itemId: String) {
-        historyViewViewModel.deleteItem(itemId)
-    }
+    internal class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var dateTitle: TextView
+        var mileageTitle: TextView
+        var addedMileageTitle: TextView
+        var expenseTitle: TextView
+        var averageUsageTitle: TextView
+        var itemidTitle: TextView
+        var fuelAmountTitle: TextView
+        var deleteItemButton: ImageView
 
-internal class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var dateTitle: TextView
-    var mileageTitle: TextView
-    var addedMileageTitle: TextView
-    var expenseTitle: TextView
-    var averageUsageTitle: TextView
-    var itemidTitle: TextView
-    var fuelAmountTitle: TextView
-    var deleteItemButton: ImageView
-
-    init {
-        dateTitle = itemView.findViewById(R.id.historyDateTitle)
-        mileageTitle = itemView.findViewById(R.id.historyMileageTitle)
-        addedMileageTitle = itemView.findViewById(R.id.historyAddedMileageTitle)
-        expenseTitle = itemView.findViewById(R.id.historyExpenseTitle)
-        averageUsageTitle = itemView.findViewById(R.id.historyAvrUsageTitle)
-        itemidTitle = itemView.findViewById(R.id.historyItemIdText)
-        fuelAmountTitle = itemView.findViewById(R.id.historyLittersText)
-        deleteItemButton = itemView.findViewById(R.id.deleteHistoryButton)
+        init {
+            dateTitle = itemView.findViewById(R.id.historyDateTitle)
+            mileageTitle = itemView.findViewById(R.id.historyMileageTitle)
+            addedMileageTitle = itemView.findViewById(R.id.historyAddedMileageTitle)
+            expenseTitle = itemView.findViewById(R.id.historyExpenseTitle)
+            averageUsageTitle = itemView.findViewById(R.id.historyAvrUsageTitle)
+            itemidTitle = itemView.findViewById(R.id.historyItemIdText)
+            fuelAmountTitle = itemView.findViewById(R.id.historyLittersText)
+            deleteItemButton = itemView.findViewById(R.id.deleteHistoryButton)
+        }
     }
-}
 
 }
 

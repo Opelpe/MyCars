@@ -15,8 +15,8 @@ import com.pepe.mycars.app.data.local.HistoryItemUiModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
-import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 import com.pepe.mycars.app.viewmodel.HistoryOperations
+import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 import com.pepe.mycars.databinding.FragmentHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,10 +29,12 @@ class HistoryFragment : Fragment() {
 
     private var adapter: HistoryAdapter? = null
 
+    private val deleteItemListener: HistoryAdapter.ItemDeleteListener = HistoryAdapter.ItemDeleteListener { itemID -> confirmToCancel(itemID) }
+
+    private val editItemListener: HistoryAdapter.ItemEditListener = HistoryAdapter.ItemEditListener { itemID -> displayEditDialog(itemID) }
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
         historyViewViewModel.updateView()
@@ -55,12 +57,7 @@ class HistoryFragment : Fragment() {
 
                 is HistoryItemViewState.Error -> {
                     if (it.errorMsg.isNotBlank()) {
-                        if (it.historyOperations == HistoryOperations.DISPLAY_CONFIRMATION_DIALOG){
-                            val itemId = it.errorMsg
-                            confirmToCancel(itemId)
-                        }else{
-                            requireActivity().displayToast(it.errorMsg)
-                        }
+                        requireActivity().displayToast(it.errorMsg)
                     }
                     setProgressVisibility(false)
                 }
@@ -88,29 +85,30 @@ class HistoryFragment : Fragment() {
         }
     }
 
+    private fun displayEditDialog(itemId: String) {
+        RefillDialog.newInstance(true, itemId)
+    }
+
     private fun confirmToCancel(itemId: String) {
         AlertDialog.Builder(requireContext())
             .setTitle("Do you want to remove?")
             .setCancelable(true)
             .setPositiveButton("Yes") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
-                adapter!!.deleteItem(itemId)
-            }
-            .setNegativeButton("No") { dialog: DialogInterface, _: Int ->
+                historyViewViewModel.deleteItem(itemId)
+            }.setNegativeButton("No") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 historyViewViewModel.updateView()
-            }
-            .setOnCancelListener {
+            }.setOnCancelListener {
                 historyViewViewModel.updateView()
-            }
-            .show()
+            }.show()
     }
 
     private fun setHistoryItems(data: List<HistoryItemUiModel>) {
         if (adapter != null) {
             adapter!!.refreshList(data)
         } else {
-            adapter = HistoryAdapter(data, historyViewViewModel)
+            adapter = HistoryAdapter(data, deleteItemListener, editItemListener)
             binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
             binding.historyRecyclerView.adapter = adapter
         }
@@ -119,7 +117,7 @@ class HistoryFragment : Fragment() {
 
     private fun setProgressVisibility(loading: Boolean) {
         if (loading) {
-            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE )
+            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             binding.progressView.visibility = View.VISIBLE
         } else {
             binding.progressView.visibility = View.GONE

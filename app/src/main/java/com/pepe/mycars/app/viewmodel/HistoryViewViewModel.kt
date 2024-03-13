@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
-import com.pepe.mycars.app.data.domain.usecase.data.GetUserDataUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.GetUserItemsUseCase
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
 import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.utils.state.ItemModelState
@@ -16,30 +16,29 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class HistoryViewViewModel @Inject
-constructor(
-    private val getUserDataUseCase: GetUserDataUseCase,
+class HistoryViewViewModel @Inject constructor(
+    private val getUserItemsUseCase: GetUserItemsUseCase,
     private val deleteItemUseCase: DeleteItemUseCase
 ) : ViewModel() {
 
     private val _historyItemViewState: MutableLiveData<HistoryItemViewState> = MutableLiveData(HistoryItemViewState.Loading)
     val historyItemViewState: LiveData<HistoryItemViewState> = _historyItemViewState
 
-        fun updateView() {
-            getUserDataUseCase.execute().onEach { state ->
-                when(state){
-                    ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
+    fun updateView() {
+        getUserItemsUseCase.execute().onEach { state ->
+            when (state) {
+                ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
 
-                    is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
+                is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg, HistoryOperations.NONE))
 
-                    is ItemModelState.Success -> {
-                        if (state.model.isNotEmpty()) {
-                            val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                            _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.NONE))
-                        }
+                is ItemModelState.Success -> {
+                    if (state.model.isNotEmpty()) {
+                        val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
+                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, "", HistoryOperations.NONE))
                     }
                 }
-            }.launchIn(viewModelScope)
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun deleteItem(itemId: String) {
@@ -55,10 +54,6 @@ constructor(
                 }
             }
         }.launchIn(viewModelScope)
-    }
-
-    fun displayDeletionConfirmation(itemId: String) {
-        _historyItemViewState.postValue(HistoryItemViewState.Error(itemId, HistoryOperations.DISPLAY_CONFIRMATION_DIALOG))
     }
 
     fun addingItem() {
@@ -79,7 +74,6 @@ constructor(
 
 enum class HistoryOperations {
     NONE,
-    DISPLAY_CONFIRMATION_DIALOG,
     REMOVED,
     ADDED
 
