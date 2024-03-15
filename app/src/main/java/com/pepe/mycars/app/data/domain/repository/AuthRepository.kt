@@ -14,7 +14,7 @@ interface AuthRepository {
 
     fun login(email: String, password: String, autoLogin: Boolean): Flow<AuthState>
 
-    fun logOut()
+    fun logOut(): Flow<AuthState>
 
     fun getLoggedUser(): Flow<AuthState>
 }

@@ -1,5 +1,6 @@
 package com.pepe.mycars.app.viewmodel
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,7 +32,9 @@ class AuthViewModel @Inject constructor(
 
                     is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
 
-                    is AuthState.Success -> _loginViewState.postValue(LoginViewState.Success(true, "Logged in successfully"))
+                    is AuthState.Success -> {
+                        _loginViewState.postValue(LoginViewState.Success(true, "Logged in successfully"))
+                    }
                 }
             }.launchIn(viewModelScope)
         }
@@ -49,7 +52,9 @@ class AuthViewModel @Inject constructor(
                         _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
                     }
 
-                    is AuthState.Success -> _loginViewState.postValue(LoginViewState.Success(true, "New account created"))
+                    is AuthState.Success -> {
+                        _loginViewState.postValue(LoginViewState.Success(true, "New account created"))
+                    }
                 }
             }.launchIn(viewModelScope)
         }
@@ -62,7 +67,9 @@ class AuthViewModel @Inject constructor(
 
                 is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
 
-                is AuthState.Success -> _loginViewState.postValue(LoginViewState.Success(true, "Logged in as guest"))
+                is AuthState.Success -> {
+                    _loginViewState.postValue(LoginViewState.Success(true, "Logged in as guest"))
+                }
             }
         }.launchIn(viewModelScope)
     }
@@ -79,7 +86,9 @@ class AuthViewModel @Inject constructor(
 
                 is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
 
-                is AuthState.Success -> _loginViewState.postValue(LoginViewState.Success(true, "Logged successfully"))
+                is AuthState.Success -> {
+                    _loginViewState.postValue(LoginViewState.Success(true, "Logged successfully"))
+                }
             }
         }.launchIn(viewModelScope)
     }

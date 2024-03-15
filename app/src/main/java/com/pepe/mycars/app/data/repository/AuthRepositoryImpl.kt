@@ -21,8 +21,31 @@ import java.io.IOException
 class AuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
     private val fireStoreDatabase: FirebaseFirestore,
-    private val appPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences
 ) : AuthRepository {
+
+    private fun assignSharedPrefsValue(providerType: String, name: String, autoLogin: Boolean) {
+        sharedPreferences.edit().apply {
+            putBoolean("isLoggedIn", true)
+            putString("provider", providerType)
+            putString("userName", name)
+            putBoolean("autoLogin", autoLogin)
+        }.apply()
+    }
+
+    private fun assignSharedPrefsValue(providerType: String) {
+        sharedPreferences.edit().apply {
+            putString("provider", providerType)
+            putBoolean("isLoggedIn", true)
+        }.apply()
+    }
+
+    private fun assignSharedPrefsValue(isLoggedIn: Boolean) {
+        sharedPreferences.edit().apply {
+            putBoolean("isLoggedIn", isLoggedIn)
+        }.apply()
+    }
+
     override fun register(
         email: String,
         password: String,
@@ -34,13 +57,11 @@ class AuthRepositoryImpl(
         try {
             val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_EMAIL
-            appPreferences.edit().putString("provider", providerType).apply()
-            appPreferences.edit().putString("userName", name).apply()
-            appPreferences.edit().putBoolean("autoLogin", autoLogin).apply()
 
-            emit((result.user?.let {
-                AuthState.Success(it)
-            }!!))
+            result.user?.let {
+                assignSharedPrefsValue(providerType, name, autoLogin)
+                emit(AuthState.Success(it))
+            }
 
         } catch (e: HttpException) {
             emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
@@ -64,13 +85,11 @@ class AuthRepositoryImpl(
         try {
             val result = firebaseAuth.signInWithCredential(authCredential).await()
             val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_GOOGLE
-            appPreferences.edit().putString("provider", providerType).apply()
-            appPreferences.edit().putString("userName", name).apply()
-            appPreferences.edit().putBoolean("autoLogin", autoLogin).apply()
 
-            emit((result.user?.let {
-                AuthState.Success(it)
-            }!!))
+            result.user?.let {
+                assignSharedPrefsValue(providerType, name, autoLogin)
+                emit(AuthState.Success(it))
+            }
 
         } catch (e: HttpException) {
             emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
@@ -87,11 +106,9 @@ class AuthRepositoryImpl(
         try {
             val result = firebaseAuth.signInAnonymously().await()
             val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_ANONYMOUS
-            appPreferences.edit().putString("provider", providerType).apply()
-            appPreferences.edit().putString("userName", null).apply()
-            appPreferences.edit().putBoolean("autoLogin", autoLogin).apply()
 
             result.user?.let {
+                assignSharedPrefsValue(providerType, "", autoLogin)
                 emit(AuthState.Success(it))
             }
 
@@ -110,45 +127,63 @@ class AuthRepositoryImpl(
     override fun login(email: String, password: String, autoLogin: Boolean): Flow<AuthState> =
         flow {
             emit(AuthState.Loading)
-                        try {
-                            val snapshot = fireStoreDatabase.collection(USER).whereEqualTo("email", email).get().await()
+            try {
+                val snapshot = fireStoreDatabase.collection(USER).whereEqualTo("email", email).get().await()
 
-                            if (snapshot.documents.size > 0) {
-                                val userModel: UserModel? = snapshot.documents[0].toObject(UserModel::class.java)
-                                val providerType = userModel!!.providerType
+                if (snapshot.documents.size > 0) {
+                    val userModel: UserModel? = snapshot.documents[0].toObject(UserModel::class.java)
+                    val providerType = userModel!!.providerType
 
-                                if (providerType == ACCOUNT_PROVIDER_GOOGLE) {
-                                    emit(AuthState.Error("Try with google sign in"))
-                                } else {
-                                    val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-                                    emit((result.user?.let {
-                                        appPreferences.edit().putString("provider", providerType).apply()
-                                        AuthState.Success(it)
-                                    }!!))
-                                }
-                            } else {
-                                val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-                                val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_EMAIL
-                                emit((result.user?.let {
-                                    appPreferences.edit().putString("provider", providerType).apply()
-                                    AuthState.Success(it)
-                                }!!))
-                            }
-
-                        } catch (e: HttpException) {
-                            emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
-                        } catch (e: IOException) {
-                            emit(
-                                AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection")
-                            )
-                        } catch (e: Exception) {
-                            emit(AuthState.Error(e.localizedMessage ?: ""))
+                    if (providerType == ACCOUNT_PROVIDER_GOOGLE) {
+                        emit(AuthState.Error("Try logging in with Google"))
+                    } else {
+                        val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+                        result.user?.let {
+                            assignSharedPrefsValue(providerType)
+                            emit(AuthState.Success(it))
                         }
-
+                    }
+                } else {
+                    val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+                    val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_EMAIL
+                    result.user?.let {
+                        assignSharedPrefsValue(providerType)
+                        emit(AuthState.Success(it))
+                    }
                 }
 
-    override fun logOut() {
-        firebaseAuth.signOut()
+            } catch (e: HttpException) {
+                emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(
+                    AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection")
+                )
+            } catch (e: Exception) {
+                emit(AuthState.Error(e.localizedMessage ?: ""))
+            }
+
+        }
+
+    override fun logOut(): Flow<AuthState> = flow {
+        emit(AuthState.Loading)
+        try {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                firebaseAuth.signOut()
+                assignSharedPrefsValue(false)
+                AuthState.Success(null)
+            } else {
+                emit(AuthState.Error("Unknown Error"))
+            }
+        } catch (e: HttpException) {
+            emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
+        } catch (e: IOException) {
+            emit(
+                AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection")
+            )
+        } catch (e: Exception) {
+            emit(AuthState.Error(e.localizedMessage ?: ""))
+        }
     }
 
     override fun getLoggedUser(): Flow<AuthState> = flow {
