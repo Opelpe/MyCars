@@ -48,16 +48,26 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDel
                 true
             }
 
-            val refillList = refillList
             for (i in refillList.indices) {
                 if (position == i) {
                     historyHolder.dateTitle.text = refillList[i].refillDate
                     historyHolder.dateTitle.text = refillList[i].refillDate
-                    historyHolder.mileageTitle.text = this.refillList[i].currMileage
-                    historyHolder.fuelAmountTitle.text = this.refillList[i].fuelAmount
-                    historyHolder.expenseTitle.text = this.refillList[i].fuelCost
-                    historyHolder.addedMileageTitle.text = this.refillList[i].addedMileage
-                    historyHolder.averageUsageTitle.text = this.refillList[i].fuelUsage
+                    historyHolder.mileageTitle.text = refillList[i].currMileage
+                    historyHolder.fuelAmountTitle.text = refillList[i].fuelAmount
+                    historyHolder.expenseTitle.text = refillList[i].fuelCost
+                    historyHolder.addedMileageTitle.text = refillList[i].addedMileage
+                    historyHolder.averageUsageTitle.text = refillList[i].fuelUsage
+
+                    if (refillList[i].notes.isNotEmpty()) {
+                        var notes = String.format("\"%s\"", refillList[i].notes.replace("\n", " "))
+                        val length = notes.count()
+                        if (length > 40) {
+                            notes = String.format("%s...\"", notes.substring(0,36))
+                        }
+                        historyHolder.notesContainer.text = notes
+                    }else{
+                        historyHolder.notesContainer.text = ""
+                    }
 
                     if (position == this.refillList.size - 1) {
                         historyHolder.dateTitle.text = refillList[i].refillDate
@@ -88,16 +98,18 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDel
         var itemidTitle: TextView
         var fuelAmountTitle: TextView
         var deleteItemButton: ImageView
+        var notesContainer: TextView
 
         init {
             dateTitle = itemView.findViewById(R.id.historyDateTitle)
             mileageTitle = itemView.findViewById(R.id.historyMileageTitle)
             addedMileageTitle = itemView.findViewById(R.id.historyAddedMileageTitle)
-            expenseTitle = itemView.findViewById(R.id.historyExpenseTitle)
+            expenseTitle = itemView.findViewById(R.id.historyCostTitle)
             averageUsageTitle = itemView.findViewById(R.id.historyAvrUsageTitle)
             itemidTitle = itemView.findViewById(R.id.historyItemIdText)
-            fuelAmountTitle = itemView.findViewById(R.id.historyLittersText)
+            fuelAmountTitle = itemView.findViewById(R.id.historyAmountTitle)
             deleteItemButton = itemView.findViewById(R.id.deleteHistoryButton)
+            notesContainer = itemView.findViewById(R.id.historyNotesContainer)
         }
     }
 
