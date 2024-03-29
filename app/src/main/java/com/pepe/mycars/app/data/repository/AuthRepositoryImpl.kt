@@ -1,7 +1,6 @@
 package com.pepe.mycars.app.data.repository
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
@@ -113,13 +112,10 @@ class AuthRepositoryImpl(
             }
 
         } catch (e: HttpException) {
-            Log.d("registerGuest", "register as guest exception: " + e)
             emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
         } catch (e: IOException) {
-            Log.d("registerGuest", "register as guest exception: " + e)
             emit(AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
         } catch (e: Exception) {
-            Log.d("registerGuest", "register as guest exception: " + e)
             emit(AuthState.Error(e.localizedMessage ?: ""))
         }
     }
@@ -164,26 +160,9 @@ class AuthRepositoryImpl(
 
         }
 
-    override fun logOut(): Flow<AuthState> = flow {
-        emit(AuthState.Loading)
-        try {
-            val currentUser = firebaseAuth.currentUser
-            if (currentUser != null) {
-                firebaseAuth.signOut()
-                assignSharedPrefsValue(false)
-                AuthState.Success(null)
-            } else {
-                emit(AuthState.Error("Unknown Error"))
-            }
-        } catch (e: HttpException) {
-            emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(
-                AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection")
-            )
-        } catch (e: Exception) {
-            emit(AuthState.Error(e.localizedMessage ?: ""))
-        }
+    override fun logOut() {
+         assignSharedPrefsValue(false)
+        firebaseAuth.signOut()
     }
 
     override fun getLoggedUser(): Flow<AuthState> = flow {
