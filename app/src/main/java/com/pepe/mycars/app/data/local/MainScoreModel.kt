@@ -1,6 +1,6 @@
 package com.pepe.mycars.app.data.local
 
-data class MainViewModel(
+data class MainScoreModel(
     val avrUsage: String = "",
     val avrCosts: String = "",
     val lastMileage: String = "",
