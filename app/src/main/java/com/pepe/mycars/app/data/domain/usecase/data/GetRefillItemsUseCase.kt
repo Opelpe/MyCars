@@ -4,7 +4,7 @@ import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.utils.state.ItemModelState
 import kotlinx.coroutines.flow.Flow
 
-class GetUserDataUseCase(
+class GetRefillItemsUseCase(
     private val dataRepository: DataRepository
 ) {
 
