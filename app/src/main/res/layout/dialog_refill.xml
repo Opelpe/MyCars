@@ -189,7 +189,7 @@
         app:layout_constraintTop_toBottomOf="@id/fullRefillCheckBox">
 
         <TextView
-            android:id="@+id/createUserButtonText"
+            android:id="@+id/saveRefillText"
             style="@style/commonConfirmButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

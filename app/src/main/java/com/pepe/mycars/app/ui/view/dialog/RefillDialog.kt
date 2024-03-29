@@ -11,9 +11,7 @@ import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
-import com.pepe.mycars.app.utils.state.view.MainViewState
-import com.pepe.mycars.app.viewmodel.HistoryOperations
+import com.pepe.mycars.app.utils.state.view.AddItemViewState
 import com.pepe.mycars.app.viewmodel.RefillDialogViewModel
 import com.pepe.mycars.databinding.DialogRefillBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,13 +27,30 @@ class RefillDialog : DialogFragment() {
 
     private val calendar: Calendar = Calendar.getInstance()
 
+    private var itemEditMode = false
+
+    private var editItemID = ""
+
+
+    companion object {
+        fun newInstance(editMode: Boolean, itemId: String): RefillDialog {
+            val dialog = RefillDialog()
+            val args = Bundle()
+            args.putBoolean("editMode", editMode)
+            args.putString("itemId", itemId)
+            dialog.arguments = args
+            return dialog
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = DialogRefillBinding.inflate(layoutInflater, container, false)
+        itemEditMode = arguments?.getBoolean("editMode") ?: false
+        editItemID = arguments?.getString("itemId") ?: ""
         return binding.root
     }
 
@@ -47,16 +62,62 @@ class RefillDialog : DialogFragment() {
         val height = ViewGroup.LayoutParams.MATCH_PARENT
         dialog?.window?.setLayout(width, height)
         observeState()
-        setDateEditText()
+        bindEditText()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.saveRefillButton.setOnClickListener { saveNewRefill() }
+        binding.saveRefillButton.setOnClickListener {
+            if (itemEditMode && editItemID.isNotEmpty()) {
+                updateRefillItem()
+            } else {
+                saveNewRefill()
+            }
+        }
         binding.cancelButton.setOnClickListener { dismiss() }
         binding.refillDateContainer.setOnClickListener { showDatePicker() }
         binding.refillDateInput.setOnClickListener { showDatePicker() }
+    }
+
+    private fun updateRefillItem() {
+        val date = binding.refillDateInput.text.toString()
+        val currMileage = binding.currentMileageInput.text.toString()
+        val refillAmount = binding.refillAmountInput.text.toString()
+        val fuelPrice = binding.priceOfFuelInput.text.toString()
+        val notes = binding.refillNotesInput.text.toString()
+        val fullTank = binding.fullRefillCheckBox.isChecked
+        refillDialogViewModel.updateHistoryItem(editItemID, currMileage, refillAmount, fuelPrice, date, notes, fullTank)
+    }
+
+    private fun bindEditText() {
+        if (itemEditMode && editItemID.isNotEmpty()) {
+            setEditModeView(editItemID)
+        } else {
+            setAddModeView()
+        }
+    }
+
+    private fun setAddModeView() {
+        setDateEditText()
+        binding.currentMileageInput.setText("")
+        binding.refillAmountInput.setText("")
+        binding.priceOfFuelInput.setText("")
+        binding.refillNotesInput.setText("")
+        binding.saveRefillText.text = "SAVE"
+        setIsTouchable(false)
+    }
+
+    private fun setEditModeView(editItemID: String) {
+//        val itemModel = refillDialogViewModel.getItemDataById(editItemID)
+//        binding.refillDateInput.setText(itemModel.refillDate)
+//        binding.currentMileageInput.setText(itemModel.currMileage.toString())
+//        binding.refillAmountInput.setText(itemModel.fuelAmount.toString())
+//        binding.priceOfFuelInput.setText(itemModel.fuelPrice.toString())
+//        binding.refillNotesInput.setText(itemModel.notes)
+//        binding.saveButtonTitle.setText("EDIT")
+//        setIsTouchable(false)
+//        binding.fullRefillCheckBox.isChecked = itemModel.
     }
 
     private fun saveNewRefill() {
@@ -70,71 +131,46 @@ class RefillDialog : DialogFragment() {
     }
 
     private fun observeState() {
-
-        refillDialogViewModel.getHistoryItemViewState().observe(viewLifecycleOwner) { state->
-            handleHistoryItemViewState(state)
-        }
-        refillDialogViewModel.getMainViewState().observe(viewLifecycleOwner) { state ->
-            handleMainViewState(state)
-        }
-    }
-
-    private fun handleHistoryItemViewState(
-        historyItemViewState: HistoryItemViewState
-    ) {
-        when (historyItemViewState) {
-            HistoryItemViewState.Loading -> setProgressVisibility(true)
-            is HistoryItemViewState.Error -> {
-                if (historyItemViewState.errorMsg.isNotBlank()) {
-                    requireActivity().displayToast(historyItemViewState.errorMsg)
+        refillDialogViewModel.dialogStart(itemEditMode)
+        refillDialogViewModel.addingItemViewState.observe(viewLifecycleOwner){viewState ->
+            when(viewState){
+                AddItemViewState.Loading -> setProgressVisibility(true)
+                is AddItemViewState.Error -> {
+                    setProgressVisibility(false)
+                    if (viewState.errorMsg.isNotEmpty()){
+                        requireActivity().displayToast(viewState.errorMsg)
+                    }
                 }
-                setProgressVisibility(false)
-            }
-
-            is HistoryItemViewState.Success -> {
-                if (historyItemViewState.successMsg.isNotBlank()) {
-                    requireActivity().displayToast(historyItemViewState.successMsg)
+                is AddItemViewState.Success -> {
+                    if (viewState.successMsg.isNotEmpty()){
+                        requireActivity().displayToast(viewState.successMsg)
+                    }
+                    refillDialogViewModel.dialogEnd()
+                    dismiss()
                 }
-
-                if (historyItemViewState.historyOperations == HistoryOperations.ADDED) {
-                    dialog?.dismiss()
-                    refillDialogViewModel.refreshRefillList()
-                }
-                setProgressVisibility(false)
             }
         }
 
-    }
-
-    private fun handleMainViewState(mainViewState: MainViewState) {
-        when (mainViewState) {
-            MainViewState.Loading -> setProgressVisibility(true)
-            is MainViewState.Error -> {
-                if (mainViewState.errorMsg.isNotBlank()) {
-                    requireActivity().displayToast(mainViewState.errorMsg)
-                }
-                setProgressVisibility(false)
-            }
-
-            is MainViewState.Success -> {
-                if (mainViewState.successMsg.isNotBlank()) {
-                    requireActivity().displayToast(mainViewState.successMsg)
-                }
-                setProgressVisibility(false)
-            }
-        }
     }
 
     private fun setProgressVisibility(loading: Boolean) {
         if (loading) {
+            setIsTouchable(false)
+            binding.progressView.visibility = View.VISIBLE
+        } else {
+            binding.progressView.visibility = View.GONE
+            setIsTouchable(true)
+        }
+    }
+
+    private fun setIsTouchable(isTouchable: Boolean) {
+        if (isTouchable) {
+            dialog!!.window!!.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        } else {
             dialog!!.window!!.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
             )
-            binding.progressView.visibility = View.VISIBLE
-        } else {
-            binding.progressView.visibility = View.GONE
-            dialog!!.window!!.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
     }
 
