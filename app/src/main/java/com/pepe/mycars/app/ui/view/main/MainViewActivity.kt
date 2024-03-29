@@ -1,7 +1,9 @@
 package com.pepe.mycars.app.ui.view.main
 
 import android.Manifest.permission.POST_NOTIFICATIONS
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -18,8 +20,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import com.pepe.mycars.R
 import com.pepe.mycars.app.ui.view.login.LoginActivity
+import com.pepe.mycars.app.utils.IsLoggedInLiveData
+import com.pepe.mycars.app.utils.SharedPrefConstants
 import com.pepe.mycars.app.utils.displayToast
-import com.pepe.mycars.app.utils.logMessage
 import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivityMainViewBinding
@@ -28,6 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainViewActivity : AppCompatActivity() {
 
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: ActivityMainViewBinding
     private val loggedInViewModel: LoggedInViewModel by viewModels()
 
@@ -48,6 +52,7 @@ class MainViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainViewBinding.inflate(layoutInflater)
+        sharedPreferences = applicationContext.getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF, Context.MODE_PRIVATE)
         setContentView(binding.root)
         setNavigation()
         askNotificationPermission()
@@ -55,6 +60,13 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun observeUserViewSate() {
+
+        IsLoggedInLiveData(sharedPreferences).observe(this) { isLoggedIn ->
+            if (!isLoggedIn){
+                startLoginActivity()
+            }
+        }
+
         loggedInViewModel.getUserData()
         loggedInViewModel.userViewState.observe(this) {
             when (it) {
@@ -71,9 +83,6 @@ class MainViewActivity : AppCompatActivity() {
                     if (it.successMsg.isNotEmpty()) {
                         displayToast(it.successMsg)
                     }
-                    if (!it.isLoggedIn) {
-                        startLoginActivity()
-                    }
                 }
             }
         }
@@ -88,9 +97,7 @@ class MainViewActivity : AppCompatActivity() {
 
     private fun startLoginActivity() {
         setProgressVisibility(true)
-        logMessage("user loggingOut")
         startActivity(Intent(this@MainViewActivity, LoginActivity::class.java))
-        finish()
     }
 
     private fun askNotificationPermission() {

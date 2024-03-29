@@ -1,5 +1,7 @@
 package com.pepe.mycars.app.ui.view.fragment
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,12 +16,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import com.pepe.mycars.R
-import com.pepe.mycars.app.data.local.MainViewModel
+import com.pepe.mycars.app.data.local.MainScoreModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.NetworkManager
+import com.pepe.mycars.app.utils.SharedPrefConstants
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.MainViewState
-import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.MainViewViewModel
 import com.pepe.mycars.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainFragment : Fragment() {
 
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: FragmentMainBinding
     private val mainViewViewModel: MainViewViewModel by activityViewModels()
     var globalMenuItem: MenuItem? = null
@@ -39,6 +42,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMainBinding.inflate(inflater, container, false)
+        sharedPreferences = requireContext().getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF, Context.MODE_PRIVATE)
 
         NetworkManager(requireContext()).observe(viewLifecycleOwner) {
             isOnline = it
@@ -63,7 +67,6 @@ class MainFragment : Fragment() {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.main_nav_menu, menu)
                 globalMenuItem = menu.findItem(R.id.action_synchronize)
-                mainViewViewModel.getUserSyncState()
                 setToolbarIcon()
             }
 
@@ -87,30 +90,13 @@ class MainFragment : Fragment() {
     }
 
     private fun observeUserViewState() {
-        mainViewViewModel.getUserSyncState()
-        mainViewViewModel.userMainViewState.observe(viewLifecycleOwner) { viewState ->
-            when (viewState) {
-                UserViewState.Loading -> {}
-
-                is UserViewState.Error -> {
-                    if (viewState.errorMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.errorMsg)
-                    }
-                }
-
-                is UserViewState.Success -> {
-                    if (viewState.successMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.successMsg)
-                    }
-                    isGuest = viewState.isAnonymous
-                    setToolbarIcon()
-                }
-            }
-        }
+        isGuest = mainViewViewModel.isUserAnonymous()
+        setToolbarIcon()
     }
 
     private fun observeDataViewState() {
         mainViewViewModel.getListOfRefills()
+        mainViewViewModel.observeRefillList(viewLifecycleOwner)
         mainViewViewModel.dataMainViewState.observe(viewLifecycleOwner){ viewState ->
             when(viewState){
                 MainViewState.Loading->{}
@@ -129,32 +115,16 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun setMainViewScore(model: MainViewModel) {
+    private fun setMainViewScore(model: MainScoreModel) {
 
-        if (model.avrUsage.isNotEmpty()) {
             binding.averageUsageScoreTitle.text = model.avrUsage
-        }
-        if (model.avrCosts.isNotEmpty()) {
             binding.travelingCostsScoreTitle.text = model.avrCosts
-        }
-        if (model.lastCost.isNotEmpty()) {
             binding.lastCostTitle.text = model.lastCost
-        }
-        if (model.lastMileage.isNotEmpty()) {
             binding.lastMileageTitle.text = model.lastMileage
-        }
-        if (model.lastUsage.isNotEmpty()) {
             binding.lastUsageTitle.text = model.lastUsage
-        }
-        if (model.totalMileage.isNotEmpty()) {
             binding.totalMileageTitle.text = model.totalMileage
-        }
-        if (model.totalCost.isNotEmpty()) {
             binding.totalCostTitle.text = model.totalCost
-        }
-        if (model.totalAmount.isNotEmpty()) {
             binding.totalAddedFuelTitle.text = model.totalAmount
-        }
     }
 
     private fun initToolbar() {
@@ -163,7 +133,7 @@ class MainFragment : Fragment() {
         try {
             (activity as AppCompatActivity?)!!.setSupportActionBar(toolbar)
             val bar = (activity as AppCompatActivity?)!!.supportActionBar
-            bar!!.title = "MC"
+            bar!!.title = "MyCars"
             bar.show()
         } catch (e: Exception) {
             Log.d(
