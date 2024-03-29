@@ -18,7 +18,7 @@ import java.util.Locale
 class UserRepositoryImpl(
     private val fireStoreDatabase: FirebaseFirestore,
     val auth: FirebaseAuth,
-    private val appPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences
 ) : UserRepository {
 
     override fun getLoggedUserData(): Flow<UserModelState> = flow {
@@ -27,10 +27,10 @@ class UserRepositoryImpl(
         try {
             if (firebaseUser != null) {
                 val uId = firebaseUser.uid
-                val autoLogin = appPreferences.getBoolean("autoLogin", false)
+                val autoLogin = sharedPreferences.getBoolean("autoLogin", false)
                 val isAnonymous = firebaseUser.isAnonymous
                 var document = fireStoreDatabase.collection(USER).document(uId).get().await()
-                val providerType = appPreferences.getString("provider", "") ?: ""
+                val providerType = sharedPreferences.getString("provider", "") ?: ""
 
                 if (document.exists()) {
                     fireStoreDatabase.collection(USER).document(uId)
@@ -59,17 +59,17 @@ class UserRepositoryImpl(
                         fireStoreDatabase.collection(USER).document(uId).set(userModel).await()
                         emit(UserModelState.Success(userModel))
                     } else {
-                        val name = appPreferences.getString("userName", null) ?: ""
+                        val name = sharedPreferences.getString("userName", null) ?: ""
                         val userModel = UserModel(name, email, true, country, providerType, uId, autoLogin)
                         fireStoreDatabase.collection(USER).document(uId).set(userModel).await()
                         emit(UserModelState.Success(userModel))
                     }
                 }
             } else {
-                emit(UserModelState.Error( "Not logged"))
+                emit(UserModelState.Error("Not logged"))
             }
         } catch (e: HttpException) {
-            emit(UserModelState.Error( e.localizedMessage ?: "Unknown Error"))
+            emit(UserModelState.Error(e.localizedMessage ?: "Unknown Error"))
         } catch (e: IOException) {
             emit(UserModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
         } catch (e: Exception) {
@@ -77,28 +77,12 @@ class UserRepositoryImpl(
         }
     }
 
-    override fun getUserProviderType(): Flow<String> = flow {
+    override fun getUserProviderType(): String {
         val firebaseUser = auth.currentUser
-        if (firebaseUser!!.isAnonymous) {
-            emit(ACCOUNT_PROVIDER_ANONYMOUS)
+        return if (firebaseUser!!.isAnonymous) {
+            ACCOUNT_PROVIDER_ANONYMOUS
         } else {
-            try {
-                val snapshot =
-                    fireStoreDatabase.collection(USER).document(firebaseUser.uid).get().await()
-                if (snapshot.exists()) {
-                    val userModel = snapshot.toObject(UserModel::class.java)
-                    val providerType = userModel!!.providerType
-                    emit(providerType)
-                } else {
-                    emit("Unknown Error")
-                }
-            } catch (e: HttpException) {
-                emit(e.localizedMessage ?: "Unknown Error")
-            } catch (e: IOException) {
-                emit(e.localizedMessage ?: "Check Your Internet Connection")
-            } catch (e: Exception) {
-                emit(e.localizedMessage ?: "Unknown exception")
-            }
+            sharedPreferences.getString("provider", "") ?: ""
         }
     }
 }

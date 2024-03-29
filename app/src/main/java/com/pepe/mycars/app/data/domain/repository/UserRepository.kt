@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepository {
     fun getLoggedUserData() : Flow<UserModelState>
 
-    fun getUserProviderType() : Flow<String>
+    fun getUserProviderType() : String
 
 }
