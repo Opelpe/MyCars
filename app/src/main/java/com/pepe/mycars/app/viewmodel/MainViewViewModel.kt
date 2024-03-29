@@ -1,18 +1,18 @@
 package com.pepe.mycars.app.viewmodel
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.data.domain.usecase.data.GetUserDataUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
 import com.pepe.mycars.app.data.mapper.MainViewModelMapper
-import com.pepe.mycars.app.data.model.HistoryItemModel
 import com.pepe.mycars.app.utils.FireStoreUserDocField
+import com.pepe.mycars.app.utils.RefillChangesLiveData
 import com.pepe.mycars.app.utils.state.ItemModelState
-import com.pepe.mycars.app.utils.state.UserModelState
 import com.pepe.mycars.app.utils.state.view.MainViewState
-import com.pepe.mycars.app.utils.state.view.UserViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -20,50 +20,29 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewViewModel @Inject constructor(
-    private val userRepository: UserRepository,
-    private val getUserDataUseCase: GetUserDataUseCase
-) : ViewModel (){
+    private val userRepository: UserRepository, private val getRefillItemsUseCase: GetRefillItemsUseCase, private val dataRepository: DataRepository
+) : ViewModel() {
 
-    private val _userMainViewState: MutableLiveData<UserViewState> =
-        MutableLiveData(UserViewState.Loading)
-    val userMainViewState: LiveData<UserViewState> = _userMainViewState
-
-    private val _dataMainViewState: MutableLiveData<MainViewState> =
-        MutableLiveData(MainViewState.Loading)
+    private val _dataMainViewState: MutableLiveData<MainViewState> = MutableLiveData(MainViewState.Loading)
     val dataMainViewState: LiveData<MainViewState> = _dataMainViewState
 
-    fun getUserSyncState() {
-            userRepository.getLoggedUserData().onEach {
-                when (it) {
-                    UserModelState.Loading -> {}
-
-                    is UserModelState.Error -> _userMainViewState.postValue(UserViewState.Error(it.exceptionMsg))
-
-                    is UserModelState.Success -> {
-                        val isGuest = it.userModel!!.providerType == FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
-                        _userMainViewState.postValue(
-                            UserViewState.Success(
-                                true,
-                                isGuest,
-                                ""
-                            )
-                        )
-                    }
-
-                }
-            }.launchIn(viewModelScope)
+    fun isUserAnonymous() : Boolean {
+        val response =  userRepository.getUserProviderType()
+        return if (response == FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS || response == FireStoreUserDocField.ACCOUNT_PROVIDER_EMAIL || response == FireStoreUserDocField.ACCOUNT_PROVIDER_GOOGLE) {
+            response == FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
+        } else {
+            true
+        }
     }
 
     fun actionSynchronize() {
-        userRepository.getUserProviderType().onEach {
-            _userMainViewState.postValue(
-                UserViewState.Error(
-                    getActionSynchronizeResponse(
-                        it
-                    )
+        _dataMainViewState.postValue(
+            MainViewState.Error(
+                getActionSynchronizeResponse(
+                    userRepository.getUserProviderType()
                 )
             )
-        }.launchIn(viewModelScope)
+        )
     }
 
     private fun getActionSynchronizeResponse(response: String): String {
@@ -74,33 +53,26 @@ class MainViewViewModel @Inject constructor(
         }
     }
 
- fun getListOfRefills() {
-     getUserDataUseCase.execute().onEach { state ->
-         when(state){
-             ItemModelState.Loading -> _dataMainViewState.postValue(MainViewState.Loading)
-
-             is ItemModelState.Error -> _dataMainViewState.postValue(MainViewState.Error(state.exceptionMsg))
-
-             is ItemModelState.Success -> {
-                 if (state.model.isNotEmpty()) {
-                     val newModel = MainViewModelMapper().mapToMainViewModel(state.model)
-                     _dataMainViewState.postValue(MainViewState.Success(newModel, ""))
-                 }
-             }
-         }
-     }.launchIn(viewModelScope)
-}
-
-    fun addingItem() {
-        _dataMainViewState.postValue(MainViewState.Loading)
+    fun observeRefillList(owner: LifecycleOwner) {
+        RefillChangesLiveData(dataRepository.getRefillsCollectionReference()).observe(owner) {
+            val newModel = MainViewModelMapper().mapToMainViewModel(it)
+            _dataMainViewState.postValue(MainViewState.Success(newModel, ""))
+        }
     }
 
-    fun addingItemError(exceptionMsg: String) {
-        _dataMainViewState.postValue(MainViewState.Error(exceptionMsg))
+    fun getListOfRefills() {
+        getRefillItemsUseCase.execute().onEach { state ->
+            when (state) {
+                ItemModelState.Loading -> _dataMainViewState.postValue(MainViewState.Loading)
+
+                is ItemModelState.Error -> _dataMainViewState.postValue(MainViewState.Error(state.exceptionMsg))
+
+                is ItemModelState.Success -> {
+                    val newModel = MainViewModelMapper().mapToMainViewModel(state.model)
+                    _dataMainViewState.postValue(MainViewState.Success(newModel, ""))
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
-    fun addingItemSuccess(model: List<HistoryItemModel>, message: String) {
-        val newModel = MainViewModelMapper().mapToMainViewModel(model)
-        _dataMainViewState.postValue(MainViewState.Success(newModel, message))
-    }
 }
