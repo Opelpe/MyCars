@@ -1,8 +1,11 @@
 package com.pepe.mycars.app.data.domain.repository
+import com.google.firebase.firestore.CollectionReference
 import com.pepe.mycars.app.utils.state.ItemModelState
 import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
+
+    fun getRefillsCollectionReference(): CollectionReference
 
     fun getUserItems(): Flow<ItemModelState>
 
