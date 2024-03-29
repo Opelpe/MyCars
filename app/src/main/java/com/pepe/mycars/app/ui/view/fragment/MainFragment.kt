@@ -22,7 +22,7 @@ import com.pepe.mycars.app.utils.NetworkManager
 import com.pepe.mycars.app.utils.SharedPrefConstants
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.MainViewState
-import com.pepe.mycars.app.viewmodel.MainViewViewModel
+import com.pepe.mycars.app.viewmodel.MainViewModel
 import com.pepe.mycars.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -31,7 +31,7 @@ class MainFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: FragmentMainBinding
-    private val mainViewViewModel: MainViewViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     var globalMenuItem: MenuItem? = null
     private var isGuest: Boolean = false
     private var isOnline: Boolean = true
@@ -76,7 +76,7 @@ class MainFragment : Fragment() {
                         if (!isOnline) {
                             requireActivity().displayToast("Check your internet connection")
                         } else {
-                            mainViewViewModel.actionSynchronize()
+                            mainViewModel.actionSynchronize()
                         }
                         setToolbarIcon()
                         Log.d("LOG_MESSAGE", "Action - 1")
@@ -90,14 +90,14 @@ class MainFragment : Fragment() {
     }
 
     private fun observeUserViewState() {
-        isGuest = mainViewViewModel.isUserAnonymous()
+        isGuest = mainViewModel.isUserAnonymous()
         setToolbarIcon()
     }
 
     private fun observeDataViewState() {
-        mainViewViewModel.getListOfRefills()
-        mainViewViewModel.observeRefillList(viewLifecycleOwner)
-        mainViewViewModel.dataMainViewState.observe(viewLifecycleOwner){ viewState ->
+        mainViewModel.getListOfRefills()
+        mainViewModel.observeRefillList(viewLifecycleOwner)
+        mainViewModel.dataMainViewState.observe(viewLifecycleOwner){ viewState ->
             when(viewState){
                 MainViewState.Loading->{}
                 is MainViewState.Error->{

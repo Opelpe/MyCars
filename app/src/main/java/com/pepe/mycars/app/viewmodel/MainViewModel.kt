@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val userRepository: UserRepository, private val getRefillItemsUseCase: GetRefillItemsUseCase, private val dataRepository: DataRepository
 ) : ViewModel() {
 
