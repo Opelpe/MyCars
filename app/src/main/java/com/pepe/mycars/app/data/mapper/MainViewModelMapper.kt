@@ -57,7 +57,11 @@ class MainViewModelMapper {
             val currMileage = model[0].currMileage
             val lastMileage = model[1].currMileage
             val addedMileage = currMileage!! - lastMileage!!
-            formatFuelUsage((model[0].fuelAmount?.times(100))?.div(addedMileage)!!)
+            if (model[0].fullTank) {
+                return formatFuelUsage((model[0].fuelAmount?.times(100))?.div(addedMileage)!!)
+            } else {
+                return "---"
+            }
         } else "---"
     }
 
@@ -158,19 +162,23 @@ class MainViewModelMapper {
 
 
     private fun countAvrUsage(model: List<HistoryItemModel>): String {
-        var counter = 0f
+        var usage = 0f
+        var itemsCount = 0
         for (i in model.indices) {
             if (i + 1 < model.size) {
                 val currentMileage = model[i].currMileage ?: 0f
                 val lastMileage = model[i + 1].currMileage ?: 0f
                 val addedMileage = currentMileage - lastMileage
-                counter += (model[i].fuelAmount?.times(100))?.div(addedMileage)!!
+                if (model[i].fullTank) {
+                    usage += (model[i].fuelAmount?.times(100))?.div(addedMileage)!!
+                    itemsCount++
+                }
             }
         }
         return if (model.size < 2) {
-            formatAvrUsage(counter)
+            formatAvrUsage(usage)
         } else {
-            formatAvrUsage(counter / (model.size - 1))
+            formatAvrUsage(usage / itemsCount)
         }
     }
 
@@ -181,16 +189,16 @@ class MainViewModelMapper {
             var lastMileage = 0f
 
             for (i in model.indices) {
-                if (i == 0) {
-                    currentMileage = model[i].currMileage!!
-                }
-                if (i == model.size - 1) {
-                    lastMileage = model[i].currMileage!!
-                }
+                    if (i == 0) {
+                        currentMileage = model[i].currMileage!!
+                    }
+                    if (i == model.size - 1) {
+                        lastMileage = model[i].currMileage!!
+                    }
 
-                if (i + 1 < model.size) {
-                    price += (model[i].fuelPrice!! * model[i].fuelAmount!!)
-                }
+                    if (i + 1 < model.size) {
+                        price += (model[i].fuelPrice!! * model[i].fuelAmount!!)
+                    }
             }
             val addedMileage = currentMileage - lastMileage
             val score = price / addedMileage
