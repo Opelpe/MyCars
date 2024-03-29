@@ -15,7 +15,6 @@ import com.pepe.mycars.app.data.local.HistoryItemUiModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
-import com.pepe.mycars.app.viewmodel.HistoryOperations
 import com.pepe.mycars.app.viewmodel.HistoryViewViewModel
 import com.pepe.mycars.databinding.FragmentHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +37,7 @@ class HistoryFragment : Fragment() {
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
         historyViewViewModel.updateView()
+        historyViewViewModel.observeRefillList(viewLifecycleOwner)
         observeItemSate()
         binding.floatingRefillButton.setOnClickListener {
             val dialog = RefillDialog()
@@ -68,16 +68,6 @@ class HistoryFragment : Fragment() {
                         requireActivity().displayToast(it.successMsg)
                     }
 
-                    if (it.historyOperations == HistoryOperations.ADDED) {
-                        historyViewViewModel.updateView()
-                        requireActivity().displayToast("Successfully added!")
-                    }
-
-                    if (it.historyOperations == HistoryOperations.REMOVED) {
-                        historyViewViewModel.updateView()
-                        requireActivity().displayToast("Successfully removed!")
-                    }
-
                     setHistoryItems(it.data)
                     setProgressVisibility(false)
                 }
@@ -96,11 +86,12 @@ class HistoryFragment : Fragment() {
             .setPositiveButton("Yes") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 historyViewViewModel.deleteItem(itemId)
+                historyViewViewModel.updateView()
             }.setNegativeButton("No") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
-                historyViewViewModel.updateView()
+//                historyViewViewModel.updateView()
             }.setOnCancelListener {
-                historyViewViewModel.updateView()
+//                historyViewViewModel.updateView()
             }.show()
     }
 

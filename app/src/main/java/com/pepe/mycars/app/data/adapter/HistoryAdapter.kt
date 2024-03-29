@@ -52,24 +52,13 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDel
             for (i in refillList.indices) {
                 if (position == i) {
                     historyHolder.dateTitle.text = refillList[i].refillDate
-                    if (this.refillList[i].refillDate.isNotEmpty()) {
-                        historyHolder.dateTitle.text = refillList[i].refillDate
-                    }
-                    if (this.refillList[i].currMileage.isNotEmpty()) {
-                        historyHolder.mileageTitle.text = this.refillList[i].currMileage
-                    }
-                    if (this.refillList[i].fuelAmount.isNotEmpty()) {
-                        historyHolder.fuelAmountTitle.text = this.refillList[i].fuelAmount
-                    }
-                    if (this.refillList[i].fuelCost.isNotEmpty()) {
-                        historyHolder.expenseTitle.text = this.refillList[i].fuelCost
-                    }
-                    if (this.refillList[i].addedMileage.isNotEmpty()) {
-                        historyHolder.addedMileageTitle.text = this.refillList[i].addedMileage
-                    }
-                    if (this.refillList[i].fuelUsage.isNotEmpty()) {
-                        historyHolder.averageUsageTitle.text = this.refillList[i].fuelUsage
-                    }
+                    historyHolder.dateTitle.text = refillList[i].refillDate
+                    historyHolder.mileageTitle.text = this.refillList[i].currMileage
+                    historyHolder.fuelAmountTitle.text = this.refillList[i].fuelAmount
+                    historyHolder.expenseTitle.text = this.refillList[i].fuelCost
+                    historyHolder.addedMileageTitle.text = this.refillList[i].addedMileage
+                    historyHolder.averageUsageTitle.text = this.refillList[i].fuelUsage
+
                     if (position == this.refillList.size - 1) {
                         historyHolder.dateTitle.text = refillList[i].refillDate
                         historyHolder.mileageTitle.text = refillList[i].currMileage
