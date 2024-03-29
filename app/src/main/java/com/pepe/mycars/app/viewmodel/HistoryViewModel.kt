@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class HistoryViewViewModel @Inject constructor(
+class HistoryViewModel @Inject constructor(
     private val getRefillItemsUseCase: GetRefillItemsUseCase,
     private val deleteItemUseCase: DeleteItemUseCase,
     private val dataRepository: DataRepository
