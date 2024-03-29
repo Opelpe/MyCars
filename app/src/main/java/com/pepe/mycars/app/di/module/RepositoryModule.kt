@@ -43,9 +43,8 @@ object RepositoryModule {
     @Singleton
     fun provideDataRepository(
         database: FirebaseFirestore,
-        auth: FirebaseAuth,
-        appPreferences: SharedPreferences
+        auth: FirebaseAuth
     ): DataRepository {
-        return DataRepositoryImpl(database, auth, appPreferences)
+        return DataRepositoryImpl(database, auth)
     }
 }

@@ -1,9 +1,11 @@
 package com.pepe.mycars.app.di.module
 
+import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.domain.repository.DataRepository
+import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.AddItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
-import com.pepe.mycars.app.data.domain.usecase.data.GetUserDataUseCase
+import com.pepe.mycars.app.data.domain.usecase.data.GetUserItemsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,8 +20,8 @@ object UseCaseModule {
     @Singleton
     fun provideGetUserDataUseCase(
         dataRepository: DataRepository
-    ): GetUserDataUseCase {
-        return GetUserDataUseCase(dataRepository)
+    ): GetUserItemsUseCase {
+        return GetUserItemsUseCase(dataRepository)
     }
 
     @Provides
@@ -36,5 +38,13 @@ object UseCaseModule {
         dataRepository: DataRepository
     ): DeleteItemUseCase {
         return DeleteItemUseCase(dataRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLogOutUseCase(
+        authRepository: AuthRepository
+    ): LogOutUseCase {
+        return LogOutUseCase(authRepository)
     }
 }
