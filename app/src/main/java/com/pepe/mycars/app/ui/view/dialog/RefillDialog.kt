@@ -126,8 +126,9 @@ class RefillDialog : DialogFragment() {
         val refillAmount = binding.refillAmountInput.text.toString()
         val fuelPrice = binding.priceOfFuelInput.text.toString()
         val notes = binding.refillNotesInput.text.toString()
+        val fullTank = binding.fullRefillCheckBox.isChecked
 
-        refillDialogViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes)
+        refillDialogViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes, fullTank)
     }
 
     private fun observeState() {

@@ -14,7 +14,8 @@ interface DataRepository {
         fuelCost: Float,
         fuelAmount: Float,
         refillDate: String,
-        notes: String
+        notes: String,
+        fullTank: Boolean
     ): Flow<ItemModelState>
 
     fun deleteRefillItem(itemId: String): Flow<ItemModelState>

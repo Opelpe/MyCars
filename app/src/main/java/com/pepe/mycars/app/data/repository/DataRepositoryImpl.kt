@@ -66,7 +66,8 @@ class DataRepositoryImpl(
         fuelCost: Float,
         fuelAmount: Float,
         refillDate: String,
-        notes: String
+        notes: String,
+        fullTank: Boolean
     ): Flow<ItemModelState> = flow {
 
         emit(ItemModelState.Loading)
@@ -75,7 +76,7 @@ class DataRepositoryImpl(
             if (firebaseUser != null) {
                 val uId = firebaseUser.uid
                 val itemId = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document().id
-                val basicRefillModel = HistoryItemModel(itemId, currMileage, fuelAmount, fuelCost, refillDate, notes)
+                val basicRefillModel = HistoryItemModel(itemId, currMileage, fuelAmount, fuelCost, refillDate, notes, fullTank)
                 fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).set(basicRefillModel).await()
                 val response =
                     fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()

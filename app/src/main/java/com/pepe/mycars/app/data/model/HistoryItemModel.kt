@@ -9,7 +9,6 @@ data class HistoryItemModel(
     val fuelPrice: Float? = null,
     val fuelAmount: Float? = null,
     val refillDate: String = "",
-    val notes: String = ""
-) {
-
-}
+    val notes: String = "",
+    val fullTank: Boolean = true
+)

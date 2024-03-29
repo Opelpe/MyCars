@@ -25,7 +25,8 @@ class RefillDialogViewModel @Inject constructor(
         fuelCost: String?,
         fuelAmount: String?,
         refillDate: String?,
-        notes: String?
+        notes: String?,
+        fullTank: Boolean
     ) {
         if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()) {
             _addingItemViewState.postValue(AddItemViewState.Error("Enter the necessary data!"))
@@ -36,7 +37,8 @@ class RefillDialogViewModel @Inject constructor(
                     fuelCost.toFloat(),
                     fuelAmount.toFloat(),
                     refillDate,
-                    notes ?: ""
+                    notes ?: "",
+                    fullTank
                 )
             ).onEach { state ->
                 when (state) {
@@ -75,7 +77,8 @@ class RefillDialogViewModel @Inject constructor(
                     fuelCost.toFloat(),
                     fuelAmount.toFloat(),
                     refillDate,
-                    notes ?: ""
+                    notes ?: "",
+                    fullTank
                 )
             ).onEach { state ->
                 when (state) {

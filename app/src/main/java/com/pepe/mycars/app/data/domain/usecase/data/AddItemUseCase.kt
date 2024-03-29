@@ -13,7 +13,8 @@ class AddItemUseCase(
         params.fuelCost,
         params.fuelAmount,
         params.refillDate,
-        params.notes
+        params.notes,
+        params.fullTank
     )
 
     data class Param(
@@ -21,7 +22,8 @@ class AddItemUseCase(
         val fuelCost: Float,
         val fuelAmount: Float,
         val refillDate: String,
-        val notes: String
+        val notes: String,
+        val fullTank: Boolean
     )
 
 }
