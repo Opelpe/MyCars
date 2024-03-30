@@ -8,7 +8,7 @@ class HistoryItemMapper {
     fun mapToHistoryUiModel(model: List<HistoryItemModel>): List<HistoryItemUiModel> {
         val uiList = mutableListOf<HistoryItemUiModel>()
         for (i in model.indices) {
-            if (i + 1 < model.size && model[i].fullTank) {
+            if (i + 1 < model.size) {
                 val date = formatDateToString(model[i].refillDate)
                 val currentMileage = model[i].currMileage ?: 0f
                 val lastMileage = model[i + 1].currMileage ?: 0f
@@ -17,8 +17,7 @@ class HistoryItemMapper {
                 val fCurrentMileage = formatMileage(currentMileage)
                 val fFuelAmount = formatFuelAmount(model[i].fuelAmount!!)
                 val fAddedMileage = formatAddedMileage(addedMileage)
-                val fFuelUsage =
-                    formatFuelUsage((model[i].fuelAmount?.times(100))?.div(addedMileage)!!)
+                val fFuelUsage = if (model[i].fullTank) formatFuelUsage((model[i].fuelAmount?.times(100))?.div(addedMileage)!!) else ""
                 val fFuelCost = formatFuelCost(model[i].fuelPrice!!, model[i].fuelAmount!!)
                 val uiItem = HistoryItemUiModel(
                     model[i].itemId!!,
@@ -32,7 +31,7 @@ class HistoryItemMapper {
                 )
                 uiList.add(uiItem)
 
-            }else{
+            } else {
                 val date = formatDateToString(model[i].refillDate)
                 val fCurrentMileage = formatMileage(model[i].currMileage!!)
                 val fFuelAmount = formatFuelAmount(model[i].fuelAmount!!)
