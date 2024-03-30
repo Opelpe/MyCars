@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pepe.mycars.app.data.adapter.HistoryAdapter
 import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.ui.view.dialog.DialogMode
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
@@ -30,7 +31,11 @@ class HistoryFragment : Fragment() {
 
     private val deleteItemListener: HistoryAdapter.ItemDeleteListener = HistoryAdapter.ItemDeleteListener { itemID -> confirmToCancel(itemID) }
 
-    private val editItemListener: HistoryAdapter.ItemEditListener = HistoryAdapter.ItemEditListener { itemID -> displayEditDialog(itemID) }
+    private val editItemListener: HistoryAdapter.ItemEditListener =
+        HistoryAdapter.ItemEditListener { itemID -> displayRefillDialog(itemID, DialogMode.EDIT) }
+
+    private val detailsItemListener: HistoryAdapter.ItemDetailsListener =
+        HistoryAdapter.ItemDetailsListener { itemID -> displayRefillDialog(itemID, DialogMode.DETAILS) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -39,12 +44,19 @@ class HistoryFragment : Fragment() {
         historyViewModel.updateView()
         historyViewModel.observeRefillList(viewLifecycleOwner)
         observeItemSate()
-        binding.floatingRefillButton.setOnClickListener {
-            val dialog = RefillDialog()
-            dialog.show(requireActivity().supportFragmentManager, "refillDialog")
-        }
+        binding.floatingRefillButton.setOnClickListener { displayRefillDialog(null, DialogMode.ADD) }
 
         return binding.root
+    }
+
+    private fun displayRefillDialog(itemID: String?, dialogMode: DialogMode) {
+        if (itemID != null && dialogMode != DialogMode.ADD) {
+            RefillDialog.newInstance(dialogMode, itemID).show(requireActivity().supportFragmentManager, "refillDialog")
+        } else {
+            if (dialogMode == DialogMode.ADD) {
+                RefillDialog().show(requireActivity().supportFragmentManager, "refillDialog")
+            }
+        }
     }
 
     private fun observeItemSate() {
@@ -75,23 +87,14 @@ class HistoryFragment : Fragment() {
         }
     }
 
-    private fun displayEditDialog(itemId: String) {
-        RefillDialog.newInstance(true, itemId)
-    }
-
     private fun confirmToCancel(itemId: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Do you want to remove?")
-            .setCancelable(true)
+        AlertDialog.Builder(requireContext()).setTitle("Do you want to remove?").setCancelable(true)
             .setPositiveButton("Yes") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 historyViewModel.deleteItem(itemId)
                 historyViewModel.updateView()
             }.setNegativeButton("No") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
-//                historyViewModel.updateView()
-            }.setOnCancelListener {
-//                historyViewModel.updateView()
             }.show()
     }
 
@@ -99,7 +102,7 @@ class HistoryFragment : Fragment() {
         if (adapter != null) {
             adapter!!.refreshList(data)
         } else {
-            adapter = HistoryAdapter(data, deleteItemListener, editItemListener)
+            adapter = HistoryAdapter(data, deleteItemListener, editItemListener, detailsItemListener)
             binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
             binding.historyRecyclerView.adapter = adapter
         }

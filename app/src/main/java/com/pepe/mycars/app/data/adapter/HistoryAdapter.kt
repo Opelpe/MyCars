@@ -9,7 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.R
 import com.pepe.mycars.app.data.local.HistoryItemUiModel
 
-class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDeleteListener, itemEditListener: ItemEditListener) :
+class HistoryAdapter(
+    data: List<HistoryItemUiModel>,
+    itemDeleteListener: ItemDeleteListener,
+    itemEditListener: ItemEditListener,
+    itemDetailsListener: ItemDetailsListener
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var refillList = data
@@ -18,12 +23,18 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDel
 
     private val editListener = itemEditListener
 
+    private val detailsListener = itemDetailsListener
+
     fun interface ItemDeleteListener {
         fun onDeleteClick(itemId: String)
     }
 
     fun interface ItemEditListener {
         fun onLongClick(itemId: String)
+    }
+
+    fun interface ItemDetailsListener {
+        fun onClick(itemId: String)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -41,6 +52,10 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDel
 
             historyHolder.deleteItemButton.setOnClickListener {
                 deleteListener.onDeleteClick(refillList[position].itemId)
+            }
+
+            historyHolder.itemView.setOnClickListener {
+                detailsListener.onClick(refillList[position].itemId)
             }
 
             historyHolder.itemView.setOnLongClickListener {
@@ -62,10 +77,10 @@ class HistoryAdapter(data: List<HistoryItemUiModel>, itemDeleteListener: ItemDel
                         var notes = String.format("\"%s\"", refillList[i].notes.replace("\n", " "))
                         val length = notes.count()
                         if (length > 40) {
-                            notes = String.format("%s...\"", notes.substring(0,36))
+                            notes = String.format("%s...\"", notes.substring(0, 36))
                         }
                         historyHolder.notesContainer.text = notes
-                    }else{
+                    } else {
                         historyHolder.notesContainer.text = ""
                     }
 

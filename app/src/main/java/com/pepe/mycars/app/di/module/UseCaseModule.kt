@@ -3,7 +3,6 @@ package com.pepe.mycars.app.di.module
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
-import com.pepe.mycars.app.data.domain.usecase.data.AddItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
 import dagger.Module
@@ -22,14 +21,6 @@ object UseCaseModule {
         dataRepository: DataRepository
     ): GetRefillItemsUseCase {
         return GetRefillItemsUseCase(dataRepository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAddItemUseCase(
-        dataRepository: DataRepository
-    ): AddItemUseCase {
-        return AddItemUseCase(dataRepository)
     }
 
     @Provides

@@ -1,4 +1,5 @@
 package com.pepe.mycars.app.data.domain.repository
+
 import com.google.firebase.firestore.CollectionReference
 import com.pepe.mycars.app.utils.state.ItemModelState
 import kotlinx.coroutines.flow.Flow
@@ -19,4 +20,16 @@ interface DataRepository {
     ): Flow<ItemModelState>
 
     fun deleteRefillItem(itemId: String): Flow<ItemModelState>
+
+    fun getItemById(itemId: String): Flow<ItemModelState>
+
+    fun updateItem(
+        itemID: String,
+        currMileage: Float,
+        fuelAmount: Float,
+        fuelCost: Float,
+        refillDate: String,
+        notes: String,
+        fullTank: Boolean
+    ): Flow<ItemModelState>
 }

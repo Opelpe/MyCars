@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.usecase.data.AddItemUseCase
+import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.utils.state.ItemModelState
-import com.pepe.mycars.app.utils.state.view.AddItemViewState
+import com.pepe.mycars.app.utils.state.view.RefillItemViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -14,44 +14,32 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RefillDialogViewModel @Inject constructor(
-    private val addItemUseCase: AddItemUseCase
+    private val dataRepository: DataRepository
 ) : ViewModel() {
 
-    private val _addingItemViewState: MutableLiveData<AddItemViewState> = MutableLiveData(AddItemViewState.Loading)
-    val addingItemViewState: LiveData<AddItemViewState> = _addingItemViewState
+    private val _refillItemViewState: MutableLiveData<RefillItemViewState> = MutableLiveData(RefillItemViewState.Loading)
+    val refillItemViewState: LiveData<RefillItemViewState> = _refillItemViewState
 
     fun addRefill(
-        currMileage: String?,
-        fuelCost: String?,
-        fuelAmount: String?,
-        refillDate: String?,
-        notes: String?,
-        fullTank: Boolean
+        currMileage: String?, fuelCost: String?, fuelAmount: String?, refillDate: String?, notes: String?, fullTank: Boolean
     ) {
         if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()) {
-            _addingItemViewState.postValue(AddItemViewState.Error("Enter the necessary data!"))
+            _refillItemViewState.postValue(RefillItemViewState.Error("Enter the necessary data!"))
         } else {
-            addItemUseCase.execute(
-                AddItemUseCase.Param(
-                    currMileage.toFloat(),
-                    fuelCost.toFloat(),
-                    fuelAmount.toFloat(),
-                    refillDate,
-                    notes ?: "",
-                    fullTank
-                )
+            dataRepository.addRefillItem(
+                currMileage.toFloat(), fuelCost.toFloat(), fuelAmount.toFloat(), refillDate, notes ?: "", fullTank
             ).onEach { state ->
                 when (state) {
                     ItemModelState.Loading -> {
-                        _addingItemViewState.postValue(AddItemViewState.Loading)
+                        _refillItemViewState.postValue(RefillItemViewState.Loading)
                     }
 
                     is ItemModelState.Error -> {
-                        _addingItemViewState.postValue(AddItemViewState.Error(state.exceptionMsg))
+                        _refillItemViewState.postValue(RefillItemViewState.Error(state.exceptionMsg))
                     }
 
                     is ItemModelState.Success -> {
-                        _addingItemViewState.postValue(AddItemViewState.Success("Successfully added!"))
+                        _refillItemViewState.postValue(RefillItemViewState.Success(null, RefillOperations.ADDED, "Successfully added!"))
                     }
                 }
             }.launchIn(viewModelScope)
@@ -59,56 +47,58 @@ class RefillDialogViewModel @Inject constructor(
     }
 
     fun updateHistoryItem(
-        itemID: String?,
-        currMileage: String?,
-        fuelAmount: String?,
-        fuelCost: String?,
-        refillDate: String?,
-        notes: String?,
-        fullTank: Boolean
+        itemID: String, currMileage: String?, fuelAmount: String?, fuelCost: String?, refillDate: String?, notes: String?, fullTank: Boolean
     ) {
 
         if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()) {
-            _addingItemViewState.postValue(AddItemViewState.Error("Enter the necessary data!"))
+            _refillItemViewState.postValue(RefillItemViewState.Error("Enter the necessary data!"))
         } else {
-            addItemUseCase.execute(
-                AddItemUseCase.Param(
-                    currMileage.toFloat(),
-                    fuelCost.toFloat(),
-                    fuelAmount.toFloat(),
-                    refillDate,
-                    notes ?: "",
-                    fullTank
-                )
+
+            dataRepository.updateItem(
+                itemID, currMileage.toFloat(), fuelAmount.toFloat(), fuelCost.toFloat(), refillDate, notes ?: "", fullTank
             ).onEach { state ->
-                when (state) {
-                    ItemModelState.Loading -> {
-                        _addingItemViewState.postValue(AddItemViewState.Loading)
-                    }
+                val value = when (state) {
+                    ItemModelState.Loading -> RefillItemViewState.Loading
 
-                    is ItemModelState.Error -> {
-                        _addingItemViewState.postValue(AddItemViewState.Error(state.exceptionMsg))
-                    }
+                    is ItemModelState.Error -> RefillItemViewState.Error(state.exceptionMsg)
 
-                    is ItemModelState.Success -> {
-                        _addingItemViewState.postValue(AddItemViewState.Success("Item successfully edited!"))
-                    }
+                    is ItemModelState.Success -> RefillItemViewState.Success(null, RefillOperations.UPDATED, "Item successfully edited!")
                 }
+                _refillItemViewState.postValue(value)
             }.launchIn(viewModelScope)
         }
     }
 
-    fun dialogStart(itemEditMode: Boolean) {
-        if (!itemEditMode) {
-            _addingItemViewState.postValue(AddItemViewState.Error("Add new item"))
-        } else {
-            _addingItemViewState.postValue(AddItemViewState.Error("Edit item"))
-        }
+
+    fun getItemById(editItemID: String) {
+        dataRepository.getItemById(editItemID).onEach { state ->
+            when (state) {
+                ItemModelState.Loading -> {
+                    _refillItemViewState.postValue(RefillItemViewState.Loading)
+                }
+
+                is ItemModelState.Error -> {
+                    _refillItemViewState.postValue(RefillItemViewState.Error(state.exceptionMsg))
+                }
+
+                is ItemModelState.Success -> {
+                    if (state.model.isNotEmpty()) {
+                        _refillItemViewState.postValue(RefillItemViewState.Success(state.model[0], null, ""))
+                    } else {
+                        _refillItemViewState.postValue(RefillItemViewState.Error("Item not found"))
+                    }
+                }
+            }
+
+        }.launchIn(viewModelScope)
     }
 
-    fun dialogEnd() {
-        _addingItemViewState.postValue(AddItemViewState.Error(""))
+    fun dialogStartEnd() {
+        _refillItemViewState.postValue(RefillItemViewState.Error(""))
     }
 
+}
 
+enum class RefillOperations {
+    ADDED, UPDATED
 }
