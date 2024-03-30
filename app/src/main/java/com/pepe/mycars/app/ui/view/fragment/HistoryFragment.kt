@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.app.data.adapter.HistoryAdapter
 import com.pepe.mycars.app.data.local.HistoryItemUiModel
 import com.pepe.mycars.app.ui.view.dialog.DialogMode
@@ -23,19 +25,54 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
 
+    private lateinit var binding: FragmentHistoryBinding
+
     private val historyViewModel: HistoryViewModel by activityViewModels()
 
-    private lateinit var binding: FragmentHistoryBinding
+    private lateinit var itemTouchHelper: ItemTouchHelper
 
     private var adapter: HistoryAdapter? = null
 
-    private val deleteItemListener: HistoryAdapter.ItemDeleteListener = HistoryAdapter.ItemDeleteListener { itemID -> confirmToCancel(itemID) }
+    private var historyList: List<HistoryItemUiModel> = listOf()
+
+    private val deleteItemListener: HistoryAdapter.ItemDeleteListener =
+        HistoryAdapter.ItemDeleteListener { itemID -> itemDeletionConfirmationDialog(itemID) }
 
     private val editItemListener: HistoryAdapter.ItemEditListener =
         HistoryAdapter.ItemEditListener { itemID -> displayRefillDialog(itemID, DialogMode.EDIT) }
 
     private val detailsItemListener: HistoryAdapter.ItemDetailsListener =
         HistoryAdapter.ItemDetailsListener { itemID -> displayRefillDialog(itemID, DialogMode.DETAILS) }
+
+    private val simpleCallback = object :
+        ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean = false
+
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+
+            when (direction) {
+                ItemTouchHelper.LEFT -> {
+                    val itemId = historyList[position].itemId
+                    displayRefillDialog(itemId, DialogMode.EDIT)
+                    adapter?.notifyDataSetChanged()
+                }
+
+                ItemTouchHelper.RIGHT -> {
+                    val itemId = historyList[position].itemId
+                    itemDeletionConfirmationDialog(itemId)
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -45,6 +82,9 @@ class HistoryFragment : Fragment() {
         historyViewModel.observeRefillList(viewLifecycleOwner)
         observeItemSate()
         binding.floatingRefillButton.setOnClickListener { displayRefillDialog(null, DialogMode.ADD) }
+
+        itemTouchHelper = ItemTouchHelper(simpleCallback)
+        itemTouchHelper.attachToRecyclerView(binding.historyRecyclerView)
 
         return binding.root
     }
@@ -87,18 +127,22 @@ class HistoryFragment : Fragment() {
         }
     }
 
-    private fun confirmToCancel(itemId: String) {
+    private fun itemDeletionConfirmationDialog(itemId: String) {
         AlertDialog.Builder(requireContext()).setTitle("Do you want to remove?").setCancelable(true)
             .setPositiveButton("Yes") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 historyViewModel.deleteItem(itemId)
-                historyViewModel.updateView()
             }.setNegativeButton("No") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
+                adapter?.notifyDataSetChanged()
+            }
+            .setOnCancelListener {
+                adapter?.notifyDataSetChanged()
             }.show()
     }
 
     private fun setHistoryItems(data: List<HistoryItemUiModel>) {
+        historyList = data
         if (adapter != null) {
             adapter!!.refreshList(data)
         } else {
