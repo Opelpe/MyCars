@@ -21,4 +21,9 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.pepe.mycars", appContext.packageName)
     }
+
+    @Test
+    fun sol(){
+        
+    }
 }

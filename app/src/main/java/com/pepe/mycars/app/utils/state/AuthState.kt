@@ -7,5 +7,5 @@ sealed class AuthState {
 
     data class Error(val exceptionMsg: String) : AuthState()
 
-    data class Success(val firebaseUser: FirebaseUser?) : AuthState()
+    data class Success(val firebaseUser: FirebaseUser) : AuthState()
 }

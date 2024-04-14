@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
+import com.pepe.mycars.app.data.mapper.ErrorMapper
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
 import com.pepe.mycars.app.utils.RefillChangesLiveData
 import com.pepe.mycars.app.utils.state.ItemModelState
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     private val getRefillItemsUseCase: GetRefillItemsUseCase,
     private val deleteItemUseCase: DeleteItemUseCase,
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
+    private val errorMapper: ErrorMapper
 ) : ViewModel() {
 
     private val _historyItemViewState: MutableLiveData<HistoryItemViewState> = MutableLiveData(HistoryItemViewState.Loading)
