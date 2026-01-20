@@ -1,10 +1,10 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
-    id("com.google.gms.google-services")
-    id ("com.google.dagger.hilt.android")
-    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -48,53 +48,52 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             pickFirsts += "META-INF/LICENSE.md"
-            pickFirsts += "META-INF/LICENSE-notice.md"        }
+            pickFirsts += "META-INF/LICENSE-notice.md"
+        }
     }
 }
 
 dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.fragment.ktx)
 
-    implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.7.6")
-    implementation ("androidx.fragment:fragment-ktx:1.6.2")
+    implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.firebase.database.ktx)
+    testImplementation(libs.junit)
+    debugImplementation(libs.mockito.kotlin)
+    debugImplementation(libs.mockito.core)
+    debugImplementation(libs.mockito.junit.jupiter)
+    debugImplementation(libs.mockito.inline)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
-    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
-    testImplementation("junit:junit:4.13.2")
-    debugImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
-    debugImplementation("org.mockito:mockito-core:5.3.1")
-    debugImplementation("org.mockito:mockito-junit-jupiter:3.0.0")
-    debugImplementation("org.mockito:mockito-inline:3.0.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
-//    DAGGER
-    implementation ("com.google.dagger:hilt-android:2.48.1")
-    kapt ("com.google.dagger:hilt-compiler:2.48.1")
-    testImplementation ("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptTest ("com.google.dagger:hilt-compiler:2.48.1")
+    // DAGGER
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    testImplementation(libs.hilt.android.testing)
+    kaptTest(libs.hilt.compiler)
 
     // Retrofit
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
+    implementation(libs.retrofit)
+    implementation(libs.okhttp)
 
-//    FIREBASE
-    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-crashlytics")
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.firebaseui:firebase-ui-auth:8.0.0")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation ("com.google.firebase:firebase-messaging-ktx:23.3.1")
-    implementation ("com.google.firebase:firebase-storage-ktx:20.3.0")
+    // FIREBASE
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.ui.auth)
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.storage.ktx)
 
-    implementation ("io.reactivex.rxjava3:rxjava:3.1.1")
-
-    implementation ("com.google.code.gson:gson:2.8.9")
-
+    implementation(libs.rxjava)
+    implementation(libs.gson)
 }
