@@ -5,6 +5,7 @@ kotlin = "2.1.0"
 googleServices = "4.4.2"
 hilt = "2.54"
 crashlyticsPlugin = "3.0.2"
+ktlint = "12.1.2"
 
 # AndroidX
 coreKtx = "1.15.0"
@@ -94,6 +95,7 @@ kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 
 [bundles]
 navigation = ["androidx-navigation-fragment-ktx", "androidx-navigation-ui-ktx"]
