@@ -24,7 +24,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/refillDialogTitle"
+        android:id="@+id/refillDialogTitleContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/green_dark"
@@ -33,6 +33,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/refillDialogTitle"
             style="@style/titleTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,7 +57,7 @@
         android:paddingVertical="@dimen/refill_et_padding_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/refillDialogTitle">
+        app:layout_constraintTop_toBottomOf="@id/refillDialogTitleContainer">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/refillDateInput"
@@ -203,8 +204,8 @@
         android:id="@+id/cancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:layout_marginEnd="10dp"
+        android:clickable="true"
         app:layout_constraintBottom_toBottomOf="@id/saveRefillButton"
         app:layout_constraintEnd_toStartOf="@id/saveRefillButton"
         app:layout_constraintTop_toTopOf="@id/saveRefillButton">

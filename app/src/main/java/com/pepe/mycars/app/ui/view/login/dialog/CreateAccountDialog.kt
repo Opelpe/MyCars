@@ -17,8 +17,7 @@ import com.pepe.mycars.databinding.DialogCreateAccountBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class CreateAccountDialog: DialogFragment() {
-
+class CreateAccountDialog : DialogFragment() {
     private lateinit var binding: DialogCreateAccountBinding
 
     private val authModel: AuthViewModel by activityViewModels()
@@ -26,7 +25,7 @@ class CreateAccountDialog: DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = DialogCreateAccountBinding.inflate(layoutInflater, container, false)
 
@@ -43,7 +42,10 @@ class CreateAccountDialog: DialogFragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         observeAuthState()
         setupButtons()
@@ -59,15 +61,15 @@ class CreateAccountDialog: DialogFragment() {
                     binding.userNameTitle.setTextColor(
                         resources.getColor(
                             com.pepe.mycars.R.color.green,
-                            activity?.theme
-                        )
+                            activity?.theme,
+                        ),
                     )
                 } else {
                     binding.userNameTitle.setTextColor(
                         resources.getColor(
                             com.pepe.mycars.R.color.grey,
-                            activity?.theme
-                        )
+                            activity?.theme,
+                        ),
                     )
                 }
             }
@@ -78,15 +80,15 @@ class CreateAccountDialog: DialogFragment() {
                     binding.emailAddressTitle.setTextColor(
                         resources.getColor(
                             com.pepe.mycars.R.color.green,
-                            activity?.theme
-                        )
+                            activity?.theme,
+                        ),
                     )
                 } else {
                     binding.emailAddressTitle.setTextColor(
                         resources.getColor(
                             com.pepe.mycars.R.color.grey,
-                            activity?.theme
-                        )
+                            activity?.theme,
+                        ),
                     )
                 }
             }
@@ -97,15 +99,15 @@ class CreateAccountDialog: DialogFragment() {
                     binding.passwordTitle.setTextColor(
                         resources.getColor(
                             com.pepe.mycars.R.color.green,
-                            activity?.theme
-                        )
+                            activity?.theme,
+                        ),
                     )
                 } else {
                     binding.passwordTitle.setTextColor(
                         resources.getColor(
                             com.pepe.mycars.R.color.grey,
-                            activity?.theme
-                        )
+                            activity?.theme,
+                        ),
                     )
                 }
             }
@@ -171,7 +173,11 @@ class CreateAccountDialog: DialogFragment() {
         passwordInput.setSelection(passwordInput.getText().length)
     }
 
-    private fun createNewUserClicked(email: String?, password: String?, name: String?) {
+    private fun createNewUserClicked(
+        email: String?,
+        password: String?,
+        name: String?,
+    ) {
         val autoLogin = arguments?.getBoolean("autoLogin") ?: false
         authModel.register(email, password, name, autoLogin)
     }
@@ -180,7 +186,7 @@ class CreateAccountDialog: DialogFragment() {
         if (loading) {
             dialog!!.window!!.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             )
             binding.progressView.visibility = View.VISIBLE
         } else {

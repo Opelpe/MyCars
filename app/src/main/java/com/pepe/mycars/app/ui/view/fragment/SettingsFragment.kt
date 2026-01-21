@@ -15,33 +15,54 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
-
     private lateinit var binding: FragmentSettingsBinding
     private val loggedInViewModel: LoggedInViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         binding.logoutButton.setOnClickListener {
             loggedInViewModel.logOut()
         }
 
         binding.languagesContainer.setOnClickListener {
-            if (binding.languagesSetContainer.isVisible){
-                val drawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_arrow_forward)
+            if (binding.languagesSetContainer.isVisible) {
+                val drawable =
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.ic_arrow_forward,
+                    )
                 binding.languagesSetContainer.visibility = View.GONE
-                binding.languagesTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable,null,null,null)
-            }else{
-                val drawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_double_arrow_down)
+                binding.languagesTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    drawable,
+                    null,
+                    null,
+                    null,
+                )
+            } else {
+                val drawable =
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.ic_double_arrow_down,
+                    )
                 binding.languagesSetContainer.visibility = View.VISIBLE
-                binding.languagesTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable,null,null,null)
+                binding.languagesTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    drawable,
+                    null,
+                    null,
+                    null,
+                )
             }
         }
     }

@@ -1,0 +1,28 @@
+ktlint:
+
+# Ktlint core configuration
+android: true
+disabled_rules:
+  - package-name
+  - filename
+
+reporters:
+  - plain
+  - checkstyle
+
+experimental: true
+
+# Code style settings
+editor_config_overrides:
+  indent_size: 4
+  max_line_length: 120
+  insert_final_newline: true
+
+  ij_kotlin_align_multiline_parameters_in_calls: true
+  ij_kotlin_align_multiline_parameters: true
+  ij_kotlin_blank_lines_around_block_when_branches: 0
+  ij_kotlin_blank_lines_after_class_header: 0
+  ij_kotlin_blank_lines_before_rbrace: 0
+  ij_kotlin_imports_layout: "*"
+  ij_kotlin_allow_trailing_comma: true
+  ij_kotlin_wrap_before_assignment: true

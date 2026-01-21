@@ -139,7 +139,7 @@
             app:layout_constraintTop_toTopOf="@id/historyMileageTitle" />
 
         <TextView
-            android:id="@+id/historyExpenseTitle"
+            android:id="@+id/historyCostTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -149,18 +149,18 @@
             android:paddingEnd="2dp"
             android:textAlignment="viewEnd"
             android:textSize="@dimen/text_size_small"
-            app:layout_constraintEnd_toStartOf="@id/historyExpenseDesc"
+            app:layout_constraintEnd_toStartOf="@id/historyCostDesc"
             app:layout_constraintStart_toEndOf="@id/historyDividerRight"
             app:layout_constraintTop_toBottomOf="@id/historyMileageTitle" />
 
         <TextView
-            android:id="@+id/historyExpenseDesc"
+            android:id="@+id/historyCostDesc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
             android:text="@string/price_units"
             android:textSize="@dimen/text_size_item_desc"
-            app:layout_constraintBottom_toBottomOf="@id/historyExpenseTitle"
+            app:layout_constraintBottom_toBottomOf="@id/historyCostTitle"
             app:layout_constraintEnd_toStartOf="@id/deleteHistoryButton" />
 
         <ImageView
@@ -176,7 +176,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/historyLittersText"
+            android:id="@+id/historyAmountTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -186,21 +186,43 @@
             android:paddingEnd="2dp"
             android:textAlignment="viewEnd"
             android:textSize="@dimen/text_size_item_desc"
-            app:layout_constraintBottom_toTopOf="@id/historyExpenseTitle"
-            app:layout_constraintEnd_toEndOf="@id/historyExpenseTitle"
-            app:layout_constraintStart_toStartOf="@id/historyExpenseTitle"
+            app:layout_constraintBottom_toTopOf="@id/historyCostTitle"
+            app:layout_constraintEnd_toEndOf="@id/historyCostTitle"
+            app:layout_constraintStart_toStartOf="@id/historyCostTitle"
             tools:text="@string/data_null_small_text" />
 
         <TextView
-            android:id="@+id/historyLittersUnits"
+            android:id="@+id/historyAmountDesc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
             android:text="@string/capacity_units"
             android:textSize="@dimen/text_size_item_desc"
-            app:layout_constraintBottom_toBottomOf="@id/historyLittersText"
+            app:layout_constraintBottom_toBottomOf="@id/historyAmountTitle"
             app:layout_constraintEnd_toStartOf="@id/deleteHistoryButton"
-            app:layout_constraintStart_toEndOf="@id/historyLittersText" />
+            app:layout_constraintStart_toEndOf="@id/historyAmountTitle" />
+
+        <View
+            android:id="@+id/historyNotesStartPoint"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/historyAddedMileageTitle"
+            app:layout_constraintStart_toStartOf="@id/historyAddedMileageTitle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/historyNotesContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:maxLength="41"
+            android:maxLines="1"
+            android:textSize="@dimen/text_size_xsmall"
+            app:layout_constraintEnd_toStartOf="@id/deleteHistoryButton"
+            app:layout_constraintStart_toEndOf="@id/historyNotesStartPoint"
+            app:layout_constraintTop_toBottomOf="@id/historyDividerLeft" />
 
         <TextView
             android:id="@+id/historyItemIdText"

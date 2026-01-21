@@ -23,4 +23,5 @@
     <dimen name="text_size_16sp">16sp</dimen>
     <dimen name="text_size_15sp">15sp</dimen>
     <dimen name="space_15dp">15dp</dimen>
+    <dimen name="space_20dp">20dp</dimen>
 </resources>

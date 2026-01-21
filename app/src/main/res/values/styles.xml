@@ -72,5 +72,4 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <dimen name="space_20dp">20dp</dimen>
 </resources>

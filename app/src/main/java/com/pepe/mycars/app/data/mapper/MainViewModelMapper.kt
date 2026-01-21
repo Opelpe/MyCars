@@ -22,8 +22,7 @@ class MainViewModelMapper {
             lastMileage = fCurrMileage,
             totalMileage = fTotalAddedMileage,
             totalCost = fTotalCost,
-            totalAmount = fTotalFuelAmount
-
+            totalAmount = fTotalFuelAmount,
         )
     }
 
@@ -49,7 +48,9 @@ class MainViewModelMapper {
             val firstMileage = model.last().currMileage
             val addedMileage = currMileage!! - firstMileage!!
             formatAddedMileage(addedMileage)
-        } else "---"
+        } else {
+            "---"
+        }
     }
 
     private fun getLastUsage(model: List<HistoryItemModel>): String {
@@ -57,8 +58,14 @@ class MainViewModelMapper {
             val currMileage = model[0].currMileage
             val lastMileage = model[1].currMileage
             val addedMileage = currMileage!! - lastMileage!!
-            formatFuelUsage((model[0].fuelAmount?.times(100))?.div(addedMileage)!!)
-        } else "---"
+            if (model[0].fullTank) {
+                return formatFuelUsage((model[0].fuelAmount?.times(100))?.div(addedMileage)!!)
+            } else {
+                return "---"
+            }
+        } else {
+            "---"
+        }
     }
 
     private fun getCurrMileage(model: List<HistoryItemModel>): String {
@@ -79,7 +86,10 @@ class MainViewModelMapper {
         }
     }
 
-    private fun formatFuelCost(fp: Float?, fa: Float?): String {
+    private fun formatFuelCost(
+        fp: Float?,
+        fa: Float?,
+    ): String {
         return if (fp != null && fa != null) {
             val fuelCost = fp * fa
             if (fuelCost > 9999) {
@@ -156,21 +166,24 @@ class MainViewModelMapper {
         }
     }
 
-
     private fun countAvrUsage(model: List<HistoryItemModel>): String {
-        var counter = 0f
+        var usage = 0f
+        var itemsCount = 0
         for (i in model.indices) {
             if (i + 1 < model.size) {
                 val currentMileage = model[i].currMileage ?: 0f
                 val lastMileage = model[i + 1].currMileage ?: 0f
                 val addedMileage = currentMileage - lastMileage
-                counter += (model[i].fuelAmount?.times(100))?.div(addedMileage)!!
+                if (model[i].fullTank) {
+                    usage += (model[i].fuelAmount?.times(100))?.div(addedMileage)!!
+                    itemsCount++
+                }
             }
         }
         return if (model.size < 2) {
-            formatAvrUsage(counter)
+            formatAvrUsage(usage)
         } else {
-            formatAvrUsage(counter / (model.size - 1))
+            formatAvrUsage(usage / itemsCount)
         }
     }
 
@@ -199,7 +212,6 @@ class MainViewModelMapper {
         } else {
             return "---,--"
         }
-
     }
 
     private fun formatTravelingCost(avrPrice: Float): String {
@@ -245,5 +257,4 @@ class MainViewModelMapper {
             }
         }
     }
-
 }

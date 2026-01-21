@@ -8,6 +8,5 @@ data class HistoryItemUiModel(
     val refillDate: String = "",
     val notes: String = "",
     var addedMileage: String = "",
-    var fuelUsage: String = ""
-) {
-}
+    var fuelUsage: String = "",
+)

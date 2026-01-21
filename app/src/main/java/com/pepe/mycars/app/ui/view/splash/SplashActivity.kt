@@ -15,9 +15,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivitySplashBinding
     private val loggedInViewModel: LoggedInViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
@@ -41,13 +41,12 @@ class SplashActivity : AppCompatActivity() {
                     if (it.successMsg.isNotEmpty()) displayToast(it.successMsg)
                     if (it.isLoggedIn) displayActivity(ActivityId.MAIN) else displayActivity(ActivityId.LOGIN)
                 }
-
             }
         }
     }
 
     private fun displayActivity(activity: ActivityId) {
-        when(activity){
+        when (activity) {
             ActivityId.LOGIN -> startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
             ActivityId.MAIN -> startActivity(Intent(this@SplashActivity, MainViewActivity::class.java))
         }
@@ -55,7 +54,7 @@ class SplashActivity : AppCompatActivity() {
     }
 }
 
-enum class ActivityId{
+enum class ActivityId {
     LOGIN,
-    MAIN
+    MAIN,
 }

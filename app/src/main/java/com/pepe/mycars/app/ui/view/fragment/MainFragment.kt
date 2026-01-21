@@ -28,7 +28,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
-
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: FragmentMainBinding
     private val mainViewModel: MainViewModel by activityViewModels()
@@ -39,7 +38,7 @@ class MainFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentMainBinding.inflate(inflater, container, false)
         sharedPreferences = requireContext().getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF, Context.MODE_PRIVATE)
@@ -61,32 +60,42 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.main_nav_menu, menu)
-                globalMenuItem = menu.findItem(R.id.action_synchronize)
-                setToolbarIcon()
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.action_synchronize -> {
-                        if (!isOnline) {
-                            requireActivity().displayToast("Check your internet connection")
-                        } else {
-                            mainViewModel.actionSynchronize()
-                        }
-                        setToolbarIcon()
-                        Log.d("LOG_MESSAGE", "Action - 1")
-                        true
-                    }
-
-                    else -> false
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(
+                    menu: Menu,
+                    menuInflater: MenuInflater,
+                ) {
+                    menuInflater.inflate(R.menu.main_nav_menu, menu)
+                    globalMenuItem = menu.findItem(R.id.action_synchronize)
+                    setToolbarIcon()
                 }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.action_synchronize -> {
+                            if (!isOnline) {
+                                requireActivity().displayToast("Check your internet connection")
+                            } else {
+                                mainViewModel.actionSynchronize()
+                            }
+                            setToolbarIcon()
+                            Log.d("LOG_MESSAGE", "Action - 1")
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
+            },
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED,
+        )
     }
 
     private fun observeUserViewState() {
@@ -97,15 +106,15 @@ class MainFragment : Fragment() {
     private fun observeDataViewState() {
         mainViewModel.getListOfRefills()
         mainViewModel.observeRefillList(viewLifecycleOwner)
-        mainViewModel.dataMainViewState.observe(viewLifecycleOwner){ viewState ->
-            when(viewState){
-                MainViewState.Loading->{}
-                is MainViewState.Error->{
+        mainViewModel.dataMainViewState.observe(viewLifecycleOwner) { viewState ->
+            when (viewState) {
+                MainViewState.Loading -> {}
+                is MainViewState.Error -> {
                     if (viewState.errorMsg.isNotEmpty()) {
                         requireActivity().displayToast(viewState.errorMsg)
                     }
                 }
-                is MainViewState.Success-> {
+                is MainViewState.Success -> {
                     if (viewState.successMsg.isNotEmpty()) {
                         requireActivity().displayToast(viewState.successMsg)
                     }
@@ -116,15 +125,14 @@ class MainFragment : Fragment() {
     }
 
     private fun setMainViewScore(model: MainScoreModel) {
-
-            binding.averageUsageScoreTitle.text = model.avrUsage
-            binding.travelingCostsScoreTitle.text = model.avrCosts
-            binding.lastCostTitle.text = model.lastCost
-            binding.lastMileageTitle.text = model.lastMileage
-            binding.lastUsageTitle.text = model.lastUsage
-            binding.totalMileageTitle.text = model.totalMileage
-            binding.totalCostTitle.text = model.totalCost
-            binding.totalAddedFuelTitle.text = model.totalAmount
+        binding.averageUsageScoreTitle.text = model.avrUsage
+        binding.travelingCostsScoreTitle.text = model.avrCosts
+        binding.lastCostTitle.text = model.lastCost
+        binding.lastMileageTitle.text = model.lastMileage
+        binding.lastUsageTitle.text = model.lastUsage
+        binding.totalMileageTitle.text = model.totalMileage
+        binding.totalCostTitle.text = model.totalCost
+        binding.totalAddedFuelTitle.text = model.totalAmount
     }
 
     private fun initToolbar() {
@@ -138,7 +146,7 @@ class MainFragment : Fragment() {
         } catch (e: Exception) {
             Log.d(
                 this.javaClass.name,
-                "Setting MainFragment Toolbar EXCEPTION CAPTURED: $e"
+                "Setting MainFragment Toolbar EXCEPTION CAPTURED: $e",
             )
         }
     }

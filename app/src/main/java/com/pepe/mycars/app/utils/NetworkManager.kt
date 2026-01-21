@@ -8,7 +8,6 @@ import android.net.NetworkRequest
 import androidx.lifecycle.LiveData
 
 class NetworkManager(context: Context) : LiveData<Boolean>() {
-
     override fun onActive() {
         super.onActive()
         checkNetworkConnectivity()
@@ -22,40 +21,41 @@ class NetworkManager(context: Context) : LiveData<Boolean>() {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    private val networkCallback = object :ConnectivityManager.NetworkCallback(){
+    private val networkCallback =
+        object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
 
-        override fun onAvailable(network: Network) {
-            super.onAvailable(network)
+                postValue(true)
+            }
 
-            postValue(true)
+            override fun onUnavailable() {
+                super.onUnavailable()
+
+                postValue(false)
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+
+                postValue(false)
+            }
         }
 
-        override fun onUnavailable() {
-            super.onUnavailable()
-
-            postValue(false)
-        }
-
-        override fun onLost(network: Network) {
-            super.onLost(network)
-
-            postValue(false)
-        }
-    }
-
-    private fun checkNetworkConnectivity(){
+    private fun checkNetworkConnectivity() {
         val network = connectivityManager.activeNetwork
-        if(network == null){
+        if (network == null) {
             postValue(false)
         }
 
-        val requestBuilder = NetworkRequest.Builder().apply{
-            addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-            addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-        }.build()
+        val requestBuilder =
+            NetworkRequest.Builder().apply {
+                addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+            }.build()
 
         connectivityManager.registerNetworkCallback(requestBuilder, networkCallback)
     }
