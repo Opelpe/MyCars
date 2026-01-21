@@ -5,9 +5,7 @@ import com.pepe.mycars.app.utils.state.ItemModelState
 import kotlinx.coroutines.flow.Flow
 
 class GetRefillItemsUseCase(
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
 ) {
-
     fun execute(): Flow<ItemModelState> = dataRepository.getUserItems()
-
 }

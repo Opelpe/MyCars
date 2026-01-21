@@ -13,10 +13,9 @@ class HistoryAdapter(
     data: List<HistoryItemUiModel>,
     itemDeleteListener: ItemDeleteListener,
     itemEditListener: ItemEditListener,
-    itemDetailsListener: ItemDetailsListener
+    itemDetailsListener: ItemDetailsListener,
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
     private var refillList = data
 
     private val deleteListener = itemDeleteListener
@@ -37,19 +36,23 @@ class HistoryAdapter(
         fun onClick(itemId: String)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): RecyclerView.ViewHolder {
         val historyView: View =
             LayoutInflater.from(parent.context).inflate(R.layout.item_history, parent, false)
 
         return HistoryViewHolder(historyView)
-
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+    ) {
         val historyHolder = holder as HistoryViewHolder
 
         if (refillList.isNotEmpty()) {
-
             historyHolder.deleteItemButton.setOnClickListener {
                 deleteListener.onDeleteClick(refillList[position].itemId)
             }
@@ -127,6 +130,4 @@ class HistoryAdapter(
             notesContainer = itemView.findViewById(R.id.historyNotesContainer)
         }
     }
-
 }
-

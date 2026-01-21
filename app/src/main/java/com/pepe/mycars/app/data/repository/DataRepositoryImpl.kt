@@ -17,44 +17,45 @@ import java.io.IOException
 
 class DataRepositoryImpl(
     private val fireStoreDatabase: FirebaseFirestore,
-    val auth: FirebaseAuth
+    val auth: FirebaseAuth,
 ) : DataRepository {
-
     override fun getRefillsCollectionReference(): CollectionReference {
         val firebaseUser = auth.currentUser
         val uId = firebaseUser!!.uid
         return fireStoreDatabase.collection(USER).document(uId).collection(REFILLS)
     }
 
-    override fun getUserItems(): Flow<ItemModelState> = flow {
-        emit(ItemModelState.Loading)
+    override fun getUserItems(): Flow<ItemModelState> =
+        flow {
+            emit(ItemModelState.Loading)
 
-        val firebaseUser = auth.currentUser
+            val firebaseUser = auth.currentUser
 
-        try {
-            if (firebaseUser != null) {
-                val uId = firebaseUser.uid
-                val refillCollection = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).get().await()
-                if (refillCollection != null && !refillCollection.isEmpty) {
-                    val refillData =
-                        fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
-                            .await()
-                    emit(ItemModelState.Success(refillData.toObjects(HistoryItemModel::class.java)))
+            try {
+                if (firebaseUser != null) {
+                    val uId = firebaseUser.uid
+                    val refillCollection = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).get().await()
+                    if (refillCollection != null && !refillCollection.isEmpty) {
+                        val refillData =
+                            fireStoreDatabase.collection(
+                                USER,
+                            ).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
+                                .await()
+                        emit(ItemModelState.Success(refillData.toObjects(HistoryItemModel::class.java)))
+                    } else {
+                        emit(ItemModelState.Success(listOf()))
+                    }
                 } else {
-                    emit(ItemModelState.Success(listOf()))
+                    emit(ItemModelState.Error("Not logged"))
                 }
-
-            } else {
-                emit(ItemModelState.Error("Not logged"))
+            } catch (e: HttpException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
             }
-        } catch (e: HttpException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
         }
-    }
 
     override fun addRefillItem(
         currMileage: Float,
@@ -62,85 +63,89 @@ class DataRepositoryImpl(
         fuelAmount: Float,
         refillDate: String,
         notes: String,
-        fullTank: Boolean
-    ): Flow<ItemModelState> = flow {
-
-        emit(ItemModelState.Loading)
-        val firebaseUser = auth.currentUser
-        try {
-            if (firebaseUser != null) {
-                val uId = firebaseUser.uid
-                val itemId = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document().id
-                val basicRefillModel = HistoryItemModel(itemId, currMileage, fuelAmount, fuelCost, refillDate, notes, fullTank)
-                fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).set(basicRefillModel).await()
-                val response =
-                    fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
-                        .await()
-                response?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
-
-            } else {
-                emit(ItemModelState.Error("Not logged"))
-            }
-        } catch (e: HttpException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
-        }
-
-    }
-
-    override fun deleteRefillItem(itemId: String): Flow<ItemModelState> = flow {
-        emit(ItemModelState.Loading)
-        val firebaseUser = auth.currentUser
-        try {
-            if (firebaseUser != null) {
-                val uId = firebaseUser.uid
-                val itemSnapshot = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).get().await()
-                if (itemSnapshot.exists()) {
-                    fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).delete().await()
+        fullTank: Boolean,
+    ): Flow<ItemModelState> =
+        flow {
+            emit(ItemModelState.Loading)
+            val firebaseUser = auth.currentUser
+            try {
+                if (firebaseUser != null) {
+                    val uId = firebaseUser.uid
+                    val itemId = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document().id
+                    val basicRefillModel = HistoryItemModel(itemId, currMileage, fuelAmount, fuelCost, refillDate, notes, fullTank)
+                    fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).set(basicRefillModel).await()
                     val response =
-                        fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
+                        fireStoreDatabase.collection(
+                            USER,
+                        ).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
                             .await()
                     response?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
-                }
-            } else {
-                emit(ItemModelState.Error("Not logged"))
-            }
-        } catch (e: HttpException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
-        }
-    }
-
-    override fun getItemById(itemId: String): Flow<ItemModelState> = flow {
-        emit(ItemModelState.Loading)
-
-        val firebaseUser = auth.currentUser
-
-        try {
-            if (firebaseUser != null) {
-                val uId = firebaseUser.uid
-                val refillItem = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).get().await()
-                if (refillItem != null) {
-                    val item = refillItem.toObject(HistoryItemModel::class.java)
-                    emit(ItemModelState.Success(listOf(item!!)))
                 } else {
-                    emit(ItemModelState.Success(listOf()))
+                    emit(ItemModelState.Error("Not logged"))
                 }
+            } catch (e: HttpException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
             }
-        } catch (e: HttpException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
         }
-    }
+
+    override fun deleteRefillItem(itemId: String): Flow<ItemModelState> =
+        flow {
+            emit(ItemModelState.Loading)
+            val firebaseUser = auth.currentUser
+            try {
+                if (firebaseUser != null) {
+                    val uId = firebaseUser.uid
+                    val itemSnapshot = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).get().await()
+                    if (itemSnapshot.exists()) {
+                        fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).delete().await()
+                        val response =
+                            fireStoreDatabase.collection(
+                                USER,
+                            ).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
+                                .await()
+                        response?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
+                    }
+                } else {
+                    emit(ItemModelState.Error("Not logged"))
+                }
+            } catch (e: HttpException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
+            }
+        }
+
+    override fun getItemById(itemId: String): Flow<ItemModelState> =
+        flow {
+            emit(ItemModelState.Loading)
+
+            val firebaseUser = auth.currentUser
+
+            try {
+                if (firebaseUser != null) {
+                    val uId = firebaseUser.uid
+                    val refillItem = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemId).get().await()
+                    if (refillItem != null) {
+                        val item = refillItem.toObject(HistoryItemModel::class.java)
+                        emit(ItemModelState.Success(listOf(item!!)))
+                    } else {
+                        emit(ItemModelState.Success(listOf()))
+                    }
+                }
+            } catch (e: HttpException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
+            }
+        }
 
     override fun updateItem(
         itemID: String,
@@ -149,31 +154,34 @@ class DataRepositoryImpl(
         fuelCost: Float,
         refillDate: String,
         notes: String,
-        fullTank: Boolean
-    ): Flow<ItemModelState> = flow {
-        emit(ItemModelState.Loading)
-        val firebaseUser = auth.currentUser
-        try {
-            if (firebaseUser != null) {
-                val uId = firebaseUser.uid
-                val refillModel = HistoryItemModel(itemID, currMileage, fuelCost, fuelAmount, refillDate, notes, fullTank)
-                val itemSnapshot = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemID).get().await()
-                if (itemSnapshot.exists()) {
-                    fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemID).set(refillModel).await()
-                    val response =
-                        fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
-                            .await()
-                    response?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
+        fullTank: Boolean,
+    ): Flow<ItemModelState> =
+        flow {
+            emit(ItemModelState.Loading)
+            val firebaseUser = auth.currentUser
+            try {
+                if (firebaseUser != null) {
+                    val uId = firebaseUser.uid
+                    val refillModel = HistoryItemModel(itemID, currMileage, fuelCost, fuelAmount, refillDate, notes, fullTank)
+                    val itemSnapshot = fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemID).get().await()
+                    if (itemSnapshot.exists()) {
+                        fireStoreDatabase.collection(USER).document(uId).collection(REFILLS).document(itemID).set(refillModel).await()
+                        val response =
+                            fireStoreDatabase.collection(
+                                USER,
+                            ).document(uId).collection(REFILLS).orderBy("currMileage", Query.Direction.DESCENDING).get()
+                                .await()
+                        response?.let { emit(ItemModelState.Success(it.toObjects(HistoryItemModel::class.java))) }
+                    }
+                } else {
+                    emit(ItemModelState.Error("Not logged"))
                 }
-            } else {
-                emit(ItemModelState.Error("Not logged"))
+            } catch (e: HttpException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
             }
-        } catch (e: HttpException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(ItemModelState.Error(e.localizedMessage ?: "Unknown exception"))
         }
-    }
 }

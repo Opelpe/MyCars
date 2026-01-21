@@ -17,7 +17,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityLoginBinding
     private val authViewModel: AuthViewModel by viewModels()
 
@@ -79,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
         if (loading) {
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             )
             binding.progressView.visibility = View.VISIBLE
         } else {
@@ -102,5 +101,4 @@ class LoginActivity : AppCompatActivity() {
         startActivity(Intent(this@LoginActivity, MainViewActivity::class.java))
         finish()
     }
-
 }

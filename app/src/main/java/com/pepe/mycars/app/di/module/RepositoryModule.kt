@@ -18,15 +18,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object RepositoryModule {
-
     @Provides
     @Singleton
     fun provideAuthRepository(
         database: FirebaseFirestore,
         auth: FirebaseAuth,
-        appPreferences: SharedPreferences
+        appPreferences: SharedPreferences,
     ): AuthRepository {
-        return AuthRepositoryImpl(auth,database,appPreferences)
+        return AuthRepositoryImpl(auth, database, appPreferences)
     }
 
     @Provides
@@ -34,7 +33,7 @@ object RepositoryModule {
     fun provideUserRepository(
         database: FirebaseFirestore,
         auth: FirebaseAuth,
-        appPreferences: SharedPreferences
+        appPreferences: SharedPreferences,
     ): UserRepository {
         return UserRepositoryImpl(database, auth, appPreferences)
     }
@@ -43,7 +42,7 @@ object RepositoryModule {
     @Singleton
     fun provideDataRepository(
         database: FirebaseFirestore,
-        auth: FirebaseAuth
+        auth: FirebaseAuth,
     ): DataRepository {
         return DataRepositoryImpl(database, auth)
     }

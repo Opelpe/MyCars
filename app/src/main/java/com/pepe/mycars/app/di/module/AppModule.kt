@@ -14,17 +14,20 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
-    fun provideContext(@ApplicationContext appContext: Context): Context {
+    fun provideContext(
+        @ApplicationContext appContext: Context,
+    ): Context {
         return appContext
     }
 
     @Provides
     @Singleton
-    fun provideSharedPref(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF,Context.MODE_PRIVATE)
+    fun provideSharedPref(
+        @ApplicationContext context: Context,
+    ): SharedPreferences {
+        return context.getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF, Context.MODE_PRIVATE)
     }
 
     @Provides
@@ -32,5 +35,4 @@ object AppModule {
     fun provideGson(): Gson {
         return Gson()
     }
-
 }

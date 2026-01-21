@@ -26,10 +26,8 @@ import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-
 @AndroidEntryPoint
 class LoginDialog : DialogFragment() {
-
     private lateinit var binding: DialogLoginBinding
     private lateinit var launcher: ActivityResultLauncher<Intent>
     private val authModel: AuthViewModel by activityViewModels()
@@ -47,11 +45,12 @@ class LoginDialog : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = DialogLoginBinding.inflate(layoutInflater, container, false)
 
-        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        launcher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
                     val data: Intent? = result.data
                     val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -64,7 +63,10 @@ class LoginDialog : DialogFragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         setupButtons()
     }
@@ -111,16 +113,20 @@ class LoginDialog : DialogFragment() {
         }
     }
 
-    private fun onSubmitBtnClicked(email: String?, password: String?) {
+    private fun onSubmitBtnClicked(
+        email: String?,
+        password: String?,
+    ) {
         val autoLogin = arguments?.getBoolean("autoLogin") ?: false
         authModel.login(email, password, autoLogin)
     }
 
     private fun onGoogleBtnClicked() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(requireContext().getString(com.firebase.ui.auth.R.string.default_web_client_id))
-            .requestEmail()
-            .build()
+        val gso =
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(requireContext().getString(com.firebase.ui.auth.R.string.default_web_client_id))
+                .requestEmail()
+                .build()
 
         val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
         googleSignInClient.signOut()
@@ -144,7 +150,7 @@ class LoginDialog : DialogFragment() {
         if (loading) {
             dialog!!.window!!.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             )
             binding.progressView.visibility = View.VISIBLE
         } else {
@@ -178,5 +184,4 @@ class LoginDialog : DialogFragment() {
         passwordInput.transformationMethod = show
         passwordInput.setSelection(passwordInput.getText().length)
     }
-
 }

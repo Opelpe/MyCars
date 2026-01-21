@@ -30,29 +30,33 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainViewActivity : AppCompatActivity() {
-
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: ActivityMainViewBinding
     private val loggedInViewModel: LoggedInViewModel by viewModels()
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Firebase.messaging.subscribeToTopic("all")
-                .addOnCompleteListener { task ->
-                    val msg = if (task.isSuccessful) "Subscribed" else "Subscribe failed"
-                    Log.d("FCM", msg)
-                }
-        } else {
-            displayToast(getString(R.string.notification_disabled_title))
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Firebase.messaging.subscribeToTopic("all")
+                    .addOnCompleteListener { task ->
+                        val msg = if (task.isSuccessful) "Subscribed" else "Subscribe failed"
+                        Log.d("FCM", msg)
+                    }
+            } else {
+                displayToast(getString(R.string.notification_disabled_title))
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainViewBinding.inflate(layoutInflater)
-        sharedPreferences = applicationContext.getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF, Context.MODE_PRIVATE)
+        sharedPreferences =
+            applicationContext.getSharedPreferences(
+                SharedPrefConstants.LOCAL_SHARED_PREF,
+                Context.MODE_PRIVATE,
+            )
         setContentView(binding.root)
         setNavigation()
         askNotificationPermission()
@@ -60,9 +64,8 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun observeUserViewSate() {
-
         IsLoggedInLiveData(sharedPreferences).observe(this) { isLoggedIn ->
-            if (!isLoggedIn){
+            if (!isLoggedIn) {
                 startLoginActivity()
             }
         }
@@ -73,7 +76,7 @@ class MainViewActivity : AppCompatActivity() {
                 UserViewState.Loading -> setProgressVisibility(true)
                 is UserViewState.Error -> {
                     setProgressVisibility(false)
-                    if (it.errorMsg.isNotEmpty()){
+                    if (it.errorMsg.isNotEmpty()) {
                         displayToast(it.errorMsg)
                     }
                 }
@@ -90,7 +93,8 @@ class MainViewActivity : AppCompatActivity() {
 
     private fun setNavigation() {
         val navView = binding.navView
-        val navigationHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+        val navigationHost =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         val navController = navigationHost.navController
         NavigationUI.setupWithNavController(navView, navController)
     }
@@ -114,7 +118,7 @@ class MainViewActivity : AppCompatActivity() {
         if (loading) {
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             )
             binding.progressView.visibility = View.VISIBLE
         } else {
@@ -123,4 +127,3 @@ class MainViewActivity : AppCompatActivity() {
         }
     }
 }
-

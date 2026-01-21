@@ -1,4 +1,5 @@
 package com.pepe.mycars.app.data.model
+
 data class UserModel(
     val name: String = "",
     val email: String = "",
@@ -6,6 +7,5 @@ data class UserModel(
     val country: String = "",
     val providerType: String = "",
     val id: String = "",
-    val autoLogin: Boolean = false
-) {
-}
+    val autoLogin: Boolean = false,
+)

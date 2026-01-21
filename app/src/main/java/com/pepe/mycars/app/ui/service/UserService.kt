@@ -7,17 +7,19 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UserService @Inject constructor() : Service(){
-
-//    @Inject
+class UserService
+    @Inject
+    constructor() : Service() {
+        //    @Inject
 //    lateinit var userRepository: UserRepository
 
-    override fun onCreate() {
-        super.onCreate()
+        override fun onCreate() {
+            super.onCreate()
 
 //        userRepository.isUserLogged()
+        }
+
+        override fun onBind(intent: Intent?): IBinder? {
+            return null
+        }
     }
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-}

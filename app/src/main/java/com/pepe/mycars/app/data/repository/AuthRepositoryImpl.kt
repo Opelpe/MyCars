@@ -20,10 +20,13 @@ import java.io.IOException
 class AuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
     private val fireStoreDatabase: FirebaseFirestore,
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
 ) : AuthRepository {
-
-    private fun assignSharedPrefsValue(providerType: String, name: String, autoLogin: Boolean) {
+    private fun assignSharedPrefsValue(
+        providerType: String,
+        name: String,
+        autoLogin: Boolean,
+    ) {
         sharedPreferences.edit().apply {
             putBoolean("isLoggedIn", true)
             putString("provider", providerType)
@@ -49,78 +52,82 @@ class AuthRepositoryImpl(
         email: String,
         password: String,
         name: String,
-        autoLogin: Boolean
-    ): Flow<AuthState> = flow {
-        emit(AuthState.Loading)
+        autoLogin: Boolean,
+    ): Flow<AuthState> =
+        flow {
+            emit(AuthState.Loading)
 
-        try {
-            val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_EMAIL
+            try {
+                val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+                val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_EMAIL
 
-            result.user?.let {
-                assignSharedPrefsValue(providerType, name, autoLogin)
-                emit(AuthState.Success(it))
+                result.user?.let {
+                    assignSharedPrefsValue(providerType, name, autoLogin)
+                    emit(AuthState.Success(it))
+                }
+            } catch (e: HttpException) {
+                emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(
+                    AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"),
+                )
+            } catch (e: Exception) {
+                emit(AuthState.Error(e.message ?: ""))
             }
-
-        } catch (e: HttpException) {
-            emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(
-                AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection")
-            )
-        } catch (e: Exception) {
-            emit(AuthState.Error(e.message ?: ""))
         }
-    }
 
     override fun registerWithGoogle(
         authCredential: AuthCredential,
         name: String,
         email: String,
-        autoLogin: Boolean
-    ): Flow<AuthState> = flow {
-        emit(AuthState.Loading)
+        autoLogin: Boolean,
+    ): Flow<AuthState> =
+        flow {
+            emit(AuthState.Loading)
 
-        try {
-            val result = firebaseAuth.signInWithCredential(authCredential).await()
-            val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_GOOGLE
+            try {
+                val result = firebaseAuth.signInWithCredential(authCredential).await()
+                val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_GOOGLE
 
-            result.user?.let {
-                assignSharedPrefsValue(providerType, name, autoLogin)
-                emit(AuthState.Success(it))
+                result.user?.let {
+                    assignSharedPrefsValue(providerType, name, autoLogin)
+                    emit(AuthState.Success(it))
+                }
+            } catch (e: HttpException) {
+                emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(AuthState.Error(e.localizedMessage ?: ""))
             }
-
-        } catch (e: HttpException) {
-            emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(AuthState.Error(e.localizedMessage ?: ""))
         }
-    }
 
-    override fun registerAsGuest(autoLogin: Boolean): Flow<AuthState> = flow {
-        emit(AuthState.Loading)
+    override fun registerAsGuest(autoLogin: Boolean): Flow<AuthState> =
+        flow {
+            emit(AuthState.Loading)
 
-        try {
-            val result = firebaseAuth.signInAnonymously().await()
-            val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_ANONYMOUS
+            try {
+                val result = firebaseAuth.signInAnonymously().await()
+                val providerType = result.credential?.provider ?: ACCOUNT_PROVIDER_ANONYMOUS
 
-            result.user?.let {
-                assignSharedPrefsValue(providerType, "", autoLogin)
-                emit(AuthState.Success(it))
+                result.user?.let {
+                    assignSharedPrefsValue(providerType, "", autoLogin)
+                    emit(AuthState.Success(it))
+                }
+            } catch (e: HttpException) {
+                emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
+            } catch (e: IOException) {
+                emit(AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
+            } catch (e: Exception) {
+                emit(AuthState.Error(e.localizedMessage ?: ""))
             }
-
-        } catch (e: HttpException) {
-            emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
-        } catch (e: IOException) {
-            emit(AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"))
-        } catch (e: Exception) {
-            emit(AuthState.Error(e.localizedMessage ?: ""))
         }
-    }
 
-    override fun login(email: String, password: String, autoLogin: Boolean): Flow<AuthState> =
+    override fun login(
+        email: String,
+        password: String,
+        autoLogin: Boolean,
+    ): Flow<AuthState> =
         flow {
             emit(AuthState.Loading)
             try {
@@ -147,36 +154,34 @@ class AuthRepositoryImpl(
                         emit(AuthState.Success(it))
                     }
                 }
-
             } catch (e: HttpException) {
                 emit(AuthState.Error(e.localizedMessage ?: "Unknown Error"))
             } catch (e: IOException) {
                 emit(
-                    AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection")
+                    AuthState.Error(e.localizedMessage ?: "Check Your Internet Connection"),
                 )
             } catch (e: Exception) {
                 emit(AuthState.Error(e.localizedMessage ?: ""))
             }
-
         }
 
     override fun logOut() {
-         assignSharedPrefsValue(false)
+        assignSharedPrefsValue(false)
         firebaseAuth.signOut()
     }
 
-    override fun getLoggedUser(): Flow<AuthState> = flow {
-        emit(AuthState.Loading)
-        try {
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                emit(AuthState.Success(user))
-            } else {
-                emit(AuthState.Error("Log in"))
+    override fun getLoggedUser(): Flow<AuthState> =
+        flow {
+            emit(AuthState.Loading)
+            try {
+                val user = firebaseAuth.currentUser
+                if (user != null) {
+                    emit(AuthState.Success(user))
+                } else {
+                    emit(AuthState.Error("Log in"))
+                }
+            } catch (e: Exception) {
+                emit(AuthState.Error("Unknown error: " + e.message))
             }
-        } catch (e: Exception) {
-            emit(AuthState.Error("Unknown error: " + e.message))
         }
-    }
-
 }
