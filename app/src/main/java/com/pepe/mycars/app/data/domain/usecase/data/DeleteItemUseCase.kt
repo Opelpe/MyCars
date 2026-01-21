@@ -5,14 +5,11 @@ import com.pepe.mycars.app.utils.state.ItemModelState
 import kotlinx.coroutines.flow.Flow
 
 class DeleteItemUseCase(
-    private val dataRepository: DataRepository
+    private val dataRepository: DataRepository,
 ) {
-
-    fun execute(params: Param): Flow<ItemModelState> =
-        dataRepository.deleteRefillItem(params.itemId)
+    fun execute(params: Param): Flow<ItemModelState> = dataRepository.deleteRefillItem(params.itemId)
 
     data class Param(
-        val itemId: String
+        val itemId: String,
     )
-
 }

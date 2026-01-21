@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 
 class IsLoggedInLiveData(private val sharedPreferences: SharedPreferences) :
     LiveData<Boolean>() {
-
     private val listener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "isLoggedIn") {

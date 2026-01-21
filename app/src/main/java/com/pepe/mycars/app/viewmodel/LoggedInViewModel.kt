@@ -16,48 +16,52 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoggedInViewModel
-@Inject
-constructor(
-    private val userRepository: UserRepository,
-    private val logOutUseCase: LogOutUseCase
-) : ViewModel() {
+    @Inject
+    constructor(
+        private val userRepository: UserRepository,
+        private val logOutUseCase: LogOutUseCase,
+    ) : ViewModel() {
+        private val _userViewState: MutableLiveData<UserViewState> =
+            MutableLiveData(UserViewState.Loading)
+        val userViewState: LiveData<UserViewState> = _userViewState
 
-    private val _userViewState: MutableLiveData<UserViewState> =
-        MutableLiveData(UserViewState.Loading)
-    val userViewState: LiveData<UserViewState> = _userViewState
+        fun logOut() {
+            logOutUseCase.execute()
+        }
 
-    fun logOut() {
-       logOutUseCase.execute()
-    }
+        fun getUserData() {
+            userRepository.getLoggedUserData().onEach {
+                val action =
+                    when (it) {
+                        UserModelState.Loading -> UserViewState.Loading
+                        is UserModelState.Error -> UserViewState.Error(it.exceptionMsg)
+                        is UserModelState.Success ->
+                            UserViewState.Success(
+                                true,
+                                it.userModel!!.providerType == ACCOUNT_PROVIDER_ANONYMOUS,
+                                "",
+                            )
+                    }
+                _userViewState.postValue(action)
+            }.launchIn(viewModelScope)
+        }
 
-    fun getUserData() {
-        userRepository.getLoggedUserData().onEach {
-            val action = when (it) {
-                UserModelState.Loading -> UserViewState.Loading
-                is UserModelState.Error -> UserViewState.Error(it.exceptionMsg)
-                is UserModelState.Success -> UserViewState.Success(true, it.userModel!!.providerType == ACCOUNT_PROVIDER_ANONYMOUS, "")
-            }
-            _userViewState.postValue(action)
-        }.launchIn(viewModelScope)
-    }
+        fun appStart() {
+            userRepository.getLoggedUserData().onEach {
+                when (it) {
+                    UserModelState.Loading -> _userViewState.postValue(UserViewState.Loading)
 
-    fun appStart() {
-        userRepository.getLoggedUserData().onEach {
-            when (it) {
-                UserModelState.Loading -> _userViewState.postValue(UserViewState.Loading)
+                    is UserModelState.Error -> _userViewState.postValue(UserViewState.Error(it.exceptionMsg))
 
-                is UserModelState.Error -> _userViewState.postValue(UserViewState.Error(it.exceptionMsg))
-
-                is UserModelState.Success -> {
-                    val isGuest = it.userModel!!.providerType == ACCOUNT_PROVIDER_ANONYMOUS
-                    if (it.userModel.autoLogin) {
-                        _userViewState.postValue(UserViewState.Success(true, isGuest, ""))
-                    } else {
-                        _userViewState.postValue(UserViewState.Success(false, isGuest, ""))
+                    is UserModelState.Success -> {
+                        val isGuest = it.userModel!!.providerType == ACCOUNT_PROVIDER_ANONYMOUS
+                        if (it.userModel.autoLogin) {
+                            _userViewState.postValue(UserViewState.Success(true, isGuest, ""))
+                        } else {
+                            _userViewState.postValue(UserViewState.Success(false, isGuest, ""))
+                        }
                     }
                 }
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
+        }
     }
-
-}

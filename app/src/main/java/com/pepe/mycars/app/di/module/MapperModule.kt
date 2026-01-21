@@ -12,10 +12,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object MapperModule {
-
     @Provides
     @Singleton
-    fun provideErrorMapper(@ApplicationContext appContext: Context): ErrorMapper {
+    fun provideErrorMapper(
+        @ApplicationContext appContext: Context,
+    ): ErrorMapper {
         return ErrorMapper(appContext)
     }
 }

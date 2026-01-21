@@ -24,7 +24,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
-
     private lateinit var binding: FragmentHistoryBinding
 
     private val historyViewModel: HistoryViewModel by activityViewModels()
@@ -44,38 +43,43 @@ class HistoryFragment : Fragment() {
     private val detailsItemListener: HistoryAdapter.ItemDetailsListener =
         HistoryAdapter.ItemDetailsListener { itemID -> displayRefillDialog(itemID, DialogMode.DETAILS) }
 
-    private val simpleCallback = object :
-        ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ) {
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean = false
+    private val simpleCallback =
+        object :
+            ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+            ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ): Boolean = false
 
+            override fun onSwiped(
+                viewHolder: RecyclerView.ViewHolder,
+                direction: Int,
+            ) {
+                val position = viewHolder.adapterPosition
 
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
+                when (direction) {
+                    ItemTouchHelper.LEFT -> {
+                        val itemId = historyList[position].itemId
+                        displayRefillDialog(itemId, DialogMode.EDIT)
+                        adapter?.notifyDataSetChanged()
+                    }
 
-            when (direction) {
-                ItemTouchHelper.LEFT -> {
-                    val itemId = historyList[position].itemId
-                    displayRefillDialog(itemId, DialogMode.EDIT)
-                    adapter?.notifyDataSetChanged()
-                }
-
-                ItemTouchHelper.RIGHT -> {
-                    val itemId = historyList[position].itemId
-                    itemDeletionConfirmationDialog(itemId)
+                    ItemTouchHelper.RIGHT -> {
+                        val itemId = historyList[position].itemId
+                        itemDeletionConfirmationDialog(itemId)
+                    }
                 }
             }
         }
-    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
         historyViewModel.updateView()
@@ -89,7 +93,10 @@ class HistoryFragment : Fragment() {
         return binding.root
     }
 
-    private fun displayRefillDialog(itemID: String?, dialogMode: DialogMode) {
+    private fun displayRefillDialog(
+        itemID: String?,
+        dialogMode: DialogMode,
+    ) {
         if (itemID != null && dialogMode != DialogMode.ADD) {
             RefillDialog.newInstance(dialogMode, itemID).show(requireActivity().supportFragmentManager, "refillDialog")
         } else {
@@ -100,7 +107,6 @@ class HistoryFragment : Fragment() {
     }
 
     private fun observeItemSate() {
-
         historyViewModel.historyItemViewState.observe(viewLifecycleOwner) {
             when (it) {
                 HistoryItemViewState.Loading -> {
@@ -115,7 +121,6 @@ class HistoryFragment : Fragment() {
                 }
 
                 is HistoryItemViewState.Success -> {
-
                     if (it.successMsg.isNotBlank()) {
                         requireActivity().displayToast(it.successMsg)
                     }
@@ -150,7 +155,6 @@ class HistoryFragment : Fragment() {
             binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
             binding.historyRecyclerView.adapter = adapter
         }
-
     }
 
     private fun setProgressVisibility(loading: Boolean) {
@@ -162,5 +166,4 @@ class HistoryFragment : Fragment() {
             requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
     }
-
 }

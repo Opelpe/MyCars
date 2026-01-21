@@ -22,7 +22,6 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class RefillDialog : DialogFragment() {
-
     private lateinit var binding: DialogRefillBinding
 
     private val refillDialogViewModel: RefillDialogViewModel by activityViewModels()
@@ -33,20 +32,23 @@ class RefillDialog : DialogFragment() {
 
     private var editItemID = ""
 
-
     companion object {
-        fun newInstance(dialogMode: DialogMode, itemId: String) = RefillDialog().apply {
-            arguments = Bundle().apply {
-                putInt("dialogMode", dialogMode.value)
-                putString("itemId", itemId)
-            }
+        fun newInstance(
+            dialogMode: DialogMode,
+            itemId: String,
+        ) = RefillDialog().apply {
+            arguments =
+                Bundle().apply {
+                    putInt("dialogMode", dialogMode.value)
+                    putString("itemId", itemId)
+                }
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = DialogRefillBinding.inflate(layoutInflater, container, false)
         dialogMode = DialogMode.fromInt(arguments?.getInt("dialogMode") ?: 1)
@@ -65,7 +67,10 @@ class RefillDialog : DialogFragment() {
         bindEditText()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.saveRefillButton.setOnClickListener {
@@ -156,7 +161,6 @@ class RefillDialog : DialogFragment() {
                 }
 
                 is RefillItemViewState.Success -> {
-
                     if (viewState.item != null) {
                         if (dialogMode == DialogMode.DETAILS) {
                             setRefillDetails(viewState.item)
@@ -180,7 +184,6 @@ class RefillDialog : DialogFragment() {
                 }
             }
         }
-
     }
 
     private fun setEditTextsEnabled(isInEditMode: Boolean) {
@@ -208,14 +211,13 @@ class RefillDialog : DialogFragment() {
         } else {
             dialog!!.window!!.setFlags(
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             )
         }
     }
 
     private fun setDateEditText() {
         binding.refillDateInput.setText(getCurrentDate())
-
     }
 
     private fun setDateEditText(selectedDate: String) {
@@ -223,16 +225,18 @@ class RefillDialog : DialogFragment() {
     }
 
     private fun showDatePicker() {
-        val datePickerDialog = DatePickerDialog(
-            requireContext(), { dp: DatePicker?, i: Int, i1: Int, i2: Int ->
-                val month = i1 + 1
-                val date = formatDate(i, month, i2)
-                setDateEditText(date)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
+        val datePickerDialog =
+            DatePickerDialog(
+                requireContext(),
+                { dp: DatePicker?, i: Int, i1: Int, i2: Int ->
+                    val month = i1 + 1
+                    val date = formatDate(i, month, i2)
+                    setDateEditText(date)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+            )
         datePickerDialog.show()
     }
 
@@ -244,19 +248,23 @@ class RefillDialog : DialogFragment() {
         return formatDate(year, month, day)
     }
 
-    private fun formatDate(year: Int, month: Int, day: Int): String {
+    private fun formatDate(
+        year: Int,
+        month: Int,
+        day: Int,
+    ): String {
         val calendar = Calendar.getInstance()
         calendar.set(year, month - 1, day)
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         return dateFormat.format(calendar.time)
     }
-
 }
 
 enum class DialogMode(val value: Int) {
     ADD(1),
     DETAILS(2),
-    EDIT(3);
+    EDIT(3),
+    ;
 
     companion object {
         fun fromInt(value: Int) = DialogMode.values().first { it.value == value }

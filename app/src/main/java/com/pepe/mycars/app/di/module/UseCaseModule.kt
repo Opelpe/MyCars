@@ -14,28 +14,21 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
-
     @Provides
     @Singleton
-    fun provideGetUserDataUseCase(
-        dataRepository: DataRepository
-    ): GetRefillItemsUseCase {
+    fun provideGetUserDataUseCase(dataRepository: DataRepository): GetRefillItemsUseCase {
         return GetRefillItemsUseCase(dataRepository)
     }
 
     @Provides
     @Singleton
-    fun provideDeleteItemUseCase(
-        dataRepository: DataRepository
-    ): DeleteItemUseCase {
+    fun provideDeleteItemUseCase(dataRepository: DataRepository): DeleteItemUseCase {
         return DeleteItemUseCase(dataRepository)
     }
 
     @Provides
     @Singleton
-    fun provideLogOutUseCase(
-        authRepository: AuthRepository
-    ): LogOutUseCase {
+    fun provideLogOutUseCase(authRepository: AuthRepository): LogOutUseCase {
         return LogOutUseCase(authRepository)
     }
 }

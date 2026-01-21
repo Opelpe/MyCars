@@ -4,7 +4,6 @@ import com.pepe.mycars.app.data.local.HistoryItemUiModel
 import com.pepe.mycars.app.data.model.HistoryItemModel
 
 class HistoryItemMapper {
-
     fun mapToHistoryUiModel(model: List<HistoryItemModel>): List<HistoryItemUiModel> {
         val uiList = mutableListOf<HistoryItemUiModel>()
         for (i in model.indices) {
@@ -19,33 +18,34 @@ class HistoryItemMapper {
                 val fAddedMileage = formatAddedMileage(addedMileage)
                 val fFuelUsage = if (model[i].fullTank) formatFuelUsage((model[i].fuelAmount?.times(100))?.div(addedMileage)!!) else ""
                 val fFuelCost = formatFuelCost(model[i].fuelPrice!!, model[i].fuelAmount!!)
-                val uiItem = HistoryItemUiModel(
-                    model[i].itemId!!,
-                    fCurrentMileage,
-                    fFuelCost,
-                    fFuelAmount,
-                    date,
-                    model[i].notes,
-                    fAddedMileage,
-                    fFuelUsage
-                )
+                val uiItem =
+                    HistoryItemUiModel(
+                        model[i].itemId!!,
+                        fCurrentMileage,
+                        fFuelCost,
+                        fFuelAmount,
+                        date,
+                        model[i].notes,
+                        fAddedMileage,
+                        fFuelUsage,
+                    )
                 uiList.add(uiItem)
-
             } else {
                 val date = formatDateToString(model[i].refillDate)
                 val fCurrentMileage = formatMileage(model[i].currMileage!!)
                 val fFuelAmount = formatFuelAmount(model[i].fuelAmount!!)
                 val fFuelCost = formatFuelCost(model[i].fuelPrice!!, model[i].fuelAmount!!)
-                val uiItem = HistoryItemUiModel(
-                    model[i].itemId!!,
-                    fCurrentMileage,
-                    fFuelCost,
-                    fFuelAmount,
-                    date,
-                    model[i].notes,
-                    "",
-                    ""
-                )
+                val uiItem =
+                    HistoryItemUiModel(
+                        model[i].itemId!!,
+                        fCurrentMileage,
+                        fFuelCost,
+                        fFuelAmount,
+                        date,
+                        model[i].notes,
+                        "",
+                        "",
+                    )
                 uiList.add(uiItem)
             }
         }
@@ -56,7 +56,10 @@ class HistoryItemMapper {
         return refillDate
     }
 
-    private fun formatFuelCost(fp: Float, fa: Float): String {
+    private fun formatFuelCost(
+        fp: Float,
+        fa: Float,
+    ): String {
         val fuelCost = fp * fa
         return if (fuelCost > 9999) {
             "+9999"
@@ -120,5 +123,4 @@ class HistoryItemMapper {
             String.format("%.1f", m)
         }
     }
-
 }

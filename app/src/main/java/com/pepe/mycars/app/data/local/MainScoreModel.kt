@@ -8,6 +8,5 @@ data class MainScoreModel(
     val lastCost: String = "",
     val totalMileage: String = "",
     val totalCost: String = "",
-    val totalAmount: String = ""
-) {
-}
+    val totalAmount: String = "",
+)

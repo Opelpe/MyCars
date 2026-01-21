@@ -16,13 +16,13 @@ class AuthViewModelTest {
     private val tested = AuthViewModel(authRepository)
 
     @Test
-    fun testRegistration() = runTest {
-        val email = "email"
-        val password = "pass"
-        val autoLogin = false
-        tested.login(email, password, autoLogin)
+    fun testRegistration() =
+        runTest {
+            val email = "email"
+            val password = "pass"
+            val autoLogin = false
+            tested.login(email, password, autoLogin)
 
-        verify(authRepository, times(1)).login(email, password, autoLogin)
-
-    }
+            verify(authRepository, times(1)).login(email, password, autoLogin)
+        }
 }

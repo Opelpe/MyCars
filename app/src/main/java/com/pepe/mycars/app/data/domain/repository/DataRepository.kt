@@ -5,7 +5,6 @@ import com.pepe.mycars.app.utils.state.ItemModelState
 import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
-
     fun getRefillsCollectionReference(): CollectionReference
 
     fun getUserItems(): Flow<ItemModelState>
@@ -16,7 +15,7 @@ interface DataRepository {
         fuelAmount: Float,
         refillDate: String,
         notes: String,
-        fullTank: Boolean
+        fullTank: Boolean,
     ): Flow<ItemModelState>
 
     fun deleteRefillItem(itemId: String): Flow<ItemModelState>
@@ -30,6 +29,6 @@ interface DataRepository {
         fuelCost: Float,
         refillDate: String,
         notes: String,
-        fullTank: Boolean
+        fullTank: Boolean,
     ): Flow<ItemModelState>
 }

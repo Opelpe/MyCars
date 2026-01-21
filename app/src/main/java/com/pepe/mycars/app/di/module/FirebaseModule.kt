@@ -11,7 +11,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
-
     @Provides
     @Singleton
     fun provideFireStoreInstance(): FirebaseFirestore {
@@ -29,5 +28,4 @@ object FirebaseModule {
 //    fun provideFirebaseStroageInstance(): StorageReference {
 //        return FirebaseStorage.getInstance().getReference(FirebaseStorageConstants.ROOT_DIRECTORY)
 //    }
-
 }
