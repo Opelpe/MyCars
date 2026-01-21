@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt")
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.hilt)
     alias(libs.plugins.firebase.crashlytics)
@@ -33,13 +33,16 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
+
     buildFeatures {
         viewBinding = true
     }
@@ -49,51 +52,54 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             pickFirsts += "META-INF/LICENSE.md"
             pickFirsts += "META-INF/LICENSE-notice.md"
+            pickFirsts += "META-INF/COPYRIGHT"
+        }
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }
 
 dependencies {
+
+    // Core AndroidX
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(libs.firebase.crashlytics.buildtools)
-    implementation(libs.firebase.database.ktx)
-    testImplementation(libs.junit)
-    debugImplementation(libs.mockito.kotlin)
-    debugImplementation(libs.mockito.core)
-    debugImplementation(libs.mockito.junit.jupiter)
-    debugImplementation(libs.mockito.inline)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
-    testImplementation(libs.kotlinx.coroutines.test)
+    // Navigation
+    implementation(libs.bundles.navigation)
 
-    // DAGGER
+    // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-    testImplementation(libs.hilt.android.testing)
-    kaptTest(libs.hilt.compiler)
 
-    // Retrofit
+    // Networking
     implementation(libs.retrofit)
     implementation(libs.okhttp)
+    implementation(libs.gson)
 
-    // FIREBASE
+    // Firebase & Auth
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.analytics)
+    implementation(libs.bundles.firebase)
+    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.ui.auth)
     implementation(libs.play.services.auth)
-    implementation(libs.firebase.messaging.ktx)
-    implementation(libs.firebase.storage.ktx)
 
+    // Reactive
     implementation(libs.rxjava)
-    implementation(libs.gson)
+
+    // Unit Testing
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.hilt.android.testing)
+
+    // Debug & Instrumentation Testing
+    debugImplementation(libs.mockito.junit.jupiter)
+    debugImplementation(libs.mockito.inline)
+    kaptTest(libs.hilt.compiler)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }
