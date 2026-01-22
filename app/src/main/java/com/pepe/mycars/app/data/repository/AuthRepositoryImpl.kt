@@ -6,12 +6,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.pepe.mycars.app.data.domain.repository.AuthRepository
-import com.pepe.mycars.app.data.model.UserModel
 import com.pepe.mycars.app.utils.FireStoreCollection.USER
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_EMAIL
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_GOOGLE
 import com.pepe.mycars.app.utils.state.AuthState
+import com.pepe.mycars.data.dto.UserInfoDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -134,8 +134,13 @@ class AuthRepositoryImpl(
                 val snapshot = fireStoreDatabase.collection(USER).whereEqualTo("email", email).get().await()
 
                 if (snapshot.documents.size > 0) {
-                    val userModel: UserModel? = snapshot.documents[0].toObject(UserModel::class.java)
-                    val providerType = userModel!!.providerType
+                    val userModel =
+                        snapshot
+                            .documents[0]
+                            .toObject(UserInfoDto::class.java)
+                            ?.toDomain()
+                            ?: throw IllegalStateException("User data exists but could not be parsed")
+                    val providerType = userModel.providerType
 
                     if (providerType == ACCOUNT_PROVIDER_GOOGLE) {
                         emit(AuthState.Error("Try logging in with Google"))
