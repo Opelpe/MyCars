@@ -5,10 +5,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FirebaseFirestore
-import com.pepe.mycars.data.dto.AccountProviderDto
 import com.pepe.mycars.data.dto.CommonApiResponse
 import com.pepe.mycars.data.dto.UserDto
 import com.pepe.mycars.data.firebase.repo.IUserRepository
+import com.pepe.mycars.domain.model.AccountProvider
 import com.pepe.mycars.domain.model.UserInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -47,7 +47,7 @@ class UserRepositoryImpl
             val guestCount =
                 if (firebaseUser.isAnonymous) {
                     fireStoreDatabase.collection(COLLECTION_PATH_USER)
-                        .whereEqualTo("providerType", AccountProviderDto.ANONYMOUS.value)
+                        .whereEqualTo("providerType", AccountProvider.ANONYMOUS.value)
                         .count().get(AggregateSource.SERVER).await().count
                 } else {
                     0L
@@ -71,6 +71,12 @@ class UserRepositoryImpl
                             sharedPreferences.getString("userName", "") ?: ""
                         }
 
+                    val providerType =
+                        if (firebaseUser.isAnonymous) {
+                            AccountProvider.ANONYMOUS
+                        } else {
+                            AccountProvider.EMAIL
+                        }
                     val newUser =
                         UserInfo(
                             id = uId,
@@ -94,6 +100,8 @@ class UserRepositoryImpl
             }
 
         override fun getUserProviderType(): String = sharedPreferences.getString("provider", "") ?: ""
+
+        override fun getUserAutoLogin(): Boolean = sharedPreferences.getBoolean("autoLogin", false)
 
         companion object {
             private const val COLLECTION_PATH_USER = "User"

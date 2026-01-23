@@ -6,6 +6,6 @@ data class UserInfo(
     val email: String,
     val active: Boolean,
     val country: String,
-    val providerType: String,
+    val providerType: AccountProvider,
     val autoLogin: Boolean,
 )

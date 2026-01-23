@@ -1,9 +1,9 @@
 package com.pepe.mycars.app.di.module
 
-import com.pepe.mycars.app.data.domain.repository.AuthRepository
 import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
+import com.pepe.mycars.data.firebase.repo.IAuthRepository
 import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
 import dagger.Module
 import dagger.Provides
@@ -28,7 +28,7 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideLogOutUseCase(authRepository: AuthRepository): LogOutUseCase {
+    fun provideLogOutUseCase(authRepository: IAuthRepository): LogOutUseCase {
         return LogOutUseCase(authRepository)
     }
 }

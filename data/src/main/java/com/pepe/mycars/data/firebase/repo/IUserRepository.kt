@@ -8,4 +8,6 @@ interface IUserRepository {
     fun getLoggedUserData(): Flow<CommonApiResponse<UserInfo>>
 
     fun getUserProviderType(): String
+
+    fun getUserAutoLogin(): Boolean
 }

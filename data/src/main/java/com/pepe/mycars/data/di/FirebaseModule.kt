@@ -1,4 +1,4 @@
-package com.pepe.mycars.app.di.module
+package com.pepe.mycars.data.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,10 +22,4 @@ object FirebaseModule {
     fun provideFirebaseAuthInstance(): FirebaseAuth {
         return FirebaseAuth.getInstance()
     }
-
-//    @Singleton
-//    @Provides
-//    fun provideFirebaseStroageInstance(): StorageReference {
-//        return FirebaseStorage.getInstance().getReference(FirebaseStorageConstants.ROOT_DIRECTORY)
-//    }
 }

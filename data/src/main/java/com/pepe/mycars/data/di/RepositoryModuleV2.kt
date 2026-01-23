@@ -1,7 +1,9 @@
 package com.pepe.mycars.data.di
 
+import com.pepe.mycars.data.firebase.impl.AuthRepositoryImpl
 import com.pepe.mycars.data.firebase.impl.FuelDataRepositoryImpl
 import com.pepe.mycars.data.firebase.impl.UserRepositoryImpl
+import com.pepe.mycars.data.firebase.repo.IAuthRepository
 import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
 import com.pepe.mycars.data.firebase.repo.IUserRepository
 import dagger.Binds
@@ -17,4 +19,7 @@ abstract class RepositoryModuleV2 {
 
     @Binds
     abstract fun bindFuelDataRepository(impl: FuelDataRepositoryImpl): IFuelDataRepository
+
+    @Binds
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): IAuthRepository
 }

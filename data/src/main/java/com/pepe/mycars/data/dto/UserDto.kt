@@ -1,5 +1,6 @@
 package com.pepe.mycars.data.dto
 
+import com.pepe.mycars.domain.model.AccountProvider
 import com.pepe.mycars.domain.model.UserInfo
 
 data class UserDto(
@@ -12,13 +13,15 @@ data class UserDto(
     val autoLogin: Boolean? = null,
 ) {
     fun toDomain(): UserInfo {
+        val providerType = AccountProvider.fromValue(providerType)
+
         return UserInfo(
             id = id ?: "",
             name = name ?: "",
             email = email ?: "",
             active = active ?: false,
             country = country ?: "",
-            providerType = providerType ?: "",
+            providerType = providerType,
             autoLogin = autoLogin ?: false,
         )
     }
@@ -31,7 +34,7 @@ data class UserDto(
                 email = userInfo.email,
                 active = userInfo.active,
                 country = userInfo.country,
-                providerType = userInfo.providerType,
+                providerType = userInfo.providerType.value,
                 autoLogin = userInfo.autoLogin,
             )
         }

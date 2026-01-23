@@ -1,33 +1,33 @@
-package com.pepe.mycars.app.data.domain.repository
+package com.pepe.mycars.data.firebase.repo
 
 import com.google.firebase.auth.AuthCredential
-import com.pepe.mycars.app.utils.state.AuthState
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 
-interface AuthRepository {
+interface IAuthRepository {
     fun register(
         email: String,
         password: String,
         name: String,
         autoLogin: Boolean,
-    ): Flow<AuthState>
+    ): Flow<FirebaseUser>
 
     fun registerWithGoogle(
         authCredential: AuthCredential,
         name: String,
         email: String,
         autoLogin: Boolean,
-    ): Flow<AuthState>
+    ): Flow<FirebaseUser>
 
-    fun registerAsGuest(autoLogin: Boolean): Flow<AuthState>
+    fun registerAsGuest(autoLogin: Boolean): Flow<FirebaseUser>
 
     fun login(
         email: String,
         password: String,
         autoLogin: Boolean,
-    ): Flow<AuthState>
+    ): Flow<FirebaseUser?>
 
     fun logOut()
 
-    fun getLoggedUser(): Flow<AuthState>
+    fun getLoggedUser(): Flow<FirebaseUser?>
 }

@@ -7,7 +7,6 @@ import javax.inject.Inject
 class MainViewModelMapper
     @Inject
     constructor() {
-
         fun mapToMainViewModel(model: List<FuelDataInfo>): MainScoreModel {
             val fAvrUsage = countAvrUsage(model)
             val fAvrPrice = countTravelingCost(model)

@@ -29,7 +29,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun observeAuthState() {
-        authViewModel.synchronizeAuth()
         authViewModel.loginViewState.observe(this) {
             when (it) {
                 LoginViewState.Loading -> {
