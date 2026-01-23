@@ -7,7 +7,7 @@ import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.pepe.mycars.data.dto.AccountProviderDto
 import com.pepe.mycars.data.dto.CommonApiResponse
-import com.pepe.mycars.data.dto.UserInfoDto
+import com.pepe.mycars.data.dto.UserDto
 import com.pepe.mycars.data.firebase.repo.IUserRepository
 import com.pepe.mycars.domain.model.UserInfo
 import kotlinx.coroutines.flow.Flow
@@ -60,7 +60,7 @@ class UserRepositoryImpl
 
                 if (snapshot.exists()) {
                     transaction.update(userRef, mapOf("autoLogin" to autoLogin, "providerType" to providerType))
-                    snapshot.toObject(UserInfoDto::class.java)!!
+                    snapshot.toObject(UserDto::class.java)!!
                         .copy(autoLogin = autoLogin, providerType = providerType)
                         .toDomain()
                 } else {
@@ -81,7 +81,7 @@ class UserRepositoryImpl
                             providerType = providerType,
                             autoLogin = autoLogin,
                         )
-                    transaction.set(userRef, UserInfoDto.fromDomain(newUser))
+                    transaction.set(userRef, UserDto.fromDomain(newUser))
                     newUser
                 }
             }.await()

@@ -1,69 +1,69 @@
 package com.pepe.mycars.app.viewmodel
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.repository.DataRepository
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
-import com.pepe.mycars.app.data.mapper.ErrorMapper
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
-import com.pepe.mycars.app.utils.RefillChangesLiveData
-import com.pepe.mycars.app.utils.state.ItemModelState
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
+import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel
     @Inject
     constructor(
+        private val fuelDataRepo: IFuelDataRepository,
+        private val historyItemMapper: HistoryItemMapper,
         private val getRefillItemsUseCase: GetRefillItemsUseCase,
         private val deleteItemUseCase: DeleteItemUseCase,
-        private val dataRepository: DataRepository,
-        private val errorMapper: ErrorMapper,
     ) : ViewModel() {
-        private val _historyItemViewState: MutableLiveData<HistoryItemViewState> = MutableLiveData(HistoryItemViewState.Loading)
+        private val _historyItemViewState: MutableLiveData<HistoryItemViewState> =
+            MutableLiveData(HistoryItemViewState.Loading)
         val historyItemViewState: LiveData<HistoryItemViewState> = _historyItemViewState
 
         fun updateView() {
-            getRefillItemsUseCase.execute().onEach { state ->
-                when (state) {
-                    ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
-
-                    is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg))
-
-                    is ItemModelState.Success -> {
-                        val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                        _historyItemViewState.postValue(HistoryItemViewState.Success(list, ""))
-                    }
+            getRefillItemsUseCase.execute()
+                .onStart { _historyItemViewState.value = HistoryItemViewState.Loading }
+                .map(historyItemMapper::mapToHistoryUiModel)
+                .onEach { list ->
+                    _historyItemViewState.value = HistoryItemViewState.Success(list, "")
                 }
-            }.launchIn(viewModelScope)
+                .catch { e ->
+                    _historyItemViewState.value =
+                        HistoryItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                }
+                .launchIn(viewModelScope)
         }
 
         fun deleteItem(itemId: String) {
-            deleteItemUseCase.execute(DeleteItemUseCase.Param(itemId)).onEach { state ->
-                when (state) {
-                    ItemModelState.Loading -> _historyItemViewState.postValue(HistoryItemViewState.Loading)
-
-                    is ItemModelState.Error -> _historyItemViewState.postValue(HistoryItemViewState.Error(state.exceptionMsg))
-
-                    is ItemModelState.Success -> {
-                        val list = HistoryItemMapper().mapToHistoryUiModel(state.model)
-                        _historyItemViewState.postValue(HistoryItemViewState.Success(list.toList(), "Successfully removed!"))
-                    }
+            deleteItemUseCase.execute(DeleteItemUseCase.Param(itemId))
+                .onStart { _historyItemViewState.value = HistoryItemViewState.Loading }
+                .map(historyItemMapper::mapToHistoryUiModel)
+                .onEach { list ->
+                    _historyItemViewState.value =
+                        HistoryItemViewState.Success(list, "Successfully removed!")
                 }
-            }.launchIn(viewModelScope)
+                .catch { e ->
+                    _historyItemViewState.value =
+                        HistoryItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                }
+                .launchIn(viewModelScope)
         }
 
-        fun observeRefillList(owner: LifecycleOwner) {
-            RefillChangesLiveData(dataRepository.getRefillsCollectionReference()).observe(owner) {
-                val list = HistoryItemMapper().mapToHistoryUiModel(it)
-                _historyItemViewState.postValue(HistoryItemViewState.Success(list, ""))
-            }
+        fun observeRefillList() {
+            fuelDataRepo.observeUserItems()
+                .map(historyItemMapper::mapToHistoryUiModel)
+                .onEach { list ->
+                    _historyItemViewState.postValue(HistoryItemViewState.Success(list, ""))
+                }.launchIn(viewModelScope)
         }
     }

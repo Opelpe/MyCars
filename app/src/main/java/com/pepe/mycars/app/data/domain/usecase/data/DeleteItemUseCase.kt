@@ -1,13 +1,13 @@
 package com.pepe.mycars.app.data.domain.usecase.data
 
-import com.pepe.mycars.app.data.domain.repository.DataRepository
-import com.pepe.mycars.app.utils.state.ItemModelState
+import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
+import com.pepe.mycars.domain.model.FuelDataInfo
 import kotlinx.coroutines.flow.Flow
 
 class DeleteItemUseCase(
-    private val dataRepository: DataRepository,
+    private val fuelDataRepo: IFuelDataRepository,
 ) {
-    fun execute(params: Param): Flow<ItemModelState> = dataRepository.deleteRefillItem(params.itemId)
+    fun execute(params: Param): Flow<List<FuelDataInfo>> = fuelDataRepo.deleteRefillItem(params.itemId)
 
     data class Param(
         val itemId: String,

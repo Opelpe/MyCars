@@ -11,7 +11,7 @@ import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOU
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_EMAIL
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_GOOGLE
 import com.pepe.mycars.app.utils.state.AuthState
-import com.pepe.mycars.data.dto.UserInfoDto
+import com.pepe.mycars.data.dto.UserDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -137,7 +137,7 @@ class AuthRepositoryImpl(
                     val userModel =
                         snapshot
                             .documents[0]
-                            .toObject(UserInfoDto::class.java)
+                            .toObject(UserDto::class.java)
                             ?.toDomain()
                             ?: throw IllegalStateException("User data exists but could not be parsed")
                     val providerType = userModel.providerType

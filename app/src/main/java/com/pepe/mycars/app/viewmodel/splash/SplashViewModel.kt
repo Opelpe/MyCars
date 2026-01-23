@@ -15,7 +15,7 @@ package com.pepe.mycars.app.viewmodel.splash
 // class SplashViewModel @Inject constructor(private val repository: Lazy<UserRepository>) :
 //    ViewModel() {
 
-class SplashViewModel {}
+class SplashViewModel
 //
 //
 //    val viewState = MutableLiveData(SplashViewModelState())

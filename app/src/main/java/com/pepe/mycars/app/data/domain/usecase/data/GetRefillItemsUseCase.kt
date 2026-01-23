@@ -1,11 +1,11 @@
 package com.pepe.mycars.app.data.domain.usecase.data
 
-import com.pepe.mycars.app.data.domain.repository.DataRepository
-import com.pepe.mycars.app.utils.state.ItemModelState
+import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
+import com.pepe.mycars.domain.model.FuelDataInfo
 import kotlinx.coroutines.flow.Flow
 
 class GetRefillItemsUseCase(
-    private val dataRepository: DataRepository,
+    private val fuelDataRepo: IFuelDataRepository,
 ) {
-    fun execute(): Flow<ItemModelState> = dataRepository.getUserItems()
+    fun execute(): Flow<List<FuelDataInfo>> = fuelDataRepo.getUserItems()
 }

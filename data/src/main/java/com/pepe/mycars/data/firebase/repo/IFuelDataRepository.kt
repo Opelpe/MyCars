@@ -1,13 +1,15 @@
-package com.pepe.mycars.app.data.domain.repository
+package com.pepe.mycars.data.firebase.repo
 
 import com.google.firebase.firestore.CollectionReference
-import com.pepe.mycars.app.utils.state.ItemModelState
+import com.pepe.mycars.domain.model.FuelDataInfo
 import kotlinx.coroutines.flow.Flow
 
-interface DataRepository {
+interface IFuelDataRepository {
     fun getRefillsCollectionReference(): CollectionReference
 
-    fun getUserItems(): Flow<ItemModelState>
+    fun getUserItems(): Flow<List<FuelDataInfo>>
+
+    fun observeUserItems(): Flow<List<FuelDataInfo>>
 
     fun addRefillItem(
         currMileage: Float,
@@ -16,11 +18,11 @@ interface DataRepository {
         refillDate: String,
         notes: String,
         fullTank: Boolean,
-    ): Flow<ItemModelState>
+    ): Flow<List<FuelDataInfo>>
 
-    fun deleteRefillItem(itemId: String): Flow<ItemModelState>
+    fun deleteRefillItem(itemId: String): Flow<List<FuelDataInfo>>
 
-    fun getItemById(itemId: String): Flow<ItemModelState>
+    fun getItemById(itemId: String): Flow<FuelDataInfo>
 
     fun updateItem(
         itemID: String,
@@ -30,5 +32,5 @@ interface DataRepository {
         refillDate: String,
         notes: String,
         fullTank: Boolean,
-    ): Flow<ItemModelState>
+    ): Flow<List<FuelDataInfo>>
 }

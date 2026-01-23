@@ -2,7 +2,7 @@ package com.pepe.mycars.data.dto
 
 import com.pepe.mycars.domain.model.UserInfo
 
-data class UserInfoDto(
+data class UserDto(
     val name: String? = null,
     val email: String? = null,
     val active: Boolean? = null,
@@ -24,8 +24,8 @@ data class UserInfoDto(
     }
 
     companion object {
-        fun fromDomain(userInfo: UserInfo): UserInfoDto {
-            return UserInfoDto(
+        fun fromDomain(userInfo: UserInfo): UserDto {
+            return UserDto(
                 id = userInfo.id,
                 name = userInfo.name,
                 email = userInfo.email,

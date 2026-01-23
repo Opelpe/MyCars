@@ -105,7 +105,7 @@ class MainFragment : Fragment() {
 
     private fun observeDataViewState() {
         mainViewModel.getListOfRefills()
-        mainViewModel.observeRefillList(viewLifecycleOwner)
+        mainViewModel.observeRefillList()
         mainViewModel.dataMainViewState.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 MainViewState.Loading -> {}
