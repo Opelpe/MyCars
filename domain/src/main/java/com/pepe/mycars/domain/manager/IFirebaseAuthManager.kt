@@ -1,6 +1,13 @@
 package com.pepe.mycars.domain.manager
 
+import kotlinx.coroutines.flow.Flow
+
 interface IFirebaseAuthManager {
+
+    val firebaseUserId: String?
+    val firebaseUserEmail: String?
+    val anonymousFirebaseUser: Boolean?
+    val authStateFlow: Flow<Boolean>
 
     fun getCurrentUserId() : String?
 

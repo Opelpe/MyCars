@@ -1,11 +1,11 @@
-package com.pepe.mycars.data.firebase.repo
+package com.pepe.mycars.domain.repository
 
-import com.pepe.mycars.data.dto.CommonApiResponse
 import com.pepe.mycars.domain.model.UserInfo
 import kotlinx.coroutines.flow.Flow
 
 interface IUserRepository {
-    fun getLoggedUserData(): Flow<CommonApiResponse<UserInfo>>
+
+    fun getSyncFirestoreUserData(): Flow<UserInfo?>
 
     fun getUserProviderType(): String
 

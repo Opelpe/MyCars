@@ -1,7 +1,7 @@
 package com.pepe.mycars.app.data.domain.usecase.data
 
-import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.model.FuelDataInfo
+import com.pepe.mycars.domain.repository.IFuelDataRepository
 import kotlinx.coroutines.flow.Flow
 
 class DeleteItemUseCase(

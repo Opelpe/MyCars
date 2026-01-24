@@ -5,7 +5,7 @@ sealed class UserViewState {
 
     data class Success(
         val isLoggedIn: Boolean = true,
-        val isAnonymous: Boolean = true,
+        val autoLogin: Boolean? = false,
         val successMsg: String,
     ) : UserViewState()
 

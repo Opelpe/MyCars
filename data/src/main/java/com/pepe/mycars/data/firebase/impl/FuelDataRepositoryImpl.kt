@@ -1,14 +1,13 @@
 package com.pepe.mycars.data.firebase.impl
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.snapshots
 import com.pepe.mycars.data.dto.FuelDataDto
 import com.pepe.mycars.data.firebase.manager.FirebaseAuthManager
-import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.model.FuelDataInfo
+import com.pepe.mycars.domain.repository.IFuelDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -21,14 +20,13 @@ class FuelDataRepositoryImpl
         private val fireStoreDatabase: FirebaseFirestore,
         private val authManager: FirebaseAuthManager,
     ) : IFuelDataRepository {
-
-    private fun getRefillsRef(): CollectionReference {
-        val uId = authManager.getCurrentUserId() ?: error(MESSAGE_NOT_LOGGED)
-        return fireStoreDatabase
-            .collection(COLLECTION_PATH_USER)
-            .document(uId)
-            .collection(COLLECTION_PATH_REFILLS)
-    }
+        private fun getRefillsRef(): CollectionReference {
+            val uId = authManager.firebaseUserId ?: error(MESSAGE_NOT_LOGGED)
+            return fireStoreDatabase
+                .collection(COLLECTION_PATH_USER)
+                .document(uId)
+                .collection(COLLECTION_PATH_REFILLS)
+        }
 
         private suspend fun fetchRefillsList(): List<FuelDataInfo> =
             getRefillsRef()

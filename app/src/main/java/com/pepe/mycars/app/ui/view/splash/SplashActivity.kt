@@ -26,7 +26,6 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun observeUserViewSate() {
-        loggedInViewModel.appStart()
         loggedInViewModel.userViewState.observe(this) {
             when (it) {
                 UserViewState.Loading -> {}
@@ -38,8 +37,11 @@ class SplashActivity : AppCompatActivity() {
                 }
 
                 is UserViewState.Success -> {
-                    if (it.successMsg.isNotEmpty()) displayToast(it.successMsg)
-                    if (it.isLoggedIn) displayActivity(ActivityId.MAIN) else displayActivity(ActivityId.LOGIN)
+                    when {
+                        it.successMsg.isNotEmpty() -> displayToast(it.successMsg)
+                        it.isLoggedIn && it.autoLogin == true -> displayActivity(ActivityId.MAIN)
+                        else -> displayActivity(ActivityId.LOGIN)
+                    }
                 }
             }
         }

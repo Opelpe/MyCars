@@ -6,10 +6,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.pepe.mycars.data.dto.UserDto
+import com.pepe.mycars.data.firebase.manager.FirebaseAuthManager
 import com.pepe.mycars.data.firebase.repo.IAuthRepository
 import com.pepe.mycars.domain.model.AccountProvider
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -19,7 +24,20 @@ class AuthRepositoryImpl
         private val firebaseAuth: FirebaseAuth,
         private val fireStoreDatabase: FirebaseFirestore,
         private val sharedPreferences: SharedPreferences,
+        private val authManager: FirebaseAuthManager,
     ) : IAuthRepository {
+        override val validSessionFlow: Flow<Boolean> =
+            callbackFlow {
+                val job =
+                    launch {
+                        authManager.authStateFlow.collectLatest { isAuthenticated ->
+                            updateUserPreferences(isLoggedIn = isAuthenticated)
+                            trySend(isAuthenticated)
+                        }
+                    }
+                awaitClose { job.cancel() }
+            }
+
         override fun register(
             email: String,
             password: String,
@@ -97,7 +115,7 @@ class AuthRepositoryImpl
 
         override fun logOut() {
             updateUserPreferences(isLoggedIn = false)
-            firebaseAuth.signOut()
+            authManager.signOut()
         }
 
         override fun getLoggedUser(): Flow<FirebaseUser?> =
@@ -105,10 +123,9 @@ class AuthRepositoryImpl
                 val autoLogin = sharedPreferences.getBoolean(PREF_AUTO_LOGIN, false)
                 val providerType = sharedPreferences.getString(PREF_PROVIDER, "") ?: ""
 
-                if (!autoLogin && providerType != AccountProvider.ANONYMOUS.value)
-                    {
-                        logOut()
-                    }
+                if (!autoLogin && providerType != AccountProvider.ANONYMOUS.value) {
+                    logOut()
+                }
                 val user = firebaseAuth.currentUser
                 val isLoggedIn = user != null && autoLogin
                 updateUserPreferences(isLoggedIn = isLoggedIn)

@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 
 interface IAuthRepository {
+    val validSessionFlow: Flow<Boolean>
+
     fun register(
         email: String,
         password: String,

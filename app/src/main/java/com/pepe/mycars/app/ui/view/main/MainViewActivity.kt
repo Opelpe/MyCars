@@ -20,7 +20,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import com.pepe.mycars.R
 import com.pepe.mycars.app.ui.view.login.LoginActivity
-import com.pepe.mycars.app.utils.IsLoggedInLiveData
 import com.pepe.mycars.app.utils.SharedPrefConstants
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.UserViewState
@@ -64,13 +63,6 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun observeUserViewSate() {
-        IsLoggedInLiveData(sharedPreferences).observe(this) { isLoggedIn ->
-            if (!isLoggedIn) {
-                startLoginActivity()
-            }
-        }
-
-        loggedInViewModel.getUserData()
         loggedInViewModel.userViewState.observe(this) {
             when (it) {
                 UserViewState.Loading -> setProgressVisibility(true)
@@ -85,6 +77,9 @@ class MainViewActivity : AppCompatActivity() {
                     setProgressVisibility(false)
                     if (it.successMsg.isNotEmpty()) {
                         displayToast(it.successMsg)
+                    }
+                    if (!it.isLoggedIn) {
+                        startLoginActivity()
                     }
                 }
             }

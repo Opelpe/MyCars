@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.data.firebase.repo.IAuthRepository
-import com.pepe.mycars.data.firebase.repo.IUserRepository
+import com.pepe.mycars.domain.repository.IUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
