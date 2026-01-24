@@ -4,7 +4,7 @@ import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
 import com.pepe.mycars.data.firebase.repo.IAuthRepository
-import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
+import com.pepe.mycars.domain.repository.IFuelDataRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

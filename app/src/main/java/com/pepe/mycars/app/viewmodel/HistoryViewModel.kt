@@ -8,7 +8,7 @@ import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
 import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
-import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
+import com.pepe.mycars.domain.repository.IFuelDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn

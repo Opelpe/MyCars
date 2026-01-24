@@ -4,7 +4,7 @@ import com.pepe.mycars.data.firebase.impl.AuthRepositoryImpl
 import com.pepe.mycars.data.firebase.impl.FuelDataRepositoryImpl
 import com.pepe.mycars.data.firebase.impl.UserRepositoryImpl
 import com.pepe.mycars.data.firebase.repo.IAuthRepository
-import com.pepe.mycars.data.firebase.repo.IFuelDataRepository
+import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.data.firebase.repo.IUserRepository
 import dagger.Binds
 import dagger.Module

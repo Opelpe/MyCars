@@ -1,11 +1,9 @@
-package com.pepe.mycars.data.firebase.repo
+package com.pepe.mycars.domain.repository
 
-import com.google.firebase.firestore.CollectionReference
 import com.pepe.mycars.domain.model.FuelDataInfo
 import kotlinx.coroutines.flow.Flow
 
 interface IFuelDataRepository {
-    fun getRefillsCollectionReference(): CollectionReference
 
     fun getUserItems(): Flow<List<FuelDataInfo>>
 
