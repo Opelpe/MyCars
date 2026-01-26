@@ -4,13 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.AuthCredential
 import com.pepe.mycars.app.utils.state.view.LoginViewState
-import com.pepe.mycars.data.firebase.repo.IAuthRepository
+import com.pepe.mycars.domain.repository.IAuthRepository
 import com.pepe.mycars.domain.repository.IUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +29,30 @@ class AuthViewModel
 
         init {
             synchronizeAuth()
+        }
+
+        private fun synchronizeAuth() {
+            viewModelScope.launch {
+                combine(
+                    authRepository.validSessionFlow,
+                    userRepository.getSyncFirestoreUserData(),
+                ) { isAuthenticated, user ->
+                    LoginViewState.Success(
+                        isLoggedIn = isAuthenticated && user != null,
+                        successMsg = "",
+                    )
+                }
+                    .onStart {
+                        _loginViewState.postValue(LoginViewState.Loading)
+                    }
+                    .catch { e ->
+                        _loginViewState.postValue(LoginViewState.Error(e.localizedMessage ?: "Unknown error"))
+                    }
+                    .distinctUntilChanged()
+                    .collectLatest { state ->
+                        _loginViewState.postValue(state)
+                    }
+            }
         }
 
         fun login(
@@ -48,7 +73,7 @@ class AuthViewModel
                         }
                         .collectLatest {
                             _loginViewState.postValue(
-                                LoginViewState.Success(it != null, getLoginMessage(it != null)),
+                                LoginViewState.Success(isLoggedIn = true, successMsg = "Logged in successfully"),
                             )
                         }
                 }
@@ -75,37 +100,32 @@ class AuthViewModel
                     }
                     .collectLatest {
                         _loginViewState.postValue(
-                            LoginViewState.Success(true, "New account created"),
+                            LoginViewState.Success(isLoggedIn = true, successMsg = "New account created"),
                         )
                     }
             }
         }
 
-        fun registerAsGuest(autoLogin: Boolean) {
+        fun registerAsGuest() {
             viewModelScope.launch {
-                authRepository.registerAsGuest(autoLogin)
+                authRepository.registerAsGuest()
                     .onStart { _loginViewState.postValue(LoginViewState.Loading) }
-                    .catch { e ->
-                        _loginViewState.postValue(
-                            LoginViewState.Error(e.localizedMessage ?: "Unknown error"),
-                        )
-                    }
+                    .catch { e -> _loginViewState.postValue(LoginViewState.Error(e.localizedMessage ?: "Error")) }
                     .collectLatest {
                         _loginViewState.postValue(
-                            LoginViewState.Success(true, "Logged in as guest"),
+                            LoginViewState.Success(isLoggedIn = true, successMsg = "Logged as guest"),
                         )
                     }
             }
         }
 
         fun signInWithGoogle(
-            credential: AuthCredential,
+            idToken: String,
             userName: String,
             email: String,
-            autoLogin: Boolean,
         ) {
             viewModelScope.launch {
-                authRepository.registerWithGoogle(credential, userName, email, autoLogin)
+                authRepository.registerWithGoogle(idToken, userName, email)
                     .onStart { _loginViewState.postValue(LoginViewState.Loading) }
                     .catch { e ->
                         _loginViewState.postValue(
@@ -114,36 +134,9 @@ class AuthViewModel
                     }
                     .collectLatest {
                         _loginViewState.postValue(
-                            LoginViewState.Success(true, "Logged successfully"),
+                            LoginViewState.Success(isLoggedIn = true, successMsg = "Logged successfully"),
                         )
                     }
-            }
-        }
-
-        fun synchronizeAuth() {
-            viewModelScope.launch {
-                authRepository.getLoggedUser()
-                    .onStart { _loginViewState.postValue(LoginViewState.Loading) }
-                    .catch { e ->
-                        _loginViewState.postValue(
-                            LoginViewState.Error(e.localizedMessage ?: "Unknown error"),
-                        )
-                    }
-                    .collectLatest {
-                        val isLoggedIn = it != null && userRepository.getUserAutoLogin()
-                        val message = getLoginMessage(isLoggedIn)
-                        _loginViewState.postValue(
-                            LoginViewState.Success(isLoggedIn, message),
-                        )
-                    }
-            }
-        }
-
-        private fun getLoginMessage(loggedIn: Boolean): String {
-            return if (loggedIn) {
-                "Logged in successfully"
-            } else {
-                "Log In"
             }
         }
 

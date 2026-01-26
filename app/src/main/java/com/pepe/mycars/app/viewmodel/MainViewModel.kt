@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
 import com.pepe.mycars.app.data.mapper.MainViewModelMapper
 import com.pepe.mycars.app.utils.FireStoreUserDocField
 import com.pepe.mycars.app.utils.state.view.MainViewState
 import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.repository.IUserRepository
+import com.pepe.mycars.domain.usecase.fuel.GetRefillItemsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn

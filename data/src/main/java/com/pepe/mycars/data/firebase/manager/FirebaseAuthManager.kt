@@ -43,14 +43,22 @@ class FirebaseAuthManager
             email: String,
             password: String,
         ): Result<Unit> {
-            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            return Result.success(Unit)
+            try {
+                firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+                return Result.success(Unit)
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
         }
 
         override suspend fun signInWithCredential(idToken: String): Result<Unit> {
-            val googleCredentials = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(googleCredentials).await()
-            return Result.success(Unit)
+            try {
+                val googleCredentials = GoogleAuthProvider.getCredential(idToken, null)
+                firebaseAuth.signInWithCredential(googleCredentials).await()
+                return Result.success(Unit)
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
         }
 
         override suspend fun signInAnonymously(): Result<Unit> =
@@ -65,7 +73,11 @@ class FirebaseAuthManager
             email: String,
             password: String,
         ): Result<Unit> {
-            firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            return Result.success(Unit)
+            try {
+                firebaseAuth.signInWithEmailAndPassword(email, password).await()
+                return Result.success(Unit)
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
         }
     }

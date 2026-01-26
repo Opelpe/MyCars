@@ -3,7 +3,6 @@ package com.pepe.mycars.data.firebase.impl
 import android.content.SharedPreferences
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FirebaseFirestore
-import com.pepe.mycars.data.dto.CommonApiResponse
 import com.pepe.mycars.data.dto.UserDto
 import com.pepe.mycars.data.firebase.manager.FirebaseAuthManager
 import com.pepe.mycars.domain.model.AccountProvider
@@ -12,7 +11,6 @@ import com.pepe.mycars.domain.repository.IUserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
 
@@ -26,18 +24,23 @@ class UserRepositoryImpl
         override fun getSyncFirestoreUserData(): Flow<UserInfo?> =
             flow {
                 val userId = authManager.firebaseUserId
-                if (userId.isNullOrEmpty())
-                    {
-                        emit(null)
-                        return@flow
-                    }
-                val userRef = fireStoreDatabase.collection(COLLECTION_PATH_USER).document(userId)
+                if (userId.isNullOrEmpty()) {
+                    emit(null)
+                    return@flow
+                }
+                val userRef =
+                    fireStoreDatabase
+                        .collection(COLLECTION_PATH_USER)
+                        .document(userId)
                 val isAnonymous = authManager.anonymousFirebaseUser == true
                 val guestCount =
                     if (isAnonymous) {
-                        fireStoreDatabase.collection(COLLECTION_PATH_USER)
+                        fireStoreDatabase
+                            .collection(COLLECTION_PATH_USER)
                             .whereEqualTo("providerType", AccountProvider.ANONYMOUS.value)
-                            .count().get(AggregateSource.SERVER).await().count
+                            .count()
+                            .get(AggregateSource.SERVER)
+                            .await().count
                     } else {
                         0L
                     }
@@ -83,12 +86,6 @@ class UserRepositoryImpl
                     }.await()
 
                 emit(result)
-            }
-
-        private fun handleFailure(e: Exception): CommonApiResponse.Error =
-            when (e) {
-                is IOException -> CommonApiResponse.Error("Check Your Internet Connection")
-                else -> CommonApiResponse.Error(e.localizedMessage ?: "An unexpected error occurred")
             }
 
         override fun getUserProviderType(): String = sharedPreferences.getString("provider", "") ?: ""

@@ -1,4 +1,4 @@
-package com.pepe.mycars.app.data.domain.usecase.data
+package com.pepe.mycars.domain.usecase.fuel
 
 import com.pepe.mycars.domain.model.FuelDataInfo
 import com.pepe.mycars.domain.repository.IFuelDataRepository

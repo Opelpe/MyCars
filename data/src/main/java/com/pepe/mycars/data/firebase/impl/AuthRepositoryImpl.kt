@@ -1,30 +1,25 @@
 package com.pepe.mycars.data.firebase.impl
 
 import android.content.SharedPreferences
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
-import com.pepe.mycars.data.dto.UserDto
+import androidx.core.content.edit
 import com.pepe.mycars.data.firebase.manager.FirebaseAuthManager
-import com.pepe.mycars.data.firebase.repo.IAuthRepository
 import com.pepe.mycars.domain.model.AccountProvider
+import com.pepe.mycars.domain.repository.IAuthRepository
+import com.pepe.mycars.domain.repository.IUserRepository
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class AuthRepositoryImpl
     @Inject
     constructor(
-        private val firebaseAuth: FirebaseAuth,
-        private val fireStoreDatabase: FirebaseFirestore,
         private val sharedPreferences: SharedPreferences,
         private val authManager: FirebaseAuthManager,
+        private val userRepository: IUserRepository,
     ) : IAuthRepository {
         override val validSessionFlow: Flow<Boolean> =
             callbackFlow {
@@ -43,94 +38,90 @@ class AuthRepositoryImpl
             password: String,
             name: String,
             autoLogin: Boolean,
-        ): Flow<FirebaseUser> =
+        ): Flow<Boolean> =
             flow {
-                val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-                val user = result.user ?: error("Registration failed: No user returned")
+                val result = authManager.createUserWithEmailAndPassword(email, password)
+                if (result.isSuccess) {
+                    updateUserPreferences(
+                        providerType = AccountProvider.EMAIL.value,
+                        name = GUEST_NAME,
+                        isLoggedIn = true,
+                    )
 
-                val providerType = result.credential?.provider ?: AccountProvider.EMAIL.value
-                updateUserPreferences(providerType, name, autoLogin, isLoggedIn = true)
-
-                emit(user)
+                    emit(true)
+                } else {
+                    error("Registration failed")
+                }
             }
 
         override fun registerWithGoogle(
-            authCredential: AuthCredential,
+            idToken: String,
             name: String,
             email: String,
-            autoLogin: Boolean,
-        ): Flow<FirebaseUser> =
-            flow {
-                val result = firebaseAuth.signInWithCredential(authCredential).await()
-                val user = result.user ?: error("Google sign-in failed")
-
-                val providerType = result.credential?.provider ?: AccountProvider.GOOGLE.value
-                updateUserPreferences(providerType, name, autoLogin, isLoggedIn = true)
-
-                emit(user)
+        ) = flow {
+            val result = authManager.signInWithCredential(idToken)
+            if (result.isSuccess) {
+                updateUserPreferences(
+                    providerType = AccountProvider.GOOGLE.value,
+                    name = name,
+                    isLoggedIn = true,
+                )
+                emit(true)
+            } else {
+                error("Google Sign In Failed")
             }
+        }
 
-        override fun registerAsGuest(autoLogin: Boolean): Flow<FirebaseUser> =
+        override fun registerAsGuest() =
             flow {
-                val result = firebaseAuth.signInAnonymously().await()
-                val user = result.user ?: error("Anonymous sign-in failed")
-
-                val providerType = result.credential?.provider ?: AccountProvider.ANONYMOUS.value
-                updateUserPreferences(providerType, GUEST_NAME, autoLogin, isLoggedIn = true)
-
-                emit(user)
+                val result = authManager.signInAnonymously()
+                if (result.isSuccess) {
+                    updateUserPreferences(
+                        providerType = AccountProvider.ANONYMOUS.value,
+                        name = GUEST_NAME,
+                        isLoggedIn = true,
+                    )
+                    emit(true)
+                } else {
+                    error("Anonymous Sign In failed")
+                }
             }
 
         override fun login(
             email: String,
             password: String,
             autoLogin: Boolean,
-        ): Flow<FirebaseUser?> =
+        ): Flow<Boolean> =
             flow {
-                val snapshot =
-                    fireStoreDatabase.collection(COLLECTION_USER)
-                        .whereEqualTo(FIELD_EMAIL, email)
-                        .get()
-                        .await()
+                val authResult = authManager.signInWithEmailAndPassword(email, password)
 
-                val providerType =
-                    if (!snapshot.isEmpty) {
-                        val userDto = snapshot.documents[0].toObject(UserDto::class.java)
-                        val type = userDto?.providerType ?: AccountProvider.EMAIL.value
-                        if (type == AccountProvider.GOOGLE.value) {
-                            error("Please sign in with Google")
+                if (authResult.isSuccess) {
+                    userRepository.getSyncFirestoreUserData().collect { user ->
+                        if (user == null) error("User data not found")
+
+                        if (user.providerType == AccountProvider.GOOGLE) {
+                            authManager.signOut()
+                            error("This account is registered with Google. Please sign in with Google.")
                         }
-                        type
-                    } else {
-                        AccountProvider.EMAIL.value
+
+                        updateUserPreferences(
+                            providerType = AccountProvider.EMAIL.value,
+                            name = user.name,
+                            autoLogin = autoLogin,
+                            isLoggedIn = true,
+                        )
+
+                        emit(true)
                     }
-
-                val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-                val user = result.user
-
-                updateUserPreferences(providerType = providerType, isLoggedIn = user != null)
-
-                emit(user)
+                } else {
+                    error("Login failed")
+                }
             }
 
         override fun logOut() {
-            updateUserPreferences(isLoggedIn = false)
             authManager.signOut()
+            updateUserPreferences(isLoggedIn = false)
         }
-
-        override fun getLoggedUser(): Flow<FirebaseUser?> =
-            flow {
-                val autoLogin = sharedPreferences.getBoolean(PREF_AUTO_LOGIN, false)
-                val providerType = sharedPreferences.getString(PREF_PROVIDER, "") ?: ""
-
-                if (!autoLogin && providerType != AccountProvider.ANONYMOUS.value) {
-                    logOut()
-                }
-                val user = firebaseAuth.currentUser
-                val isLoggedIn = user != null && autoLogin
-                updateUserPreferences(isLoggedIn = isLoggedIn)
-                emit(user)
-            }
 
         private fun updateUserPreferences(
             providerType: String? = null,
@@ -138,12 +129,12 @@ class AuthRepositoryImpl
             autoLogin: Boolean? = null,
             isLoggedIn: Boolean? = null,
         ) {
-            sharedPreferences.edit().apply {
+            sharedPreferences.edit {
                 isLoggedIn?.let { putBoolean(PREF_IS_LOGGED_IN, it) }
                 providerType?.let { putString(PREF_PROVIDER, it) }
                 name?.let { putString(PREF_USER_NAME, it) }
                 autoLogin?.let { putBoolean(PREF_AUTO_LOGIN, it) }
-            }.apply()
+            }
         }
 
         companion object {

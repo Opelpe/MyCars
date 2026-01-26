@@ -97,6 +97,7 @@ class MainViewActivity : AppCompatActivity() {
     private fun startLoginActivity() {
         setProgressVisibility(true)
         startActivity(Intent(this@MainViewActivity, LoginActivity::class.java))
+        finish()
     }
 
     private fun askNotificationPermission() {

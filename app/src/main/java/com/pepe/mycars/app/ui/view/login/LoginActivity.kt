@@ -44,11 +44,12 @@ class LoginActivity : AppCompatActivity() {
 
                 is LoginViewState.Success -> {
                     setProgressVisibility(false)
+
                     if (it.isLoggedIn) {
                         setProgressVisibility(true)
                         startMainViewActivity()
                     }
-                    if (it.successMsg.isNotEmpty()) {
+                    if (!it.successMsg.isNullOrEmpty()) {
                         setProgressVisibility(false)
                         displayToast(it.successMsg)
                     }
@@ -66,7 +67,7 @@ class LoginActivity : AppCompatActivity() {
             showLoginDialog()
         }
         binding.anonymousLoginButton.setOnClickListener {
-            authViewModel.registerAsGuest(binding.startCheckBox.isChecked)
+            authViewModel.registerAsGuest()
         }
         binding.createAccountButton.setOnClickListener {
             showCreateNewAccountDialog()

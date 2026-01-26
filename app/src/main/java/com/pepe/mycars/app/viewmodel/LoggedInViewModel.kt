@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
 import com.pepe.mycars.app.utils.state.view.UserViewState
-import com.pepe.mycars.data.firebase.repo.IAuthRepository
+import com.pepe.mycars.domain.repository.IAuthRepository
 import com.pepe.mycars.domain.repository.IUserRepository
+import com.pepe.mycars.domain.usecase.auth.LogOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest

@@ -19,7 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.GoogleAuthProvider
 import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
@@ -135,15 +134,16 @@ class LoginDialog : DialogFragment() {
     }
 
     private fun signInWithGoogle(task: Task<GoogleSignInAccount>) {
-        val result = task.result
-        if (result != null) {
-            val authCredential = GoogleAuthProvider.getCredential(result.idToken, null)
-            val name = result.displayName ?: ""
-            val email = result.email ?: ""
-            val autoLogin = arguments?.getBoolean("autoLogin") ?: false
+        val result = task.result ?: return
+        val token = result.idToken ?: return
+        val name = result.displayName ?: ""
+        val email = result.email ?: ""
 
-            authModel.signInWithGoogle(authCredential, name, email, autoLogin)
-        }
+        authModel.signInWithGoogle(
+            idToken = token,
+            userName = name,
+            email = email,
+        )
     }
 
     private fun setProgressVisibility(loading: Boolean) {

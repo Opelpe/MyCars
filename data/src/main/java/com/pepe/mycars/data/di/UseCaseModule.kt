@@ -1,10 +1,10 @@
-package com.pepe.mycars.app.di.module
+package com.pepe.mycars.data.di
 
-import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
-import com.pepe.mycars.app.data.domain.usecase.data.DeleteItemUseCase
-import com.pepe.mycars.app.data.domain.usecase.data.GetRefillItemsUseCase
-import com.pepe.mycars.data.firebase.repo.IAuthRepository
+import com.pepe.mycars.domain.repository.IAuthRepository
 import com.pepe.mycars.domain.repository.IFuelDataRepository
+import com.pepe.mycars.domain.usecase.auth.LogOutUseCase
+import com.pepe.mycars.domain.usecase.fuel.DeleteItemUseCase
+import com.pepe.mycars.domain.usecase.fuel.GetRefillItemsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
