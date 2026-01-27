@@ -7,10 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.mapper.MainViewModelMapper
 import com.pepe.mycars.app.utils.FireStoreUserDocField
 import com.pepe.mycars.app.utils.state.view.MainViewState
+import com.pepe.mycars.domain.manager.INetworkManager
 import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.repository.IUserRepository
 import com.pepe.mycars.domain.usecase.fuel.GetRefillItemsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -26,10 +28,13 @@ class MainViewModel
         private val userRepository: IUserRepository,
         private val getRefillItemsUseCase: GetRefillItemsUseCase,
         private val mainViewModelMapper: MainViewModelMapper,
+        networkManager: INetworkManager,
     ) : ViewModel() {
         private val _dataMainViewState: MutableLiveData<MainViewState> =
             MutableLiveData(MainViewState.Loading)
         val dataMainViewState: LiveData<MainViewState> = _dataMainViewState
+
+        val isConnected: Flow<Boolean> = networkManager.isConnected
 
         fun isUserAnonymous(): Boolean {
             val response = userRepository.getUserProviderType()

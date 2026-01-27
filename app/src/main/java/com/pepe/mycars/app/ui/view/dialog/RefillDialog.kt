@@ -141,7 +141,7 @@ class RefillDialog : DialogFragment() {
             fuelAmount = refillAmount,
             refillDate = date,
             notes = notes,
-            fullTank = fullTank
+            fullTank = fullTank,
         )
     }
 
