@@ -83,7 +83,7 @@ class HistoryFragment : Fragment() {
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
         historyViewModel.updateView()
-        historyViewModel.observeRefillList(viewLifecycleOwner)
+        historyViewModel.observeRefillList()
         observeItemSate()
         binding.floatingRefillButton.setOnClickListener { displayRefillDialog(null, DialogMode.ADD) }
 

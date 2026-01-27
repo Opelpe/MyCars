@@ -4,64 +4,64 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepe.mycars.app.data.domain.repository.UserRepository
-import com.pepe.mycars.app.data.domain.usecase.auth.LogOutUseCase
-import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
-import com.pepe.mycars.app.utils.state.UserModelState
 import com.pepe.mycars.app.utils.state.view.UserViewState
+import com.pepe.mycars.domain.repository.IAuthRepository
+import com.pepe.mycars.domain.repository.IUserRepository
+import com.pepe.mycars.domain.usecase.auth.LogOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoggedInViewModel
     @Inject
     constructor(
-        private val userRepository: UserRepository,
+        private val userRepository: IUserRepository,
         private val logOutUseCase: LogOutUseCase,
+        private val authRepository: IAuthRepository,
     ) : ViewModel() {
         private val _userViewState: MutableLiveData<UserViewState> =
             MutableLiveData(UserViewState.Loading)
         val userViewState: LiveData<UserViewState> = _userViewState
 
+        init {
+            fetchUserData()
+        }
+
         fun logOut() {
             logOutUseCase.execute()
         }
 
-        fun getUserData() {
-            userRepository.getLoggedUserData().onEach {
-                val action =
-                    when (it) {
-                        UserModelState.Loading -> UserViewState.Loading
-                        is UserModelState.Error -> UserViewState.Error(it.exceptionMsg)
-                        is UserModelState.Success ->
-                            UserViewState.Success(
-                                true,
-                                it.userModel!!.providerType == ACCOUNT_PROVIDER_ANONYMOUS,
-                                "",
-                            )
-                    }
-                _userViewState.postValue(action)
-            }.launchIn(viewModelScope)
-        }
-
-        fun appStart() {
-            userRepository.getLoggedUserData().onEach {
-                when (it) {
-                    UserModelState.Loading -> _userViewState.postValue(UserViewState.Loading)
-
-                    is UserModelState.Error -> _userViewState.postValue(UserViewState.Error(it.exceptionMsg))
-
-                    is UserModelState.Success -> {
-                        val isGuest = it.userModel!!.providerType == ACCOUNT_PROVIDER_ANONYMOUS
-                        if (it.userModel.autoLogin) {
-                            _userViewState.postValue(UserViewState.Success(true, isGuest, ""))
-                        } else {
-                            _userViewState.postValue(UserViewState.Success(false, isGuest, ""))
-                        }
-                    }
+        fun fetchUserData() {
+            viewModelScope.launch {
+                combine(
+                    flow = authRepository.validSessionFlow,
+                    flow2 = userRepository.getSyncFirestoreUserData(),
+                ) { isAuthenticated, user ->
+                    val isLoggedIn = isAuthenticated && user != null
+                    UserViewState.Success(
+                        isLoggedIn = isLoggedIn,
+                        autoLogin = user?.autoLogin ?: false,
+                        successMsg = "",
+                    )
                 }
-            }.launchIn(viewModelScope)
+                    .distinctUntilChanged()
+                    .onStart { _userViewState.postValue(UserViewState.Loading) }
+                    .catch { e ->
+                        _userViewState.postValue(
+                            UserViewState.Error(
+                                e.localizedMessage ?: "Unknown error",
+                            ),
+                        )
+                    }
+                    .collectLatest { state ->
+                        _userViewState.postValue(state)
+                    }
+            }
         }
     }

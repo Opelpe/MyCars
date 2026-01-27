@@ -4,24 +4,56 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.AuthCredential
-import com.pepe.mycars.app.data.domain.repository.AuthRepository
-import com.pepe.mycars.app.utils.state.AuthState
 import com.pepe.mycars.app.utils.state.view.LoginViewState
+import com.pepe.mycars.domain.repository.IAuthRepository
+import com.pepe.mycars.domain.repository.IUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel
     @Inject
     constructor(
-        private val authRepository: AuthRepository,
+        private val authRepository: IAuthRepository,
+        private val userRepository: IUserRepository,
     ) : ViewModel() {
         private val _loginViewState: MutableLiveData<LoginViewState> =
             MutableLiveData(LoginViewState.Loading)
         val loginViewState: LiveData<LoginViewState> = _loginViewState
+
+        init {
+            synchronizeAuth()
+        }
+
+        private fun synchronizeAuth() {
+            viewModelScope.launch {
+                combine(
+                    authRepository.validSessionFlow,
+                    userRepository.getSyncFirestoreUserData(),
+                ) { isAuthenticated, user ->
+                    LoginViewState.Success(
+                        isLoggedIn = isAuthenticated && user != null,
+                        successMsg = "",
+                    )
+                }
+                    .onStart {
+                        _loginViewState.postValue(LoginViewState.Loading)
+                    }
+                    .catch { e ->
+                        _loginViewState.postValue(LoginViewState.Error(e.localizedMessage ?: "Unknown error"))
+                    }
+                    .distinctUntilChanged()
+                    .collectLatest { state ->
+                        _loginViewState.postValue(state)
+                    }
+            }
+        }
 
         fun login(
             email: String?,
@@ -29,17 +61,22 @@ class AuthViewModel
             autoLogin: Boolean,
         ) {
             if (isLoginPossible(email, password)) {
-                authRepository.login(email!!, password!!, autoLogin).onEach {
-                    when (it) {
-                        AuthState.Loading -> _loginViewState.postValue(LoginViewState.Loading)
-
-                        is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
-
-                        is AuthState.Success -> {
-                            _loginViewState.postValue(LoginViewState.Success(true, "Logged in successfully"))
+                if (email.isNullOrEmpty()) return
+                if (password.isNullOrEmpty()) return
+                viewModelScope.launch {
+                    authRepository.login(email, password, autoLogin)
+                        .onStart { _loginViewState.postValue(LoginViewState.Loading) }
+                        .catch { e ->
+                            _loginViewState.postValue(
+                                LoginViewState.Error(e.localizedMessage ?: "Unknown error"),
+                            )
                         }
-                    }
-                }.launchIn(viewModelScope)
+                        .collectLatest {
+                            _loginViewState.postValue(
+                                LoginViewState.Success(isLoggedIn = true, successMsg = "Logged in successfully"),
+                            )
+                        }
+                }
             }
         }
 
@@ -51,66 +88,56 @@ class AuthViewModel
         ) {
             if (email!!.isEmpty() || password!!.isEmpty() || name!!.isEmpty()) {
                 _loginViewState.postValue(LoginViewState.Error("All fields must be filled"))
-            } else {
-                authRepository.register(email, password, name, autoLogin).onEach {
-                    when (it) {
-                        AuthState.Loading -> _loginViewState.postValue(LoginViewState.Loading)
-
-                        is AuthState.Error -> {
-                            _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
-                        }
-
-                        is AuthState.Success -> {
-                            _loginViewState.postValue(LoginViewState.Success(true, "New account created"))
-                        }
+                return
+            }
+            viewModelScope.launch {
+                authRepository.register(email, password, name, autoLogin)
+                    .onStart { _loginViewState.postValue(LoginViewState.Loading) }
+                    .catch { e ->
+                        _loginViewState.postValue(
+                            LoginViewState.Error(e.localizedMessage ?: "Unknown error"),
+                        )
                     }
-                }.launchIn(viewModelScope)
+                    .collectLatest {
+                        _loginViewState.postValue(
+                            LoginViewState.Success(isLoggedIn = true, successMsg = "New account created"),
+                        )
+                    }
             }
         }
 
-        fun registerAsGuest(autoLogin: Boolean) {
-            authRepository.registerAsGuest(autoLogin).onEach {
-                when (it) {
-                    AuthState.Loading -> _loginViewState.postValue(LoginViewState.Loading)
-
-                    is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
-
-                    is AuthState.Success -> {
-                        _loginViewState.postValue(LoginViewState.Success(true, "Logged in as guest"))
+        fun registerAsGuest() {
+            viewModelScope.launch {
+                authRepository.registerAsGuest()
+                    .onStart { _loginViewState.postValue(LoginViewState.Loading) }
+                    .catch { e -> _loginViewState.postValue(LoginViewState.Error(e.localizedMessage ?: "Error")) }
+                    .collectLatest {
+                        _loginViewState.postValue(
+                            LoginViewState.Success(isLoggedIn = true, successMsg = "Logged as guest"),
+                        )
                     }
-                }
-            }.launchIn(viewModelScope)
+            }
         }
 
         fun signInWithGoogle(
-            credential: AuthCredential,
+            idToken: String,
             userName: String,
             email: String,
-            autoLogin: Boolean,
         ) {
-            authRepository.registerWithGoogle(credential, userName, email, autoLogin).onEach {
-                when (it) {
-                    AuthState.Loading -> _loginViewState.postValue(LoginViewState.Loading)
-
-                    is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
-
-                    is AuthState.Success -> {
-                        _loginViewState.postValue(LoginViewState.Success(true, "Logged successfully"))
+            viewModelScope.launch {
+                authRepository.registerWithGoogle(idToken, userName, email)
+                    .onStart { _loginViewState.postValue(LoginViewState.Loading) }
+                    .catch { e ->
+                        _loginViewState.postValue(
+                            LoginViewState.Error(e.localizedMessage ?: "Unknown error"),
+                        )
                     }
-                }
-            }.launchIn(viewModelScope)
-        }
-
-        fun synchronizeAuth() {
-            authRepository.getLoggedUser().onEach {
-                when (it) {
-                    AuthState.Loading -> _loginViewState.postValue(LoginViewState.Loading)
-
-                    is AuthState.Error -> _loginViewState.postValue(LoginViewState.Error(it.exceptionMsg))
-
-                    is AuthState.Success -> _loginViewState.postValue(LoginViewState.Success(false, ""))
-                }
-            }.launchIn(viewModelScope)
+                    .collectLatest {
+                        _loginViewState.postValue(
+                            LoginViewState.Success(isLoggedIn = true, successMsg = "Logged successfully"),
+                        )
+                    }
+            }
         }
 
         private fun isLoginPossible(

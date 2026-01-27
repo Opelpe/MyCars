@@ -1,4 +1,4 @@
-// package com.pepe.mycars.app.viewmodel.splash
+package com.pepe.mycars.app.viewmodel.splash
 //
 // import androidx.lifecycle.MutableLiveData
 // import androidx.lifecycle.ViewModel
@@ -14,6 +14,8 @@
 // @HiltViewModel
 // class SplashViewModel @Inject constructor(private val repository: Lazy<UserRepository>) :
 //    ViewModel() {
+
+class SplashViewModel
 //
 //
 //    val viewState = MutableLiveData(SplashViewModelState())

@@ -5,7 +5,7 @@ sealed class LoginViewState {
 
     data class Success(
         val isLoggedIn: Boolean = false,
-        val successMsg: String,
+        val successMsg: String? = null,
     ) : LoginViewState()
 
     data class Error(val errorMsg: String) : LoginViewState()
