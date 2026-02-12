@@ -88,12 +88,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showLoginDialog() {
-        val loginDialog = LoginDialog.newInstance(binding.startCheckBox.isChecked)
+        val loginDialog = LoginDialog.newInstance()
         loginDialog.show(supportFragmentManager, "dialog")
     }
 
     private fun showCreateNewAccountDialog() {
-        val createAccountDialog = CreateAccountDialog.newInstance(binding.startCheckBox.isChecked)
+        val createAccountDialog = CreateAccountDialog.newInstance()
         createAccountDialog.show(supportFragmentManager, "newAccountDialog")
     }
 

@@ -4,6 +4,8 @@ import com.pepe.mycars.app.viewmodel.RefillOperations
 import com.pepe.mycars.domain.model.FuelDataInfo
 
 sealed class RefillItemViewState {
+    object Idle : RefillItemViewState()
+
     object Loading : RefillItemViewState()
 
     data class Success(
