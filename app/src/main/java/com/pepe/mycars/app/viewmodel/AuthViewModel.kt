@@ -64,7 +64,7 @@ class AuthViewModel
                 if (email.isNullOrEmpty()) return
                 if (password.isNullOrEmpty()) return
                 viewModelScope.launch {
-                    authRepository.login(email, password, autoLogin)
+                    authRepository.login(email, password)
                         .onStart { _loginViewState.postValue(LoginViewState.Loading) }
                         .catch { e ->
                             _loginViewState.postValue(
@@ -91,7 +91,7 @@ class AuthViewModel
                 return
             }
             viewModelScope.launch {
-                authRepository.register(email, password, name, autoLogin)
+                authRepository.register(email, password, name)
                     .onStart { _loginViewState.postValue(LoginViewState.Loading) }
                     .catch { e ->
                         _loginViewState.postValue(

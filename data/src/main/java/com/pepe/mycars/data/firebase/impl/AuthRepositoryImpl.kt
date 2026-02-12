@@ -37,11 +37,10 @@ class AuthRepositoryImpl
             email: String,
             password: String,
             name: String,
-            autoLogin: Boolean,
         ): Flow<Boolean> =
             flow {
-                val result = authManager.createUserWithEmailAndPassword(email, password)
-                if (result.isSuccess) {
+                val result = authManager.createUserWithEmailAndPassword(email, password).getOrNull()
+                if (result != null) {
                     updateUserPreferences(
                         providerType = AccountProvider.EMAIL.value,
                         name = GUEST_NAME,
@@ -59,8 +58,8 @@ class AuthRepositoryImpl
             name: String,
             email: String,
         ) = flow {
-            val result = authManager.signInWithCredential(idToken)
-            if (result.isSuccess) {
+            val result = authManager.signInWithCredential(idToken).getOrNull()
+            if (result != null) {
                 updateUserPreferences(
                     providerType = AccountProvider.GOOGLE.value,
                     name = name,
@@ -74,8 +73,8 @@ class AuthRepositoryImpl
 
         override fun registerAsGuest() =
             flow {
-                val result = authManager.signInAnonymously()
-                if (result.isSuccess) {
+                val result = authManager.signInAnonymously().getOrNull()
+                if (result != null) {
                     updateUserPreferences(
                         providerType = AccountProvider.ANONYMOUS.value,
                         name = GUEST_NAME,
@@ -90,12 +89,11 @@ class AuthRepositoryImpl
         override fun login(
             email: String,
             password: String,
-            autoLogin: Boolean,
         ): Flow<Boolean> =
             flow {
-                val authResult = authManager.signInWithEmailAndPassword(email, password)
+                val authResult = authManager.signInWithEmailAndPassword(email, password).getOrNull()
 
-                if (authResult.isSuccess) {
+                if (authResult != null) {
                     userRepository.getSyncFirestoreUserData().collect { user ->
                         if (user == null) error("User data not found")
 
@@ -107,7 +105,6 @@ class AuthRepositoryImpl
                         updateUserPreferences(
                             providerType = AccountProvider.EMAIL.value,
                             name = user.name,
-                            autoLogin = autoLogin,
                             isLoggedIn = true,
                         )
 

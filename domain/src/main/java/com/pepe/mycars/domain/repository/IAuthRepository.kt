@@ -9,7 +9,6 @@ interface IAuthRepository {
         email: String,
         password: String,
         name: String,
-        autoLogin: Boolean,
     ): Flow<Boolean>
 
     fun registerWithGoogle(
@@ -23,7 +22,6 @@ interface IAuthRepository {
     fun login(
         email: String,
         password: String,
-        autoLogin: Boolean,
     ): Flow<Boolean>
 
     fun logOut()

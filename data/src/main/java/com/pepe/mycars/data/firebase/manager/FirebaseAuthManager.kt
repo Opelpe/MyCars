@@ -1,8 +1,8 @@
 package com.pepe.mycars.data.firebase.manager
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.pepe.mycars.domain.manager.IFirebaseAuthManager
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -13,17 +13,17 @@ class FirebaseAuthManager
     @Inject
     constructor(
         private val firebaseAuth: FirebaseAuth,
-    ) : IFirebaseAuthManager {
-        override val firebaseUserId: String?
+    ) {
+        val firebaseUserId: String?
             get() = firebaseAuth.currentUser?.uid
 
-        override val firebaseUserEmail: String?
+        val firebaseUserEmail: String?
             get() = firebaseAuth.currentUser?.email
 
-        override val anonymousFirebaseUser: Boolean?
+        val anonymousFirebaseUser: Boolean?
             get() = firebaseAuth.currentUser?.isAnonymous
 
-        override val authStateFlow: Flow<Boolean> =
+        val authStateFlow: Flow<Boolean> =
             callbackFlow {
                 val listener =
                     FirebaseAuth.AuthStateListener { auth ->
@@ -33,49 +33,65 @@ class FirebaseAuthManager
                 awaitClose { firebaseAuth.removeAuthStateListener(listener) }
             }
 
-        override fun getCurrentUserId(): String? = firebaseAuth.currentUser?.uid
-
-        override fun signOut() {
+        fun signOut() {
             firebaseAuth.signOut()
         }
 
-        override suspend fun createUserWithEmailAndPassword(
+        suspend fun createUserWithEmailAndPassword(
             email: String,
             password: String,
-        ): Result<Unit> {
+        ): Result<FirebaseUser?> {
             try {
-                firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-                return Result.success(Unit)
+                val result =
+                    firebaseAuth
+                        .createUserWithEmailAndPassword(
+                            email,
+                            password,
+                        )
+                        .await()
+                return Result.success(result.user)
             } catch (e: Exception) {
                 return Result.failure(e)
             }
         }
 
-        override suspend fun signInWithCredential(idToken: String): Result<Unit> {
+        suspend fun signInWithCredential(idToken: String): Result<FirebaseUser?> {
             try {
                 val googleCredentials = GoogleAuthProvider.getCredential(idToken, null)
-                firebaseAuth.signInWithCredential(googleCredentials).await()
-                return Result.success(Unit)
+                val result =
+                    firebaseAuth
+                        .signInWithCredential(googleCredentials)
+                        .await()
+                return Result.success(result.user)
             } catch (e: Exception) {
                 return Result.failure(e)
             }
         }
 
-        override suspend fun signInAnonymously(): Result<Unit> =
+        suspend fun signInAnonymously(): Result<FirebaseUser?> =
             try {
-                firebaseAuth.signInAnonymously().await()
-                Result.success(Unit)
+                val result =
+                    firebaseAuth
+                        .signInAnonymously()
+                        .await()
+                Result.success(result.user)
             } catch (e: Exception) {
                 Result.failure(e)
             }
 
-        override suspend fun signInWithEmailAndPassword(
+        suspend fun signInWithEmailAndPassword(
             email: String,
             password: String,
-        ): Result<Unit> {
+        ): Result<FirebaseUser?> {
             try {
-                firebaseAuth.signInWithEmailAndPassword(email, password).await()
-                return Result.success(Unit)
+                val result =
+                    firebaseAuth
+                        .signInWithEmailAndPassword(
+                            email,
+                            password,
+                        )
+                        .await()
+                return Result.success(result.user)
             } catch (e: Exception) {
                 return Result.failure(e)
             }

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.pepe.mycars.data.dto.UserDto
 import com.pepe.mycars.data.firebase.manager.FirebaseAuthManager
+import com.pepe.mycars.data.firebase.manager.FirestoreManager
 import com.pepe.mycars.domain.model.AccountProvider
 import com.pepe.mycars.domain.model.UserInfo
 import com.pepe.mycars.domain.repository.IUserRepository
@@ -20,9 +21,14 @@ class UserRepositoryImpl
         private val fireStoreDatabase: FirebaseFirestore,
         private val sharedPreferences: SharedPreferences,
         private val authManager: FirebaseAuthManager,
+        private val firestoreManager: FirestoreManager,
     ) : IUserRepository {
         override fun getSyncFirestoreUserData(): Flow<UserInfo?> =
             flow {
+                val providerType = sharedPreferences.getString("provider", "")
+
+                firestoreManager.getFirestoreUserData(providerType)
+
                 val userId = authManager.firebaseUserId
                 if (userId.isNullOrEmpty()) {
                     emit(null)

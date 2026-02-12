@@ -1,54 +1,35 @@
 package com.pepe.mycars.data.firebase.impl
 
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.snapshots
 import com.pepe.mycars.data.dto.FuelDataDto
-import com.pepe.mycars.data.firebase.manager.FirebaseAuthManager
+import com.pepe.mycars.data.firebase.manager.FirestoreManager
 import com.pepe.mycars.domain.model.FuelDataInfo
 import com.pepe.mycars.domain.repository.IFuelDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 class FuelDataRepositoryImpl
     @Inject
     constructor(
-        private val fireStoreDatabase: FirebaseFirestore,
-        private val authManager: FirebaseAuthManager,
+        private val firestoreManager: FirestoreManager,
     ) : IFuelDataRepository {
-        private fun getRefillsRef(): CollectionReference {
-            val uId = authManager.firebaseUserId ?: error(MESSAGE_NOT_LOGGED)
-            return fireStoreDatabase
-                .collection(COLLECTION_PATH_USER)
-                .document(uId)
-                .collection(COLLECTION_PATH_REFILLS)
-        }
-
-        private suspend fun fetchRefillsList(): List<FuelDataInfo> =
-            getRefillsRef()
-                .orderBy(FIELD_CURR_MILEAGE, Query.Direction.DESCENDING)
-                .get()
-                .await()
-                .toObjects(FuelDataDto::class.java)
-                .map { it.toDomain() }
-
         override fun getUserItems(): Flow<List<FuelDataInfo>> =
             flow {
-                emit(fetchRefillsList())
+                emit(
+                    firestoreManager
+                        .fetchRefills()
+                        .map {
+                            it.toDomain()
+                        },
+                )
             }
 
-        override fun observeUserItems(): Flow<List<FuelDataInfo>> {
-            return getRefillsRef()
-                .orderBy(FIELD_CURR_MILEAGE, Query.Direction.DESCENDING)
-                .snapshots()
-                .map { snapshot ->
-                    snapshot.toObjects(FuelDataDto::class.java).map { it.toDomain() }
-                }
-        }
+        override fun observeUserItems(): Flow<List<FuelDataInfo>> =
+            firestoreManager.observeRefillsData().map { list ->
+                list.map { it.toDomain() }
+            }
 
         override fun addRefillItem(
             currMileage: Float,
@@ -59,9 +40,8 @@ class FuelDataRepositoryImpl
             fullTank: Boolean,
         ): Flow<List<FuelDataInfo>> =
             flow {
-                val refillsRef = getRefillsRef()
-                val itemId = refillsRef.document().id
-                val refillDto =
+                val itemId = UUID.randomUUID().toString()
+                val dto =
                     FuelDataDto(
                         itemId = itemId,
                         currMileage = currMileage,
@@ -72,20 +52,29 @@ class FuelDataRepositoryImpl
                         fullTank = fullTank,
                     )
 
-                refillsRef.document(itemId).set(refillDto).await()
-                emit(fetchRefillsList())
+                firestoreManager.saveRefill(dto, itemId)
+
+                emit(
+                    firestoreManager
+                        .fetchRefills()
+                        .map { it.toDomain() },
+                )
             }
 
         override fun deleteRefillItem(itemId: String): Flow<List<FuelDataInfo>> =
             flow {
-                getRefillsRef().document(itemId).delete().await()
-                emit(fetchRefillsList())
+                firestoreManager.deleteRefill(itemId)
+                emit(
+                    firestoreManager
+                        .fetchRefills()
+                        .map { it.toDomain() },
+                )
             }
 
         override fun getItemById(itemId: String): Flow<FuelDataInfo> =
             flow {
-                val snapshot = getRefillsRef().document(itemId).get().await()
-                emit(snapshot.toObject(FuelDataDto::class.java)?.toDomain() ?: error(MESSAGE_UNKNOWN_ERROR))
+                val response = firestoreManager.getRefillItemById(itemId) ?: error("Item not found")
+                emit(response.toDomain())
             }
 
         override fun updateItem(
@@ -108,15 +97,9 @@ class FuelDataRepositoryImpl
                         notes = notes,
                         fullTank = fullTank,
                     )
-                getRefillsRef().document(itemID).set(refillDto).await()
-                emit(fetchRefillsList())
-            }
 
-        companion object {
-            private const val COLLECTION_PATH_USER = "User"
-            private const val COLLECTION_PATH_REFILLS = "Refills"
-            private const val FIELD_CURR_MILEAGE = "currMileage"
-            const val MESSAGE_UNKNOWN_ERROR = "Unknown Error"
-            const val MESSAGE_NOT_LOGGED = "User not logged in"
-        }
+                firestoreManager.saveRefill(refillDto, itemID)
+
+                emit(firestoreManager.fetchRefills().map { it.toDomain() })
+            }
     }
