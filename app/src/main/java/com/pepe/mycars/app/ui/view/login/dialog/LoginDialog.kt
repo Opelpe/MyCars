@@ -32,10 +32,9 @@ class LoginDialog : DialogFragment() {
     private val authModel: AuthViewModel by activityViewModels()
 
     companion object {
-        fun newInstance(autoLogin: Boolean): LoginDialog {
+        fun newInstance(): LoginDialog {
             val dialog = LoginDialog()
             val args = Bundle()
-            args.putBoolean("autoLogin", autoLogin)
             dialog.arguments = args
             return dialog
         }
@@ -116,8 +115,7 @@ class LoginDialog : DialogFragment() {
         email: String?,
         password: String?,
     ) {
-        val autoLogin = arguments?.getBoolean("autoLogin") ?: false
-        authModel.login(email, password, autoLogin)
+        authModel.login(email, password)
     }
 
     private fun onGoogleBtnClicked() {

@@ -9,5 +9,4 @@ interface IUserRepository {
 
     fun getUserProviderType(): String
 
-    fun getUserAutoLogin(): Boolean
 }

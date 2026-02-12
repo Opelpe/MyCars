@@ -81,22 +81,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/accountLoginButton" />
 
-        <CheckBox
-            android:id="@+id/startCheckBox"
-            style="@style/commonCheckboxStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/space_12dp"
-            android:paddingTop="14dp"
-            android:text="@string/action_doNotAskAgain_title"
-            android:textAllCaps="true"
-            android:textSize="@dimen/text_size_small"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/anonymous_login_button" />
-
         <TextView
             android:id="@+id/noAccountTitle"
             android:layout_width="0dp"
@@ -106,7 +90,6 @@
             app:layout_constraintBottom_toBottomOf="@id/createAccountButton"
             app:layout_constraintEnd_toStartOf="@id/createAccountButton"
             app:layout_constraintTop_toTopOf="@id/createAccountButton" />
-
 
         <TextView
             android:id="@+id/createAccountButton"

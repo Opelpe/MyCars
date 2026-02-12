@@ -123,25 +123,19 @@ class AuthRepositoryImpl
         private fun updateUserPreferences(
             providerType: String? = null,
             name: String? = null,
-            autoLogin: Boolean? = null,
             isLoggedIn: Boolean? = null,
         ) {
             sharedPreferences.edit {
                 isLoggedIn?.let { putBoolean(PREF_IS_LOGGED_IN, it) }
                 providerType?.let { putString(PREF_PROVIDER, it) }
                 name?.let { putString(PREF_USER_NAME, it) }
-                autoLogin?.let { putBoolean(PREF_AUTO_LOGIN, it) }
             }
         }
 
         companion object {
-            private const val COLLECTION_USER = "User"
-            private const val FIELD_EMAIL = "email"
             private const val GUEST_NAME = "Guest"
-
             private const val PREF_IS_LOGGED_IN = "isLoggedIn"
             private const val PREF_PROVIDER = "provider"
             private const val PREF_USER_NAME = "userName"
-            private const val PREF_AUTO_LOGIN = "autoLogin"
         }
     }

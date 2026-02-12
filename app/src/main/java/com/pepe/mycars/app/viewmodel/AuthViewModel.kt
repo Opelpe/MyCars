@@ -58,7 +58,6 @@ class AuthViewModel
         fun login(
             email: String?,
             password: String?,
-            autoLogin: Boolean,
         ) {
             if (isLoginPossible(email, password)) {
                 if (email.isNullOrEmpty()) return
@@ -84,7 +83,6 @@ class AuthViewModel
             email: String?,
             password: String?,
             name: String?,
-            autoLogin: Boolean,
         ) {
             if (email!!.isEmpty() || password!!.isEmpty() || name!!.isEmpty()) {
                 _loginViewState.postValue(LoginViewState.Error("All fields must be filled"))

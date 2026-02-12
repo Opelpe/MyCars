@@ -10,7 +10,6 @@ data class UserDto(
     val country: String? = null,
     val providerType: String? = null,
     val id: String? = null,
-    val autoLogin: Boolean? = null,
 ) {
     fun toDomain(): UserInfo {
         val providerType = AccountProvider.fromValue(providerType)
@@ -22,7 +21,6 @@ data class UserDto(
             active = active ?: false,
             country = country ?: "",
             providerType = providerType,
-            autoLogin = autoLogin ?: false,
         )
     }
 
@@ -35,7 +33,6 @@ data class UserDto(
                 active = userInfo.active,
                 country = userInfo.country,
                 providerType = userInfo.providerType.value,
-                autoLogin = userInfo.autoLogin,
             )
         }
     }

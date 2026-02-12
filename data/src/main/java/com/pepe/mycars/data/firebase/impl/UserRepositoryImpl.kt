@@ -54,13 +54,12 @@ class UserRepositoryImpl
                 val result =
                     fireStoreDatabase.runTransaction { transaction ->
                         val snapshot = transaction.get(userRef)
-                        val autoLogin = sharedPreferences.getBoolean("autoLogin", false)
                         val providerType = sharedPreferences.getString("provider", "") ?: ""
 
                         if (snapshot.exists()) {
-                            transaction.update(userRef, mapOf("autoLogin" to autoLogin, "providerType" to providerType))
+                            transaction.update(userRef, mapOf("providerType" to providerType))
                             snapshot.toObject(UserDto::class.java)!!
-                                .copy(autoLogin = autoLogin, providerType = providerType)
+                                .copy(providerType = providerType)
                                 .toDomain()
                         } else {
                             val name =
@@ -84,7 +83,6 @@ class UserRepositoryImpl
                                     active = true,
                                     country = Locale.getDefault().country,
                                     providerType = providerType,
-                                    autoLogin = autoLogin,
                                 )
                             transaction.set(userRef, UserDto.fromDomain(newUser))
                             newUser
@@ -95,8 +93,6 @@ class UserRepositoryImpl
             }
 
         override fun getUserProviderType(): String = sharedPreferences.getString("provider", "") ?: ""
-
-        override fun getUserAutoLogin(): Boolean = sharedPreferences.getBoolean("autoLogin", false)
 
         companion object {
             private const val COLLECTION_PATH_USER = "User"

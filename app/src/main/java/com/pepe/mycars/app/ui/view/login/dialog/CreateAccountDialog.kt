@@ -33,10 +33,9 @@ class CreateAccountDialog : DialogFragment() {
     }
 
     companion object {
-        fun newInstance(autoLogin: Boolean): CreateAccountDialog {
+        fun newInstance(): CreateAccountDialog {
             val f = CreateAccountDialog()
             val args = Bundle()
-            args.putBoolean("autoLogin", autoLogin)
             f.arguments = args
             return f
         }
@@ -178,8 +177,7 @@ class CreateAccountDialog : DialogFragment() {
         password: String?,
         name: String?,
     ) {
-        val autoLogin = arguments?.getBoolean("autoLogin") ?: false
-        authModel.register(email, password, name, autoLogin)
+        authModel.register(email, password, name)
     }
 
     private fun setProgressVisibility(loading: Boolean) {

@@ -46,7 +46,6 @@ class LoggedInViewModel
                     val isLoggedIn = isAuthenticated && user != null
                     UserViewState.Success(
                         isLoggedIn = isLoggedIn,
-                        autoLogin = user?.autoLogin ?: false,
                         successMsg = "",
                     )
                 }

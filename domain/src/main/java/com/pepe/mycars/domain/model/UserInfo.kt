@@ -7,5 +7,4 @@ data class UserInfo(
     val active: Boolean,
     val country: String,
     val providerType: AccountProvider,
-    val autoLogin: Boolean,
 )
