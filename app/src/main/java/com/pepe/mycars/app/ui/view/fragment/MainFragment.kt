@@ -115,23 +115,24 @@ class MainFragment : Fragment() {
     }
 
     private fun observeDataViewState() {
-        mainViewModel.getListOfRefills()
-        mainViewModel.observeRefillList()
-        mainViewModel.dataMainViewState.observe(viewLifecycleOwner) { viewState ->
-            when (viewState) {
-                MainViewState.Loading -> {}
-                is MainViewState.Error -> {
-                    if (viewState.errorMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.errorMsg)
+        lifecycleScope.launch {
+            mainViewModel.dataMainViewState
+                .collect { viewState ->
+                    when (viewState) {
+                        MainViewState.Loading -> {}
+                        is MainViewState.Error -> {
+                            if (viewState.errorMsg.isNotEmpty()) {
+                                requireActivity().displayToast(viewState.errorMsg)
+                            }
+                        }
+                        is MainViewState.Success -> {
+                            if (viewState.successMsg.isNotEmpty()) {
+                                requireActivity().displayToast(viewState.successMsg)
+                            }
+                            setMainViewScore(viewState.data)
+                        }
                     }
                 }
-                is MainViewState.Success -> {
-                    if (viewState.successMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.successMsg)
-                    }
-                    setMainViewScore(viewState.data)
-                }
-            }
         }
     }
 
