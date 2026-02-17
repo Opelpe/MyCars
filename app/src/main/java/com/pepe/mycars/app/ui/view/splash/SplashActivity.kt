@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.app.ui.view.login.LoginActivity
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
 import com.pepe.mycars.app.utils.logMessage
@@ -11,6 +12,7 @@ import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivitySplashBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
@@ -25,20 +27,22 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun observeUserViewSate() {
-        loggedInViewModel.userViewState.observe(this) {
-            when (it) {
-                UserViewState.Loading -> {}
-                is UserViewState.Error -> {
-                    if (it.errorMsg.isNotEmpty()) {
-                        logMessage(it.errorMsg)
-                        displayActivity(ActivityId.LOGIN)
+        lifecycleScope.launch {
+            loggedInViewModel.userViewState.collect { state ->
+                when (state) {
+                    UserViewState.Loading -> {}
+                    is UserViewState.Error -> {
+                        if (state.errorMsg.isNotEmpty()) {
+                            logMessage(state.errorMsg)
+                            displayActivity(ActivityId.LOGIN)
+                        }
                     }
-                }
 
-                is UserViewState.Success -> {
-                    when {
-                        it.isLoggedIn -> displayActivity(ActivityId.MAIN)
-                        else -> displayActivity(ActivityId.LOGIN)
+                    is UserViewState.Success -> {
+                        when {
+                            state.isLoggedIn -> displayActivity(ActivityId.MAIN)
+                            else -> displayActivity(ActivityId.LOGIN)
+                        }
                     }
                 }
             }

@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.firebase.ktx.Firebase
@@ -26,6 +27,7 @@ import com.pepe.mycars.app.utils.state.view.UserViewState
 import com.pepe.mycars.app.viewmodel.LoggedInViewModel
 import com.pepe.mycars.databinding.ActivityMainViewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainViewActivity : AppCompatActivity() {
@@ -63,24 +65,30 @@ class MainViewActivity : AppCompatActivity() {
     }
 
     private fun observeUserViewSate() {
-        loggedInViewModel.userViewState.observe(this) {
-            when (it) {
-                UserViewState.Loading -> setProgressVisibility(true)
-                is UserViewState.Error -> {
-                    setProgressVisibility(false)
-                    if (it.errorMsg.isNotEmpty()) {
-                        displayToast(it.errorMsg)
-                    }
-                }
+        lifecycleScope.launch {
+            loggedInViewModel.userViewState.collect { state ->
+                handleViewState(state)
+            }
+        }
+    }
 
-                is UserViewState.Success -> {
-                    setProgressVisibility(false)
-                    if (it.successMsg.isNotEmpty()) {
-                        displayToast(it.successMsg)
-                    }
-                    if (!it.isLoggedIn) {
-                        startLoginActivity()
-                    }
+    private fun handleViewState(state: UserViewState) {
+        when (state) {
+            UserViewState.Loading -> setProgressVisibility(true)
+            is UserViewState.Error -> {
+                setProgressVisibility(false)
+                if (state.errorMsg.isNotEmpty()) {
+                    displayToast(state.errorMsg)
+                }
+            }
+
+            is UserViewState.Success -> {
+                setProgressVisibility(false)
+                if (state.successMsg.isNotEmpty()) {
+                    displayToast(state.successMsg)
+                }
+                if (!state.isLoggedIn) {
+                    startLoginActivity()
                 }
             }
         }
