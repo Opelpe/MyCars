@@ -3,6 +3,10 @@ package com.pepe.mycars.data.di
 import com.pepe.mycars.domain.repository.IAuthRepository
 import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.usecase.auth.LogOutUseCase
+import com.pepe.mycars.domain.usecase.auth.LoginUseCase
+import com.pepe.mycars.domain.usecase.auth.RegisterAsGuestUseCase
+import com.pepe.mycars.domain.usecase.auth.RegisterUseCase
+import com.pepe.mycars.domain.usecase.auth.SignInWithGoogleUseCase
 import com.pepe.mycars.domain.usecase.fuel.DeleteItemUseCase
 import com.pepe.mycars.domain.usecase.fuel.GetRefillItemsUseCase
 import dagger.Module
@@ -16,19 +20,30 @@ import javax.inject.Singleton
 object UseCaseModule {
     @Provides
     @Singleton
-    fun provideGetUserDataUseCase(fuelDataRepository: IFuelDataRepository): GetRefillItemsUseCase {
-        return GetRefillItemsUseCase(fuelDataRepository)
-    }
+    fun provideGetRefillItemsUseCase(fuelDataRepository: IFuelDataRepository): GetRefillItemsUseCase =
+        GetRefillItemsUseCase(fuelDataRepository)
 
     @Provides
     @Singleton
-    fun provideDeleteItemUseCase(fuelDataRepository: IFuelDataRepository): DeleteItemUseCase {
-        return DeleteItemUseCase(fuelDataRepository)
-    }
+    fun provideDeleteItemUseCase(fuelDataRepository: IFuelDataRepository): DeleteItemUseCase = DeleteItemUseCase(fuelDataRepository)
 
     @Provides
     @Singleton
-    fun provideLogOutUseCase(authRepository: IAuthRepository): LogOutUseCase {
-        return LogOutUseCase(authRepository)
-    }
+    fun provideLogOutUseCase(authRepository: IAuthRepository): LogOutUseCase = LogOutUseCase(authRepository)
+
+    @Provides
+    @Singleton
+    fun provideLoginUseCase(authRepository: IAuthRepository): LoginUseCase = LoginUseCase(authRepository)
+
+    @Provides
+    @Singleton
+    fun provideRegisterUseCase(authRepository: IAuthRepository): RegisterUseCase = RegisterUseCase(authRepository)
+
+    @Provides
+    @Singleton
+    fun provideRegisterAsGuestUseCase(authRepository: IAuthRepository): RegisterAsGuestUseCase = RegisterAsGuestUseCase(authRepository)
+
+    @Provides
+    @Singleton
+    fun provideSignInWithGoogleUseCase(authRepository: IAuthRepository): SignInWithGoogleUseCase = SignInWithGoogleUseCase(authRepository)
 }

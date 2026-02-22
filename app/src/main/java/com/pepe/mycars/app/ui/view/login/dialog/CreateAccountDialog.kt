@@ -10,11 +10,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogCreateAccountBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreateAccountDialog : DialogFragment() {
@@ -130,16 +132,17 @@ class CreateAccountDialog : DialogFragment() {
     }
 
     private fun observeAuthState() {
-        authModel.loginViewState.observe(this) {
-            when (it) {
-                LoginViewState.Loading -> setProgressVisibility(true)
-                is LoginViewState.Error -> {
-                    if (it.errorMsg.isNotBlank()) {
-                        setProgressVisibility(false)
+        viewLifecycleOwner.lifecycleScope.launch {
+            authModel.loginViewState.collect { state ->
+                when (state) {
+                    is LoginViewState.Idle -> setProgressVisibility(false)
+                    is LoginViewState.Loading -> setProgressVisibility(true)
+                    is LoginViewState.Error -> {
+                        if (state.message.isNotBlank()) {
+                            setProgressVisibility(false)
+                        }
                     }
-                }
-                is LoginViewState.Success -> {
-                    setProgressVisibility(false)
+                    is LoginViewState.Success -> setProgressVisibility(false)
                 }
             }
         }

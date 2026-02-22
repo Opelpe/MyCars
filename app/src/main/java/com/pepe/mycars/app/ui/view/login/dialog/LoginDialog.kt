@@ -15,6 +15,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,6 +27,7 @@ import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginDialog : DialogFragment() {
@@ -67,6 +71,7 @@ class LoginDialog : DialogFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
         setupButtons()
+        observeAuthState()
     }
 
     private fun setupButtons() {
@@ -92,20 +97,22 @@ class LoginDialog : DialogFragment() {
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.WRAP_CONTENT
         dialog?.window?.setLayout(width, height)
-        observeAuthState()
     }
 
     private fun observeAuthState() {
-        authModel.loginViewState.observe(this) {
-            when (it) {
-                LoginViewState.Loading -> setProgressVisibility(true)
-                is LoginViewState.Error -> {
-                    if (it.errorMsg.isNotBlank()) {
-                        setProgressVisibility(false)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authModel.loginViewState.collect { state ->
+                    when (state) {
+                        is LoginViewState.Idle -> setProgressVisibility(false)
+                        is LoginViewState.Loading -> setProgressVisibility(true)
+                        is LoginViewState.Error -> {
+                            if (state.message.isNotBlank()) {
+                                setProgressVisibility(false)
+                            }
+                        }
+                        is LoginViewState.Success -> setProgressVisibility(false)
                     }
-                }
-                is LoginViewState.Success -> {
-                    setProgressVisibility(false)
                 }
             }
         }
