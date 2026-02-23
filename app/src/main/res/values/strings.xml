@@ -53,4 +53,22 @@
     <string name="action_loginAndSynchronize_title">Log in \n and synchronize data with cloud</string>
     <string name="action_useAsGuest_title">Use as guest</string>
     <string name="action_doNotAskAgain_title">Don\'t ask again\n</string>
+
+    <!-- ViewModel UI messages -->
+    <string name="msg_unknown_error">Unknown error</string>
+    <string name="msg_login_success">Logged in successfully</string>
+    <string name="msg_fields_required">All fields must be filled</string>
+    <string name="msg_register_success">New account created</string>
+    <string name="msg_guest_login_success">Logged as guest</string>
+    <string name="msg_google_login_success">Logged successfully</string>
+    <string name="msg_enter_email_password">Enter email and password</string>
+    <string name="msg_password_empty">Password field is empty</string>
+    <string name="msg_email_empty">Email field is empty</string>
+    <string name="msg_email_invalid">Email field contains wrong characters</string>
+    <string name="msg_sign_in_and_sync">Sign in &amp; Synchronize data</string>
+    <string name="msg_data_synchronized">Your data is synchronized</string>
+    <string name="msg_enter_required_data">Enter the necessary data!</string>
+    <string name="msg_refill_added">Successfully added!</string>
+    <string name="msg_refill_updated">Item successfully edited!</string>
+    <string name="msg_item_deleted">Successfully removed!</string>
 </resources>

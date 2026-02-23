@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.R
-import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.data.model.HistoryItemUiModel
 
 class HistoryAdapter(
     data: List<HistoryItemUiModel>,

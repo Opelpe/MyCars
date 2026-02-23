@@ -15,16 +15,18 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.R
-import com.pepe.mycars.app.data.local.MainScoreModel
+import com.pepe.mycars.app.data.model.MainScoreModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
-import com.pepe.mycars.app.utils.NetworkManager
 import com.pepe.mycars.app.utils.SharedPrefConstants
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.MainViewState
 import com.pepe.mycars.app.viewmodel.MainViewModel
 import com.pepe.mycars.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -43,12 +45,7 @@ class MainFragment : Fragment() {
         binding = FragmentMainBinding.inflate(inflater, container, false)
         sharedPreferences = requireContext().getSharedPreferences(SharedPrefConstants.LOCAL_SHARED_PREF, Context.MODE_PRIVATE)
 
-        NetworkManager(requireContext()).observe(viewLifecycleOwner) {
-            isOnline = it
-            setToolbarIcon()
-            if (!it) requireActivity().displayToast("Check your internet connection")
-        }
-
+        observeNetworkState()
         observeUserViewState()
         observeDataViewState()
 
@@ -98,29 +95,38 @@ class MainFragment : Fragment() {
         )
     }
 
+    private fun observeNetworkState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.isConnected
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect { online ->
+                    isOnline = online
+                    setToolbarIcon()
+                    if (!online) {
+                        requireActivity().displayToast("Check your internet connection")
+                    }
+                }
+        }
+    }
+
     private fun observeUserViewState() {
         isGuest = mainViewModel.isUserAnonymous()
         setToolbarIcon()
     }
 
     private fun observeDataViewState() {
-        mainViewModel.getListOfRefills()
-        mainViewModel.observeRefillList(viewLifecycleOwner)
-        mainViewModel.dataMainViewState.observe(viewLifecycleOwner) { viewState ->
-            when (viewState) {
-                MainViewState.Loading -> {}
-                is MainViewState.Error -> {
-                    if (viewState.errorMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.errorMsg)
+        lifecycleScope.launch {
+            mainViewModel.dataMainViewState
+                .collect { viewState ->
+                    when (viewState) {
+                        MainViewState.Loading -> {}
+                        is MainViewState.Error -> requireActivity().displayToast(viewState.errorMsg)
+                        is MainViewState.Success -> {
+                            viewState.successMsg?.let { requireActivity().displayToast(it) }
+                            setMainViewScore(viewState.data)
+                        }
                     }
                 }
-                is MainViewState.Success -> {
-                    if (viewState.successMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.successMsg)
-                    }
-                    setMainViewScore(viewState.data)
-                }
-            }
         }
     }
 

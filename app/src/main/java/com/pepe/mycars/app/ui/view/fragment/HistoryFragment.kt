@@ -9,11 +9,12 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.app.data.adapter.HistoryAdapter
-import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.data.model.HistoryItemUiModel
 import com.pepe.mycars.app.ui.view.dialog.DialogMode
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
@@ -21,6 +22,7 @@ import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
 import com.pepe.mycars.app.viewmodel.HistoryViewModel
 import com.pepe.mycars.databinding.FragmentHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
@@ -83,7 +85,7 @@ class HistoryFragment : Fragment() {
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
         historyViewModel.updateView()
-        historyViewModel.observeRefillList(viewLifecycleOwner)
+        historyViewModel.observeRefillList()
         observeItemSate()
         binding.floatingRefillButton.setOnClickListener { displayRefillDialog(null, DialogMode.ADD) }
 
@@ -107,26 +109,23 @@ class HistoryFragment : Fragment() {
     }
 
     private fun observeItemSate() {
-        historyViewModel.historyItemViewState.observe(viewLifecycleOwner) {
-            when (it) {
-                HistoryItemViewState.Loading -> {
-                    setProgressVisibility(true)
-                }
-
-                is HistoryItemViewState.Error -> {
-                    if (it.errorMsg.isNotBlank()) {
-                        requireActivity().displayToast(it.errorMsg)
-                    }
-                    setProgressVisibility(false)
-                }
-
-                is HistoryItemViewState.Success -> {
-                    if (it.successMsg.isNotBlank()) {
-                        requireActivity().displayToast(it.successMsg)
+        lifecycleScope.launch {
+            historyViewModel.historyItemViewState.collect { viewState ->
+                when (viewState) {
+                    HistoryItemViewState.Loading -> {
+                        setProgressVisibility(true)
                     }
 
-                    setHistoryItems(it.data)
-                    setProgressVisibility(false)
+                    is HistoryItemViewState.Error -> {
+                        requireActivity().displayToast(viewState.errorMsg)
+                        setProgressVisibility(false)
+                    }
+
+                    is HistoryItemViewState.Success -> {
+                        viewState.successMsg?.let { requireActivity().displayToast(it) }
+                        setHistoryItems(viewState.data)
+                        setProgressVisibility(false)
+                    }
                 }
             }
         }

@@ -10,11 +10,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogCreateAccountBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreateAccountDialog : DialogFragment() {
@@ -33,10 +35,9 @@ class CreateAccountDialog : DialogFragment() {
     }
 
     companion object {
-        fun newInstance(autoLogin: Boolean): CreateAccountDialog {
+        fun newInstance(): CreateAccountDialog {
             val f = CreateAccountDialog()
             val args = Bundle()
-            args.putBoolean("autoLogin", autoLogin)
             f.arguments = args
             return f
         }
@@ -131,16 +132,13 @@ class CreateAccountDialog : DialogFragment() {
     }
 
     private fun observeAuthState() {
-        authModel.loginViewState.observe(this) {
-            when (it) {
-                LoginViewState.Loading -> setProgressVisibility(true)
-                is LoginViewState.Error -> {
-                    if (it.errorMsg.isNotBlank()) {
-                        setProgressVisibility(false)
-                    }
-                }
-                is LoginViewState.Success -> {
-                    setProgressVisibility(false)
+        viewLifecycleOwner.lifecycleScope.launch {
+            authModel.loginViewState.collect { state ->
+                when (state) {
+                    is LoginViewState.Idle -> setProgressVisibility(false)
+                    is LoginViewState.Loading -> setProgressVisibility(true)
+                    is LoginViewState.Error -> setProgressVisibility(false)
+                    is LoginViewState.Success -> setProgressVisibility(false)
                 }
             }
         }
@@ -178,8 +176,7 @@ class CreateAccountDialog : DialogFragment() {
         password: String?,
         name: String?,
     ) {
-        val autoLogin = arguments?.getBoolean("autoLogin") ?: false
-        authModel.register(email, password, name, autoLogin)
+        authModel.register(email, password, name)
     }
 
     private fun setProgressVisibility(loading: Boolean) {

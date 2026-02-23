@@ -10,13 +10,15 @@ import android.view.WindowManager
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.pepe.mycars.app.data.model.HistoryItemModel
+import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.app.utils.displayToast
 import com.pepe.mycars.app.utils.state.view.RefillItemViewState
 import com.pepe.mycars.app.viewmodel.RefillDialogViewModel
 import com.pepe.mycars.app.viewmodel.RefillOperations
 import com.pepe.mycars.databinding.DialogRefillBinding
+import com.pepe.mycars.domain.model.FuelDataInfo
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -108,14 +110,13 @@ class RefillDialog : DialogFragment() {
         binding.priceOfFuelInput.setText("")
         binding.refillNotesInput.setText("")
         binding.saveRefillText.text = "SAVE"
-        setIsTouchable(false)
     }
 
     private fun setDetailsModeView(editItemID: String) {
         refillDialogViewModel.getItemById(editItemID)
     }
 
-    private fun setRefillDetails(item: HistoryItemModel) {
+    private fun setRefillDetails(item: FuelDataInfo) {
         binding.refillDialogTitle.text = "REFILL DETAILS"
         binding.refillDateInput.setText(item.refillDate)
         binding.currentMileageInput.setText(item.currMileage.toString())
@@ -135,7 +136,14 @@ class RefillDialog : DialogFragment() {
         val notes = binding.refillNotesInput.text.toString()
         val fullTank = binding.fullRefillCheckBox.isChecked
 
-        refillDialogViewModel.addRefill(currMileage, refillAmount, fuelPrice, date, notes, fullTank)
+        refillDialogViewModel.addRefill(
+            currMileage = currMileage,
+            fuelCost = fuelPrice,
+            fuelAmount = refillAmount,
+            refillDate = date,
+            notes = notes,
+            fullTank = fullTank,
+        )
     }
 
     private fun updateRefillItem() {
@@ -149,38 +157,36 @@ class RefillDialog : DialogFragment() {
     }
 
     private fun observeState() {
-        refillDialogViewModel.dialogStartEnd()
-        refillDialogViewModel.refillItemViewState.observe(viewLifecycleOwner) { viewState ->
-            when (viewState) {
-                RefillItemViewState.Loading -> setProgressVisibility(true)
-                is RefillItemViewState.Error -> {
-                    setProgressVisibility(false)
-                    if (viewState.errorMsg.isNotEmpty()) {
+        refillDialogViewModel.resetState()
+        lifecycleScope.launch {
+            refillDialogViewModel.refillItemViewState.collect { viewState ->
+                when (viewState) {
+                    RefillItemViewState.Idle -> setProgressVisibility(false)
+                    RefillItemViewState.Loading -> setProgressVisibility(true)
+                    is RefillItemViewState.Error -> {
+                        setProgressVisibility(false)
                         requireActivity().displayToast(viewState.errorMsg)
                     }
-                }
 
-                is RefillItemViewState.Success -> {
-                    if (viewState.item != null) {
-                        if (dialogMode == DialogMode.DETAILS) {
-                            setRefillDetails(viewState.item)
+                    is RefillItemViewState.Success -> {
+                        if (viewState.item != null) {
+                            if (dialogMode == DialogMode.DETAILS) {
+                                setRefillDetails(viewState.item)
+                            }
+                            if (dialogMode == DialogMode.EDIT) {
+                                setRefillDetails(viewState.item)
+                                enableEditMode()
+                            }
                         }
-                        if (dialogMode == DialogMode.EDIT) {
-                            setRefillDetails(viewState.item)
-                            enableEditMode()
+
+                        if (viewState.operations == RefillOperations.ADDED || viewState.operations == RefillOperations.UPDATED) {
+                            dismiss()
                         }
-                    }
 
-                    if (viewState.operations == RefillOperations.ADDED || viewState.operations == RefillOperations.UPDATED) {
-                        refillDialogViewModel.dialogStartEnd()
-                        dismiss()
-                    }
+                        viewState.successMsg?.let { requireActivity().displayToast(it) }
 
-                    if (viewState.successMsg.isNotEmpty()) {
-                        requireActivity().displayToast(viewState.successMsg)
+                        setProgressVisibility(false)
                     }
-
-                    setProgressVisibility(false)
                 }
             }
         }

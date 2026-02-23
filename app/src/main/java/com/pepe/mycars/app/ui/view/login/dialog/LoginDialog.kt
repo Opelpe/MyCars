@@ -15,16 +15,19 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.GoogleAuthProvider
 import com.pepe.mycars.app.utils.ColorUtils
 import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.DialogLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginDialog : DialogFragment() {
@@ -33,10 +36,9 @@ class LoginDialog : DialogFragment() {
     private val authModel: AuthViewModel by activityViewModels()
 
     companion object {
-        fun newInstance(autoLogin: Boolean): LoginDialog {
+        fun newInstance(): LoginDialog {
             val dialog = LoginDialog()
             val args = Bundle()
-            args.putBoolean("autoLogin", autoLogin)
             dialog.arguments = args
             return dialog
         }
@@ -69,6 +71,7 @@ class LoginDialog : DialogFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
         setupButtons()
+        observeAuthState()
     }
 
     private fun setupButtons() {
@@ -94,20 +97,18 @@ class LoginDialog : DialogFragment() {
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.WRAP_CONTENT
         dialog?.window?.setLayout(width, height)
-        observeAuthState()
     }
 
     private fun observeAuthState() {
-        authModel.loginViewState.observe(this) {
-            when (it) {
-                LoginViewState.Loading -> setProgressVisibility(true)
-                is LoginViewState.Error -> {
-                    if (it.errorMsg.isNotBlank()) {
-                        setProgressVisibility(false)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authModel.loginViewState.collect { state ->
+                    when (state) {
+                        is LoginViewState.Idle -> setProgressVisibility(false)
+                        is LoginViewState.Loading -> setProgressVisibility(true)
+                        is LoginViewState.Error -> setProgressVisibility(false)
+                        is LoginViewState.Success -> setProgressVisibility(false)
                     }
-                }
-                is LoginViewState.Success -> {
-                    setProgressVisibility(false)
                 }
             }
         }
@@ -117,8 +118,7 @@ class LoginDialog : DialogFragment() {
         email: String?,
         password: String?,
     ) {
-        val autoLogin = arguments?.getBoolean("autoLogin") ?: false
-        authModel.login(email, password, autoLogin)
+        authModel.login(email, password)
     }
 
     private fun onGoogleBtnClicked() {
@@ -135,15 +135,16 @@ class LoginDialog : DialogFragment() {
     }
 
     private fun signInWithGoogle(task: Task<GoogleSignInAccount>) {
-        val result = task.result
-        if (result != null) {
-            val authCredential = GoogleAuthProvider.getCredential(result.idToken, null)
-            val name = result.displayName ?: ""
-            val email = result.email ?: ""
-            val autoLogin = arguments?.getBoolean("autoLogin") ?: false
+        val result = task.result ?: return
+        val token = result.idToken ?: return
+        val name = result.displayName ?: ""
+        val email = result.email ?: ""
 
-            authModel.signInWithGoogle(authCredential, name, email, autoLogin)
-        }
+        authModel.signInWithGoogle(
+            idToken = token,
+            userName = name,
+            email = email,
+        )
     }
 
     private fun setProgressVisibility(loading: Boolean) {

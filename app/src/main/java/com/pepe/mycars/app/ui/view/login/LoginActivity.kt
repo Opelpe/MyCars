@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.app.ui.view.login.dialog.CreateAccountDialog
 import com.pepe.mycars.app.ui.view.login.dialog.LoginDialog
 import com.pepe.mycars.app.ui.view.main.MainViewActivity
@@ -14,6 +15,7 @@ import com.pepe.mycars.app.utils.state.view.LoginViewState
 import com.pepe.mycars.app.viewmodel.AuthViewModel
 import com.pepe.mycars.databinding.ActivityLoginBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -29,34 +31,23 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun observeAuthState() {
-        authViewModel.synchronizeAuth()
-        authViewModel.loginViewState.observe(this) {
-            when (it) {
-                LoginViewState.Loading -> {
-                    setProgressVisibility(true)
-                }
-
-                is LoginViewState.Error -> {
-                    setProgressVisibility(false)
-                    if (it.errorMsg.isNotBlank()) {
-                        this@LoginActivity.displayToast(it.errorMsg)
-                    }
-                }
-
-                is LoginViewState.Success -> {
-                    setProgressVisibility(false)
-                    if (it.isLoggedIn) {
-                        setProgressVisibility(true)
-                        startMainViewActivity()
-                    }
-                    if (it.successMsg.isNotEmpty()) {
+        lifecycleScope.launch {
+            authViewModel.loginViewState.collect { state ->
+                when (state) {
+                    is LoginViewState.Idle -> setProgressVisibility(false)
+                    is LoginViewState.Loading -> setProgressVisibility(true)
+                    is LoginViewState.Error -> {
                         setProgressVisibility(false)
-                        displayToast(it.successMsg)
+                        displayToast(state.message)
                     }
-                }
-
-                else -> {
-                    setProgressVisibility(true)
+                    is LoginViewState.Success -> {
+                        setProgressVisibility(false)
+                        state.successMsg?.let { displayToast(it) }
+                        if (state.isLoggedIn) {
+                            setProgressVisibility(true)
+                            startMainViewActivity()
+                        }
+                    }
                 }
             }
         }
@@ -67,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
             showLoginDialog()
         }
         binding.anonymousLoginButton.setOnClickListener {
-            authViewModel.registerAsGuest(binding.startCheckBox.isChecked)
+            authViewModel.registerAsGuest()
         }
         binding.createAccountButton.setOnClickListener {
             showCreateNewAccountDialog()
@@ -88,12 +79,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showLoginDialog() {
-        val loginDialog = LoginDialog.newInstance(binding.startCheckBox.isChecked)
+        val loginDialog = LoginDialog.newInstance()
         loginDialog.show(supportFragmentManager, "dialog")
     }
 
     private fun showCreateNewAccountDialog() {
-        val createAccountDialog = CreateAccountDialog.newInstance(binding.startCheckBox.isChecked)
+        val createAccountDialog = CreateAccountDialog.newInstance()
         createAccountDialog.show(supportFragmentManager, "newAccountDialog")
     }
 
