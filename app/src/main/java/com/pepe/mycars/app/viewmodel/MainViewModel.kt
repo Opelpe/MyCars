@@ -2,14 +2,17 @@ package com.pepe.mycars.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pepe.mycars.R
 import com.pepe.mycars.app.data.mapper.MainViewModelMapper
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_ANONYMOUS
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_EMAIL
 import com.pepe.mycars.app.utils.FireStoreUserDocField.ACCOUNT_PROVIDER_GOOGLE
+import com.pepe.mycars.app.utils.UiText
 import com.pepe.mycars.app.utils.state.view.MainViewState
 import com.pepe.mycars.app.utils.state.view.MainViewState.Error
 import com.pepe.mycars.app.utils.state.view.MainViewState.Loading
 import com.pepe.mycars.app.utils.state.view.MainViewState.Success
+import com.pepe.mycars.app.utils.toUiText
 import com.pepe.mycars.domain.manager.INetworkManager
 import com.pepe.mycars.domain.model.FuelDataInfo
 import com.pepe.mycars.domain.repository.IFuelDataRepository
@@ -50,11 +53,11 @@ class MainViewModel
         fun isUserAnonymous(): Boolean = userRepository.getUserProviderType() !in REGISTERED_PROVIDERS
 
         fun actionSynchronize() {
-            val message =
+            val message: UiText =
                 when (val provider = userRepository.getUserProviderType()) {
-                    ACCOUNT_PROVIDER_ANONYMOUS -> "Sign in & Synchronize data"
-                    in REGISTERED_PROVIDERS -> "Your data is synchronized"
-                    else -> provider
+                    ACCOUNT_PROVIDER_ANONYMOUS -> UiText.StringResource(R.string.msg_sign_in_and_sync)
+                    in REGISTERED_PROVIDERS -> UiText.StringResource(R.string.msg_data_synchronized)
+                    else -> UiText.DynamicString(provider)
                 }
             _dataMainViewState.value = Error(message)
         }
@@ -72,9 +75,9 @@ class MainViewModel
             showLoading: Boolean = false,
         ) {
             flow.onStart { if (showLoading) _dataMainViewState.value = Loading }
-                .map { Success(mapper.mapToMainViewModel(it), "") }
+                .map { Success(mapper.mapToMainViewModel(it)) }
                 .onEach { _dataMainViewState.value = it }
-                .catch { _dataMainViewState.value = Error(it.localizedMessage ?: "Unknown error") }
+                .catch { _dataMainViewState.value = Error(it.toUiText()) }
                 .launchIn(viewModelScope)
         }
 

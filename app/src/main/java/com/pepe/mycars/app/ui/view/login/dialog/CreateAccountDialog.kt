@@ -137,11 +137,7 @@ class CreateAccountDialog : DialogFragment() {
                 when (state) {
                     is LoginViewState.Idle -> setProgressVisibility(false)
                     is LoginViewState.Loading -> setProgressVisibility(true)
-                    is LoginViewState.Error -> {
-                        if (state.message.isNotBlank()) {
-                            setProgressVisibility(false)
-                        }
-                    }
+                    is LoginViewState.Error -> setProgressVisibility(false)
                     is LoginViewState.Success -> setProgressVisibility(false)
                 }
             }

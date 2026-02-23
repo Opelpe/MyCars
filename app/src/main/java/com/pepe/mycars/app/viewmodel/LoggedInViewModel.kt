@@ -3,6 +3,7 @@ package com.pepe.mycars.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.utils.state.view.UserViewState
+import com.pepe.mycars.app.utils.toUiText
 import com.pepe.mycars.domain.repository.IAuthRepository
 import com.pepe.mycars.domain.repository.IUserRepository
 import com.pepe.mycars.domain.usecase.auth.LogOutUseCase
@@ -29,15 +30,12 @@ class LoggedInViewModel
                 flow = authRepository.validSessionFlow,
                 flow2 = userRepository.getSyncFirestoreUserData(),
             ) { isAuthenticated, user ->
-                UserViewState.Success(
-                    isLoggedIn = isAuthenticated && user != null,
-                    successMsg = "",
-                ) as UserViewState
+                UserViewState.Success(isLoggedIn = isAuthenticated && user != null) as UserViewState
             }
                 .onStart { emit(UserViewState.Loading) }
                 .distinctUntilChanged()
                 .catch { e ->
-                    emit(UserViewState.Error(e.localizedMessage ?: "Unknown error"))
+                    emit(UserViewState.Error(e.toUiText()))
                 }
                 .stateIn(
                     scope = viewModelScope,

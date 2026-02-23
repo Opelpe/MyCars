@@ -32,10 +32,8 @@ class SplashActivity : AppCompatActivity() {
                 when (state) {
                     UserViewState.Loading -> {}
                     is UserViewState.Error -> {
-                        if (state.errorMsg.isNotEmpty()) {
-                            logMessage(state.errorMsg)
-                            displayActivity(ActivityId.LOGIN)
-                        }
+                        logMessage(state.errorMsg.asString(this@SplashActivity))
+                        displayActivity(ActivityId.LOGIN)
                     }
 
                     is UserViewState.Success -> {

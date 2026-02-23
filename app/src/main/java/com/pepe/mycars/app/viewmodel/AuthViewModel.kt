@@ -2,7 +2,10 @@ package com.pepe.mycars.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pepe.mycars.R
+import com.pepe.mycars.app.utils.UiText
 import com.pepe.mycars.app.utils.state.view.LoginViewState
+import com.pepe.mycars.app.utils.toUiText
 import com.pepe.mycars.domain.repository.IAuthRepository
 import com.pepe.mycars.domain.repository.IUserRepository
 import com.pepe.mycars.domain.usecase.auth.LoginUseCase
@@ -50,7 +53,7 @@ class AuthViewModel
                 LoginViewState.Success(isLoggedIn = isAuthenticated && user != null)
             }
                 .onStart { _loginViewState.value = LoginViewState.Loading }
-                .catch { e -> _loginViewState.value = LoginViewState.Error(e.localizedMessage ?: "Unknown error") }
+                .catch { e -> _loginViewState.value = LoginViewState.Error(e.toUiText()) }
                 .distinctUntilChanged()
                 .onEach { _loginViewState.value = it }
                 .launchIn(viewModelScope)
@@ -65,8 +68,14 @@ class AuthViewModel
             if (password.isNullOrEmpty()) return
             loginUseCase(email, password)
                 .onStart { _loginViewState.value = LoginViewState.Loading }
-                .catch { e -> _loginViewState.value = LoginViewState.Error(e.localizedMessage ?: "Unknown error") }
-                .onEach { _loginViewState.value = LoginViewState.Success(isLoggedIn = true, successMsg = "Logged in successfully") }
+                .catch { e -> _loginViewState.value = LoginViewState.Error(e.toUiText()) }
+                .onEach {
+                    _loginViewState.value =
+                        LoginViewState.Success(
+                            isLoggedIn = true,
+                            successMsg = UiText.StringResource(R.string.msg_login_success),
+                        )
+                }
                 .launchIn(viewModelScope)
         }
 
@@ -76,21 +85,33 @@ class AuthViewModel
             name: String?,
         ) {
             if (email.isNullOrEmpty() || password.isNullOrEmpty() || name.isNullOrEmpty()) {
-                _loginViewState.value = LoginViewState.Error("All fields must be filled")
+                _loginViewState.value = LoginViewState.Error(UiText.StringResource(R.string.msg_fields_required))
                 return
             }
             registerUseCase(email, password, name)
                 .onStart { _loginViewState.value = LoginViewState.Loading }
-                .catch { e -> _loginViewState.value = LoginViewState.Error(e.localizedMessage ?: "Unknown error") }
-                .onEach { _loginViewState.value = LoginViewState.Success(isLoggedIn = true, successMsg = "New account created") }
+                .catch { e -> _loginViewState.value = LoginViewState.Error(e.toUiText()) }
+                .onEach {
+                    _loginViewState.value =
+                        LoginViewState.Success(
+                            isLoggedIn = true,
+                            successMsg = UiText.StringResource(R.string.msg_register_success),
+                        )
+                }
                 .launchIn(viewModelScope)
         }
 
         fun registerAsGuest() {
             registerAsGuestUseCase()
                 .onStart { _loginViewState.value = LoginViewState.Loading }
-                .catch { e -> _loginViewState.value = LoginViewState.Error(e.localizedMessage ?: "Error") }
-                .onEach { _loginViewState.value = LoginViewState.Success(isLoggedIn = true, successMsg = "Logged as guest") }
+                .catch { e -> _loginViewState.value = LoginViewState.Error(e.toUiText()) }
+                .onEach {
+                    _loginViewState.value =
+                        LoginViewState.Success(
+                            isLoggedIn = true,
+                            successMsg = UiText.StringResource(R.string.msg_guest_login_success),
+                        )
+                }
                 .launchIn(viewModelScope)
         }
 
@@ -101,8 +122,14 @@ class AuthViewModel
         ) {
             signInWithGoogleUseCase(idToken, userName, email)
                 .onStart { _loginViewState.value = LoginViewState.Loading }
-                .catch { e -> _loginViewState.value = LoginViewState.Error(e.localizedMessage ?: "Unknown error") }
-                .onEach { _loginViewState.value = LoginViewState.Success(isLoggedIn = true, successMsg = "Logged successfully") }
+                .catch { e -> _loginViewState.value = LoginViewState.Error(e.toUiText()) }
+                .onEach {
+                    _loginViewState.value =
+                        LoginViewState.Success(
+                            isLoggedIn = true,
+                            successMsg = UiText.StringResource(R.string.msg_google_login_success),
+                        )
+                }
                 .launchIn(viewModelScope)
         }
 
@@ -113,19 +140,19 @@ class AuthViewModel
             val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
             return when {
                 password.isNullOrBlank() && email.isNullOrBlank() -> {
-                    _loginViewState.value = LoginViewState.Error("Enter email and password")
+                    _loginViewState.value = LoginViewState.Error(UiText.StringResource(R.string.msg_enter_email_password))
                     false
                 }
                 password.isNullOrBlank() -> {
-                    _loginViewState.value = LoginViewState.Error("Password field is empty")
+                    _loginViewState.value = LoginViewState.Error(UiText.StringResource(R.string.msg_password_empty))
                     false
                 }
                 email.isNullOrBlank() -> {
-                    _loginViewState.value = LoginViewState.Error("Email field is empty")
+                    _loginViewState.value = LoginViewState.Error(UiText.StringResource(R.string.msg_email_empty))
                     false
                 }
                 !email.trim().matches(emailPattern.toRegex()) -> {
-                    _loginViewState.value = LoginViewState.Error("Email field contains wrong characters")
+                    _loginViewState.value = LoginViewState.Error(UiText.StringResource(R.string.msg_email_invalid))
                     false
                 }
                 else -> true

@@ -1,4 +1,4 @@
-package com.pepe.mycars.app.data.local
+package com.pepe.mycars.app.data.model
 
 data class HistoryItemUiModel(
     val itemId: String = "",

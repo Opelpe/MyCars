@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pepe.mycars.app.data.adapter.HistoryAdapter
-import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.data.model.HistoryItemUiModel
 import com.pepe.mycars.app.ui.view.dialog.DialogMode
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.displayToast
@@ -117,17 +117,12 @@ class HistoryFragment : Fragment() {
                     }
 
                     is HistoryItemViewState.Error -> {
-                        if (viewState.errorMsg.isNotBlank()) {
-                            requireActivity().displayToast(viewState.errorMsg)
-                        }
+                        requireActivity().displayToast(viewState.errorMsg)
                         setProgressVisibility(false)
                     }
 
                     is HistoryItemViewState.Success -> {
-                        if (viewState.successMsg.isNotBlank()) {
-                            requireActivity().displayToast(viewState.successMsg)
-                        }
-
+                        viewState.successMsg?.let { requireActivity().displayToast(it) }
                         setHistoryItems(viewState.data)
                         setProgressVisibility(false)
                     }

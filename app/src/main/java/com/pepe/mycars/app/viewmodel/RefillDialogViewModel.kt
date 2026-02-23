@@ -2,7 +2,10 @@ package com.pepe.mycars.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pepe.mycars.R
+import com.pepe.mycars.app.utils.UiText
 import com.pepe.mycars.app.utils.state.view.RefillItemViewState
+import com.pepe.mycars.app.utils.toUiText
 import com.pepe.mycars.domain.repository.IFuelDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +36,7 @@ class RefillDialogViewModel
             fullTank: Boolean,
         ) {
             if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()) {
-                _refillItemViewState.value = RefillItemViewState.Error("Enter the necessary data!")
+                _refillItemViewState.value = RefillItemViewState.Error(UiText.StringResource(R.string.msg_enter_required_data))
                 return
             }
 
@@ -51,12 +54,11 @@ class RefillDialogViewModel
                         RefillItemViewState.Success(
                             null,
                             RefillOperations.ADDED,
-                            "Successfully added!",
+                            UiText.StringResource(R.string.msg_refill_added),
                         )
                 }
                 .catch { e ->
-                    _refillItemViewState.value =
-                        RefillItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                    _refillItemViewState.value = RefillItemViewState.Error(e.toUiText())
                 }
                 .launchIn(viewModelScope)
         }
@@ -71,7 +73,7 @@ class RefillDialogViewModel
             fullTank: Boolean,
         ) {
             if (currMileage.isNullOrEmpty() || fuelCost.isNullOrEmpty() || fuelAmount.isNullOrEmpty() || refillDate.isNullOrEmpty()) {
-                _refillItemViewState.value = RefillItemViewState.Error("Enter the necessary data!")
+                _refillItemViewState.value = RefillItemViewState.Error(UiText.StringResource(R.string.msg_enter_required_data))
                 return
             }
 
@@ -90,12 +92,11 @@ class RefillDialogViewModel
                         RefillItemViewState.Success(
                             null,
                             RefillOperations.UPDATED,
-                            "Item successfully edited!",
+                            UiText.StringResource(R.string.msg_refill_updated),
                         )
                 }
                 .catch { e ->
-                    _refillItemViewState.value =
-                        RefillItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                    _refillItemViewState.value = RefillItemViewState.Error(e.toUiText())
                 }
                 .launchIn(viewModelScope)
         }
@@ -104,16 +105,10 @@ class RefillDialogViewModel
             fuelDataRepo.getItemById(editItemID)
                 .onStart { _refillItemViewState.value = RefillItemViewState.Loading }
                 .catch { e ->
-                    _refillItemViewState.value =
-                        RefillItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                    _refillItemViewState.value = RefillItemViewState.Error(e.toUiText())
                 }
                 .onEach {
-                    _refillItemViewState.value =
-                        RefillItemViewState.Success(
-                            it,
-                            null,
-                            "",
-                        )
+                    _refillItemViewState.value = RefillItemViewState.Success(it, null)
                 }
                 .launchIn(viewModelScope)
         }

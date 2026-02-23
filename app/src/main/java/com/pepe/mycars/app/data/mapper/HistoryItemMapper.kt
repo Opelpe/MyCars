@@ -1,6 +1,6 @@
 package com.pepe.mycars.app.data.mapper
 
-import com.pepe.mycars.app.data.local.HistoryItemUiModel
+import com.pepe.mycars.app.data.model.HistoryItemUiModel
 import com.pepe.mycars.domain.model.FuelDataInfo
 import javax.inject.Inject
 

@@ -2,8 +2,11 @@ package com.pepe.mycars.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pepe.mycars.R
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
+import com.pepe.mycars.app.utils.UiText
 import com.pepe.mycars.app.utils.state.view.HistoryItemViewState
+import com.pepe.mycars.app.utils.toUiText
 import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.usecase.fuel.DeleteItemUseCase
 import com.pepe.mycars.domain.usecase.fuel.GetRefillItemsUseCase
@@ -36,11 +39,10 @@ class HistoryViewModel
                 .onStart { _historyItemViewState.value = HistoryItemViewState.Loading }
                 .map(historyItemMapper::mapToHistoryUiModel)
                 .onEach { list ->
-                    _historyItemViewState.value = HistoryItemViewState.Success(list, "")
+                    _historyItemViewState.value = HistoryItemViewState.Success(list)
                 }
                 .catch { e ->
-                    _historyItemViewState.value =
-                        HistoryItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                    _historyItemViewState.value = HistoryItemViewState.Error(e.toUiText())
                 }
                 .launchIn(viewModelScope)
         }
@@ -51,11 +53,10 @@ class HistoryViewModel
                 .map(historyItemMapper::mapToHistoryUiModel)
                 .onEach { list ->
                     _historyItemViewState.value =
-                        HistoryItemViewState.Success(list, "Successfully removed!")
+                        HistoryItemViewState.Success(list, UiText.StringResource(R.string.msg_item_deleted))
                 }
                 .catch { e ->
-                    _historyItemViewState.value =
-                        HistoryItemViewState.Error(e.localizedMessage ?: "Unknown error")
+                    _historyItemViewState.value = HistoryItemViewState.Error(e.toUiText())
                 }
                 .launchIn(viewModelScope)
         }
@@ -64,7 +65,7 @@ class HistoryViewModel
             fuelDataRepo.observeUserItems()
                 .map(historyItemMapper::mapToHistoryUiModel)
                 .onEach { list ->
-                    _historyItemViewState.value = HistoryItemViewState.Success(list, "")
+                    _historyItemViewState.value = HistoryItemViewState.Success(list)
                 }.launchIn(viewModelScope)
         }
     }

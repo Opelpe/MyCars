@@ -18,7 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.pepe.mycars.R
-import com.pepe.mycars.app.data.local.MainScoreModel
+import com.pepe.mycars.app.data.model.MainScoreModel
 import com.pepe.mycars.app.ui.view.dialog.RefillDialog
 import com.pepe.mycars.app.utils.SharedPrefConstants
 import com.pepe.mycars.app.utils.displayToast
@@ -120,15 +120,9 @@ class MainFragment : Fragment() {
                 .collect { viewState ->
                     when (viewState) {
                         MainViewState.Loading -> {}
-                        is MainViewState.Error -> {
-                            if (viewState.errorMsg.isNotEmpty()) {
-                                requireActivity().displayToast(viewState.errorMsg)
-                            }
-                        }
+                        is MainViewState.Error -> requireActivity().displayToast(viewState.errorMsg)
                         is MainViewState.Success -> {
-                            if (viewState.successMsg.isNotEmpty()) {
-                                requireActivity().displayToast(viewState.successMsg)
-                            }
+                            viewState.successMsg?.let { requireActivity().displayToast(it) }
                             setMainViewScore(viewState.data)
                         }
                     }

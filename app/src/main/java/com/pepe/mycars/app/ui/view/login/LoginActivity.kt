@@ -38,19 +38,14 @@ class LoginActivity : AppCompatActivity() {
                     is LoginViewState.Loading -> setProgressVisibility(true)
                     is LoginViewState.Error -> {
                         setProgressVisibility(false)
-                        if (state.message.isNotBlank()) {
-                            displayToast(state.message)
-                        }
+                        displayToast(state.message)
                     }
                     is LoginViewState.Success -> {
                         setProgressVisibility(false)
+                        state.successMsg?.let { displayToast(it) }
                         if (state.isLoggedIn) {
                             setProgressVisibility(true)
                             startMainViewActivity()
-                        }
-                        if (state.successMsg.isNotBlank()) {
-                            setProgressVisibility(false)
-                            displayToast(state.successMsg)
                         }
                     }
                 }

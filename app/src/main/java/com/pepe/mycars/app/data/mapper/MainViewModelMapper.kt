@@ -1,6 +1,6 @@
 package com.pepe.mycars.app.data.mapper
 
-import com.pepe.mycars.app.data.local.MainScoreModel
+import com.pepe.mycars.app.data.model.MainScoreModel
 import com.pepe.mycars.domain.model.FuelDataInfo
 import javax.inject.Inject
 

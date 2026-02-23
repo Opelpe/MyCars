@@ -165,9 +165,7 @@ class RefillDialog : DialogFragment() {
                     RefillItemViewState.Loading -> setProgressVisibility(true)
                     is RefillItemViewState.Error -> {
                         setProgressVisibility(false)
-                        if (viewState.errorMsg.isNotEmpty()) {
-                            requireActivity().displayToast(viewState.errorMsg)
-                        }
+                        requireActivity().displayToast(viewState.errorMsg)
                     }
 
                     is RefillItemViewState.Success -> {
@@ -185,9 +183,7 @@ class RefillDialog : DialogFragment() {
                             dismiss()
                         }
 
-                        if (viewState.successMsg.isNotEmpty()) {
-                            requireActivity().displayToast(viewState.successMsg)
-                        }
+                        viewState.successMsg?.let { requireActivity().displayToast(it) }
 
                         setProgressVisibility(false)
                     }
