@@ -1,7 +1,5 @@
 package com.pepe.mycars.app.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pepe.mycars.app.data.mapper.HistoryItemMapper
@@ -10,6 +8,9 @@ import com.pepe.mycars.domain.repository.IFuelDataRepository
 import com.pepe.mycars.domain.usecase.fuel.DeleteItemUseCase
 import com.pepe.mycars.domain.usecase.fuel.GetRefillItemsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -26,9 +27,9 @@ class HistoryViewModel
         private val getRefillItemsUseCase: GetRefillItemsUseCase,
         private val deleteItemUseCase: DeleteItemUseCase,
     ) : ViewModel() {
-        private val _historyItemViewState: MutableLiveData<HistoryItemViewState> =
-            MutableLiveData(HistoryItemViewState.Loading)
-        val historyItemViewState: LiveData<HistoryItemViewState> = _historyItemViewState
+        private val _historyItemViewState: MutableStateFlow<HistoryItemViewState> =
+            MutableStateFlow(HistoryItemViewState.Loading)
+        val historyItemViewState: StateFlow<HistoryItemViewState> = _historyItemViewState.asStateFlow()
 
         fun updateView() {
             getRefillItemsUseCase.execute()
@@ -63,7 +64,7 @@ class HistoryViewModel
             fuelDataRepo.observeUserItems()
                 .map(historyItemMapper::mapToHistoryUiModel)
                 .onEach { list ->
-                    _historyItemViewState.postValue(HistoryItemViewState.Success(list, ""))
+                    _historyItemViewState.value = HistoryItemViewState.Success(list, "")
                 }.launchIn(viewModelScope)
         }
     }
